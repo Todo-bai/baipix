@@ -21,7 +21,7 @@ export function Toolbar() {
               key={meta.id}
               className="tool-btn"
               icon={meta.icon}
-              iconSize={24}
+              iconSize={20}
               label={t(meta.label)}
               shortcut={meta.shortcut}
               pressed={tool === meta.id}
@@ -34,7 +34,7 @@ export function Toolbar() {
       <IconButton
         className="tool-btn"
         icon="undo"
-        iconSize={24}
+        iconSize={20}
         label={t('menu.undo')}
         shortcut="Ctrl+Z"
         disabled={!canUndo}
@@ -43,7 +43,7 @@ export function Toolbar() {
       <IconButton
         className="tool-btn"
         icon="redo"
-        iconSize={24}
+        iconSize={20}
         label={t('menu.redo')}
         shortcut="Ctrl+Shift+Z"
         disabled={!canRedo}

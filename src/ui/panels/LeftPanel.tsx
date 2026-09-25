@@ -73,7 +73,7 @@ function FileHeader() {
         aria-haspopup="menu"
         onClick={(e) => openMenu(e.currentTarget, mainMenu(editor, actions))}
       >
-        <Icon name="logo" size={36} />
+        <Icon name="logo" size={18} />
         <span className="caret">▾</span>
       </button>
       <div className="file-name">

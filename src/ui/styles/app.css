@@ -50,6 +50,10 @@ button {
   display: block;
   shape-rendering: crispEdges;
 }
+.icon {
+  display: block;
+  flex: none;
+}
 .muted {
   color: var(--muted);
 }
@@ -562,10 +566,6 @@ body.is-resizing * {
 .canvas-wrap[data-tool='move'] .canvas {
   cursor: move;
 }
-body.is-panning .canvas {
-  cursor: grab;
-}
-.canvas-wrap.is-dropping::after {
 .canvas.on-label {
   cursor: default;
 }
@@ -583,6 +583,10 @@ body.is-panning .canvas {
   font: 500 11px var(--font);
   outline: none;
 }
+body.is-panning .canvas {
+  cursor: grab;
+}
+.canvas-wrap.is-dropping::after {
   content: attr(data-drop-label);
   position: absolute;
   inset: 12px;

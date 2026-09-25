@@ -60,3 +60,5 @@ Contributions are welcome, from bug reports to new tools. Read [CONTRIBUTING.md]
 ## License
 
 [MIT](LICENSE)
+
+Icons from [Lucide](https://lucide.dev) (ISC).

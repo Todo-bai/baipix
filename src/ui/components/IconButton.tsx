@@ -15,7 +15,7 @@ export function IconButton({
   icon,
   label,
   shortcut,
-  iconSize = 12,
+  iconSize = 16,
   pressed,
   className = 'icon-btn',
   ...rest

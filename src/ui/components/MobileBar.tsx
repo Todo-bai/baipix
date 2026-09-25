@@ -20,7 +20,7 @@ export function MobileBar() {
       <IconButton
         className="icon-btn large"
         icon="menu"
-        iconSize={24}
+        iconSize={20}
         label={t('menu.main')}
         onClick={(e) => openMenu(e.currentTarget, mainMenu(editor, actions))}
       />
@@ -28,7 +28,7 @@ export function MobileBar() {
       <IconButton
         className="icon-btn large"
         icon="layers"
-        iconSize={24}
+        iconSize={20}
         label={t('panel.left')}
         pressed={sheet === 'left'}
         onClick={() => toggle('left')}
@@ -36,7 +36,7 @@ export function MobileBar() {
       <IconButton
         className="icon-btn large"
         icon="panel"
-        iconSize={24}
+        iconSize={20}
         label={t('panel.right')}
         pressed={sheet === 'right'}
         onClick={() => toggle('right')}

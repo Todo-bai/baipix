@@ -85,7 +85,8 @@ body.is-resizing * {
   grid-template-rows: minmax(0, 1fr);
 }
 .app.ui-hidden {
-  grid-template-columns: 0 minmax(0, 1fr) 0;
+  /* Hidden panels leave the grid, so the workspace becomes the only (full-width) column. */
+  grid-template-columns: minmax(0, 1fr);
 }
 .app.ui-hidden .panel,
 .app.ui-hidden .toolbar,

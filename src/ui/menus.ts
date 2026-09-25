@@ -53,7 +53,7 @@ export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
     },
     {
       label: t('menu.hideUi'),
-      shortcut: 'Ctrl+\\',
+      shortcut: '@',
       onSelect: () => uiStore.set((u) => ({ uiHidden: !u.uiHidden })),
     },
     '-',

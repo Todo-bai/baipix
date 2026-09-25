@@ -26,6 +26,12 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
         return;
       }
 
+      // `@` toggles the interface. Checked before modifiers: AltGr (AZERTY on Windows) reports Ctrl+Alt.
+      if (e.key === '@') {
+        e.preventDefault();
+        return uiStore.set((s) => ({ uiHidden: !s.uiHidden }));
+      }
+
       if (mod) {
         const handled = (() => {
           if (key === 'z' && !e.shiftKey) return (editor.undo(), true);
@@ -46,8 +52,6 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
               true
             );
           if (key === 'o') return (void actions.openDocument(), true);
-          if (e.key === '\\' || e.code === 'Backslash' || e.code === 'IntlBackslash')
-            return (uiStore.set((s) => ({ uiHidden: !s.uiHidden })), true);
           return false;
         })();
         if (handled) e.preventDefault();

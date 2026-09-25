@@ -14,7 +14,7 @@ import {
 import { History, takeSnapshot, type Snapshot } from './history';
 import { clamp, clipRect, type Point, type Rect } from './math';
 import { PaletteIndex, hueShiftedRamp, presetColors, sortByLightness } from './palette';
-import { extractBlock, fillRect, flipRect, uniqueColors, type PixelBlock } from './region';
+import { extractBlock, fillRect, flipRect, rotateRect, uniqueColors, type PixelBlock } from './region';
 import {
   DEFAULT_TOOL_OPTIONS,
   TOOLS,
@@ -607,6 +607,15 @@ export class Editor {
     this.edit((doc) =>
       flipRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect(), horizontal),
     );
+  }
+
+  /** Rotates the selection (or the layer) by 90° clockwise; the selection follows the new shape. */
+  rotate(): void {
+    const hadSelection = this.active.selection !== null;
+    this.edit((doc) => {
+      const rotated = rotateRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect());
+      if (hadSelection) this.active.selection = rotated;
+    });
   }
 
   /** Moves the selection (or the layer) by a few pixels, as one undo step. */

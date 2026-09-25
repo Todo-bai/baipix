@@ -3,6 +3,7 @@ import type { ToolOptions } from '../../engine/tools';
 import { useT } from '../../i18n';
 import { useEditor, useEditorState } from '../EditorContext';
 import { Checkbox } from '../components/Checkbox';
+import { IconButton } from '../components/IconButton';
 import { NumberField } from '../components/NumberField';
 import { Row, Section } from '../components/Section';
 import { toolMeta } from '../tools';
@@ -37,13 +38,25 @@ export function ToolSection() {
   );
   const hint = (text: string) => <p className="hint">{text}</p>;
   const flips = (
-    <div className="button-row">
-      <button type="button" className="btn" onClick={() => editor.flip(true)}>
-        {t('menu.flipH')}
-      </button>
-      <button type="button" className="btn" onClick={() => editor.flip(false)}>
-        {t('menu.flipV')}
-      </button>
+    <div className="button-group">
+      <IconButton
+        icon="rotate"
+        label={t('menu.rotate')}
+        className="icon-btn large"
+        onClick={() => editor.rotate()}
+      />
+      <IconButton
+        icon="flipH"
+        label={t('menu.flipH')}
+        className="icon-btn large"
+        onClick={() => editor.flip(true)}
+      />
+      <IconButton
+        icon="flipV"
+        label={t('menu.flipV')}
+        className="icon-btn large"
+        onClick={() => editor.flip(false)}
+      />
     </div>
   );
 

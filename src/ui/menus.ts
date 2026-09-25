@@ -38,6 +38,7 @@ export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
     },
     { label: t('menu.flipH'), onSelect: () => editor.flip(true) },
     { label: t('menu.flipV'), onSelect: () => editor.flip(false) },
+    { label: t('menu.rotate'), onSelect: () => editor.rotate() },
     '-',
     {
       label: t('menu.grid'),

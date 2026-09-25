@@ -11,6 +11,8 @@ import {
   Eraser,
   Eye,
   EyeOff,
+  FlipHorizontal2,
+  FlipVertical2,
   Layers,
   Menu,
   Minus,
@@ -20,6 +22,7 @@ import {
   Pipette,
   Plus,
   Redo2,
+  RotateCwSquare,
   SlidersHorizontal,
   Slash,
   Square,
@@ -60,6 +63,10 @@ export const ICONS = {
   layers: Layers,
   panel: SlidersHorizontal,
   close: X,
+  rotate: RotateCwSquare,
+  // Lucide names these after the axis line: the vertical line mirrors left-right.
+  flipH: FlipVertical2,
+  flipV: FlipHorizontal2,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof ICONS | 'logo';

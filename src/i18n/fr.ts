@@ -63,6 +63,7 @@ export const fr: Record<MessageKey, string> = {
   'menu.fillSelection': 'Remplir la sélection',
   'menu.flipH': 'Retourner horizontalement',
   'menu.flipV': 'Retourner verticalement',
+  'menu.rotate': 'Pivoter de 90°',
   'menu.grid': 'Grille de pixels',
   'menu.tile': 'Mosaïque',
   'menu.hideUi': "Masquer l'interface",

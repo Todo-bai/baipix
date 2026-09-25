@@ -117,4 +117,32 @@ describe('Editor', () => {
     expect(e.getState().doc.layers).toHaveLength(1);
     expect(painted(e)).toBe(2);
   });
+
+  it('rotates the selection by 90° clockwise, and back after four turns', () => {
+    const e = new Editor();
+    const px = layer(e);
+    const W = e.getState().doc.width;
+    // A 3×1 bar with a marked left end, selected.
+    px[4 * W + 4] = RED;
+    px[4 * W + 5] = 1;
+    px[4 * W + 6] = 1;
+    e.setTool('select');
+    drag(e, [
+      [4, 4],
+      [6, 4],
+    ]);
+    const before = [...layer(e)];
+    e.rotate();
+    // The bar becomes vertical around the same center, the left end on top.
+    expect(e.getState().selection).toEqual({ x: 5, y: 3, w: 1, h: 3 });
+    const after = layer(e);
+    expect(after[3 * W + 5]).toBe(RED);
+    expect(after[4 * W + 5]).toBe(1);
+    expect(after[5 * W + 5]).toBe(1);
+    expect(after[4 * W + 4]).toBe(0);
+    for (let i = 0; i < 3; i++) e.rotate();
+    expect([...layer(e)]).toEqual(before);
+    e.undo();
+    expect(layer(e)[4 * W + 4]).toBe(0);
+  });
 });

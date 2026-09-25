@@ -239,6 +239,24 @@ body.is-resizing * {
   gap: 6px;
   margin-top: 8px;
 }
+/* Segmented row of icon buttons (rotate / flip). */
+.button-group {
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 2px;
+  border-radius: var(--radius-lg);
+  background: var(--input);
+}
+.button-group .icon-btn + .icon-btn {
+  border-left: 1px solid var(--line);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.button-group .icon-btn:first-child:not(:only-child) {
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+.button-group .icon-btn:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
 .hint {
   margin: 6px 0 0;
   color: var(--muted);

@@ -62,6 +62,7 @@ export const en = {
   'menu.fillSelection': 'Fill the selection',
   'menu.flipH': 'Flip horizontally',
   'menu.flipV': 'Flip vertically',
+  'menu.rotate': 'Rotate 90°',
   'menu.grid': 'Pixel grid',
   'menu.tile': 'Tile preview',
   'menu.hideUi': 'Hide the interface',

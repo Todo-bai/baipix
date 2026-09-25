@@ -1,0 +1,62 @@
+import { cloneDocument, type PixelDoc } from './document';
+import type { Rect } from './math';
+
+export interface Snapshot {
+  doc: PixelDoc;
+  selection: Rect | null;
+}
+
+export const takeSnapshot = (doc: PixelDoc, selection: Rect | null): Snapshot => ({
+  doc: cloneDocument(doc),
+  selection: selection ? { ...selection } : null,
+});
+
+const snapshotBytes = (s: Snapshot): number => s.doc.width * s.doc.height * 4 * s.doc.layers.length;
+
+/**
+ * Snapshot-based undo/redo. Pixel art documents are small, so full snapshots are simpler
+ * and more robust than diffing. The stack is trimmed to a memory budget.
+ */
+export class History {
+  private undoStack: Snapshot[] = [];
+  private redoStack: Snapshot[] = [];
+
+  constructor(private readonly budgetBytes = 160_000_000) {}
+
+  get canUndo(): boolean {
+    return this.undoStack.length > 0;
+  }
+
+  get canRedo(): boolean {
+    return this.redoStack.length > 0;
+  }
+
+  /** Records the state *before* a change. */
+  push(snapshot: Snapshot): void {
+    this.undoStack.push(snapshot);
+    this.redoStack = [];
+    let total = this.undoStack.reduce((sum, s) => sum + snapshotBytes(s), 0);
+    while (this.undoStack.length > 12 && total > this.budgetBytes) {
+      total -= snapshotBytes(this.undoStack.shift()!);
+    }
+  }
+
+  /** Drops the last recorded state (e.g. a stroke that changed nothing). */
+  discardLast(): void {
+    this.undoStack.pop();
+  }
+
+  undo(current: Snapshot): Snapshot | null {
+    const previous = this.undoStack.pop();
+    if (!previous) return null;
+    this.redoStack.push(current);
+    return previous;
+  }
+
+  redo(current: Snapshot): Snapshot | null {
+    const next = this.redoStack.pop();
+    if (!next) return null;
+    this.undoStack.push(current);
+    return next;
+  }
+}

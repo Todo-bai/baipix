@@ -7,8 +7,9 @@
   --muted: rgba(0, 0, 0, 0.5);
   --input: #f5f5f5;
   --hover: #f5f5f5;
-  --selected: #e5f4ff;
-  --accent: #0d99ff;
+  --selected: rgba(0, 0, 0, 0.06);
+  /* Neutral accent (no brand color yet): the text color, with inverted text on top. */
+  --accent: #1a1a1a;
   --accent-ink: #ffffff;
   --axis: #f24822;
   --check-a: #ffffff;
@@ -40,7 +41,9 @@
     --muted: rgba(255, 255, 255, 0.55);
     --input: #383838;
     --hover: #383838;
-    --selected: rgba(13, 153, 255, 0.22);
+    --selected: rgba(255, 255, 255, 0.1);
+    --accent: #f2f2f2;
+    --accent-ink: #1a1a1a;
     --check-a: #4a4a4a;
     --check-b: #3b3b3b;
     --grid: rgba(255, 255, 255, 0.08);
@@ -49,14 +52,14 @@
     --shadow: 0 0 0.5px rgba(0, 0, 0, 0.6), 0 3px 8px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.3);
     --shadow-pop:
       0 0 0.5px rgba(0, 0, 0, 0.7), 0 2px 5px rgba(0, 0, 0, 0.35), 0 10px 16px rgba(0, 0, 0, 0.35);
-    color-scheme: dark;
-  }
-}
     --menu-bg: #1e1e1e;
     --menu-text: #ffffff;
     --menu-muted: rgba(255, 255, 255, 0.35);
     --menu-shortcut: rgba(255, 255, 255, 0.5);
     --menu-line: rgba(255, 255, 255, 0.12);
+    color-scheme: dark;
+  }
+}
 
 :root[data-theme='dark'] {
   --canvas: #1e1e1e;
@@ -66,7 +69,9 @@
   --muted: rgba(255, 255, 255, 0.55);
   --input: #383838;
   --hover: #383838;
-  --selected: rgba(13, 153, 255, 0.22);
+  --selected: rgba(255, 255, 255, 0.1);
+  --accent: #f2f2f2;
+  --accent-ink: #1a1a1a;
   --check-a: #4a4a4a;
   --check-b: #3b3b3b;
   --grid: rgba(255, 255, 255, 0.08);
@@ -74,10 +79,10 @@
   --frame: rgba(255, 255, 255, 0.12);
   --shadow: 0 0 0.5px rgba(0, 0, 0, 0.6), 0 3px 8px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-pop: 0 0 0.5px rgba(0, 0, 0, 0.7), 0 2px 5px rgba(0, 0, 0, 0.35), 0 10px 16px rgba(0, 0, 0, 0.35);
-  color-scheme: dark;
-}
   --menu-bg: #1e1e1e;
   --menu-text: #ffffff;
   --menu-muted: rgba(255, 255, 255, 0.35);
   --menu-shortcut: rgba(255, 255, 255, 0.5);
   --menu-line: rgba(255, 255, 255, 0.12);
+  color-scheme: dark;
+}

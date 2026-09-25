@@ -6,6 +6,8 @@ export interface Theme {
   gridMajor: string;
   frame: string;
   accent: string;
+  /** Text drawn on top of the accent. */
+  accentInk: string;
   muted: string;
   axis: string;
 }
@@ -22,6 +24,7 @@ export function readTheme(el: Element = document.documentElement): Theme {
     gridMajor: v('--grid-major'),
     frame: v('--frame'),
     accent: v('--accent'),
+    accentInk: v('--accent-ink'),
     muted: v('--muted'),
     axis: v('--axis'),
   };

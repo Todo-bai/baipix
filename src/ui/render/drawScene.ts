@@ -210,7 +210,7 @@ export function drawScene(
     if (ctx.roundRect) ctx.roundRect(bx, by, pw, ph, Math.round(2 * dpr));
     else ctx.rect(bx, by, pw, ph);
     ctx.fill();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = theme.accentInk;
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
     ctx.fillText(text, bx + pw / 2, by + ph / 2 + 0.5 * dpr);

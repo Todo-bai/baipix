@@ -610,7 +610,7 @@ body.is-panning .canvas {
   font-weight: 600;
   border: 2px dashed var(--accent);
   border-radius: 8px;
-  background: rgba(13, 153, 255, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
   pointer-events: none;
 }
 .toolbar {

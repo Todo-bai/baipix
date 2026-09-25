@@ -823,7 +823,7 @@ body.is-panning .canvas {
   padding: 8px;
   border-radius: var(--radius-lg);
   background: var(--menu-bg);
-  color: #fff;
+  color: var(--menu-text);
   box-shadow:
     0 0 0.5px rgba(0, 0, 0, 0.4),
     0 5px 17px rgba(0, 0, 0, 0.25),
@@ -840,17 +840,18 @@ body.is-panning .canvas {
   border: 0;
   border-radius: var(--radius);
   background: transparent;
-  color: #fff;
+  color: var(--menu-text);
   text-align: left;
   white-space: nowrap;
 }
 .menu-item:hover:not(:disabled),
 .menu-item:focus-visible {
   background: var(--accent);
+  color: var(--accent-ink);
   outline: none;
 }
 .menu-item:disabled {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--menu-muted);
 }
 .menu-item.is-checked::before {
   content: '✓';
@@ -859,15 +860,17 @@ body.is-panning .canvas {
 }
 .menu-shortcut {
   margin-left: auto;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--menu-shortcut);
 }
-.menu-item:hover:not(:disabled) .menu-shortcut {
-  color: rgba(255, 255, 255, 0.85);
+.menu-item:hover:not(:disabled) .menu-shortcut,
+.menu-item:focus-visible .menu-shortcut {
+  color: inherit;
+  opacity: 0.85;
 }
 .menu-separator {
   height: 1px;
   margin: 8px -8px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--menu-line);
 }
 .tooltip {
   position: fixed;
@@ -875,7 +878,7 @@ body.is-panning .canvas {
   left: -999px;
   padding: 4px 8px;
   border-radius: var(--radius);
-  background: var(--menu-bg);
+  background: var(--tooltip-bg);
   color: #fff;
   white-space: nowrap;
   pointer-events: none;
@@ -897,7 +900,7 @@ body.is-panning .canvas {
   max-width: calc(100vw - 32px);
   padding: 8px 12px;
   border-radius: 6px;
-  background: var(--menu-bg);
+  background: var(--tooltip-bg);
   color: #fff;
   text-align: center;
   transform: translate(-50%, 6px);

@@ -5,6 +5,7 @@ import { getLocale } from './i18n';
 import { IndexedDbStorage } from './storage/indexedDb';
 import type { StorageAdapter } from './storage/workspace';
 import { App, editorLabels } from './ui/App';
+import { initTheme } from './ui/theme';
 import './ui/styles/tokens.css';
 import './ui/styles/app.css';
 
@@ -18,6 +19,7 @@ try {
 }
 
 document.documentElement.lang = getLocale();
+initTheme();
 const editor = new Editor(editorLabels());
 
 createRoot(document.getElementById('root')!).render(

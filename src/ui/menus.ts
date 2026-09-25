@@ -2,6 +2,7 @@ import type { Editor } from '../engine/editor';
 import { LOCALES, getLocale, setLocale, t } from '../i18n';
 import type { Actions } from './actions';
 import type { MenuItem } from './components/Menu';
+import { getTheme, setTheme, type ThemePreference } from './theme';
 import { openDialog, uiStore } from './uiStore';
 import { viewport } from './viewport';
 
@@ -57,6 +58,12 @@ export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
       shortcut: '@',
       onSelect: () => uiStore.set((u) => ({ uiHidden: !u.uiHidden })),
     },
+    '-',
+    ...(['system', 'light', 'dark'] as ThemePreference[]).map((theme) => ({
+      label: t(`theme.${theme}`),
+      checked: getTheme() === theme,
+      onSelect: () => setTheme(theme),
+    })),
     '-',
     ...LOCALES.map((l) => ({
       label: l.label,

@@ -78,9 +78,16 @@ export function PreviewSection() {
     const off = editor.onPixels(request);
     const ro = new ResizeObserver(request);
     if (ref.current) ro.observe(ref.current);
+    // Redraw on theme changes (OS setting or the theme menu), like the main canvas.
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    media.addEventListener('change', request);
+    const mo = new MutationObserver(request);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     return () => {
       off();
       ro.disconnect();
+      media.removeEventListener('change', request);
+      mo.disconnect();
       cancelAnimationFrame(frame);
     };
   }, [editor, t]);

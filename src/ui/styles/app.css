@@ -46,10 +46,6 @@ button {
 [hidden] {
   display: none !important;
 }
-.px-icon {
-  display: block;
-  shape-rendering: crispEdges;
-}
 .icon {
   display: block;
   flex: none;

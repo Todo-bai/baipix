@@ -71,23 +71,9 @@ export const ICONS = {
 
 export type IconName = keyof typeof ICONS | 'logo';
 
-/** The Baipix logo stays pixel art, on a 6×6 grid ('#' = filled). */
-const LOGO = ['##.#..', '#.##.#', '.#.###', '##.#.#', '#.#.##', '.##.#.'];
-
-/** SVG path data for the logo, merging horizontal runs. */
-export function logoPath(): { d: string; size: number } {
-  let d = '';
-  LOGO.forEach((row, y) => {
-    for (let x = 0; x < row.length; ) {
-      if (row[x] !== '#') {
-        x++;
-        continue;
-      }
-      let end = x;
-      while (end < row.length && row[end] === '#') end++;
-      d += `M${x} ${y}h${end - x}v1h-${end - x}z`;
-      x = end;
-    }
-  });
-  return { d, size: LOGO.length };
-}
+/** The Baipix logo, a 13×17 "B" drawn in the text color (white on dark, black on light). */
+export const LOGO = {
+  width: 13,
+  height: 17,
+  d: 'M2.314 16.822V14.586H0V2.288H2.314V0H10.01V2.288H12.35V7.774H10.01V9.048H12.35V14.586H10.01V16.822H2.314ZM3.068 13.598H9.256V10.01H4.602V6.812H9.256V3.25H3.068V13.598Z',
+};

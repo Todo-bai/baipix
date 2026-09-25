@@ -1,4 +1,4 @@
-import { ICONS, logoPath, type IconName } from '../icons';
+import { ICONS, LOGO, type IconName } from '../icons';
 
 interface IconProps {
   name: IconName;
@@ -8,10 +8,16 @@ interface IconProps {
 
 export function Icon({ name, size = 16 }: IconProps) {
   if (name === 'logo') {
-    const { d, size: grid } = logoPath();
+    // `size` is the logo height.
     return (
-      <svg className="px-icon" viewBox={`0 0 ${grid} ${grid}`} width={size} height={size} aria-hidden="true">
-        <path fill="currentColor" d={d} />
+      <svg
+        className="icon"
+        viewBox={`0 0 ${LOGO.width} ${LOGO.height}`}
+        width={(size * LOGO.width) / LOGO.height}
+        height={size}
+        aria-hidden="true"
+      >
+        <path fill="currentColor" d={LOGO.d} />
       </svg>
     );
   }

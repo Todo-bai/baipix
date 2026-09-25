@@ -126,9 +126,14 @@ export function CanvasView() {
     const resize = () => {
       const r = wrap.getBoundingClientRect();
       viewport.setSize(r.width, r.height, r.left, r.top);
-      canvas.width = Math.max(1, Math.round(r.width * viewport.dpr));
-      canvas.height = Math.max(1, Math.round(r.height * viewport.dpr));
-      request();
+      // Resizing clears the canvas, so skip it when nothing changed and redraw right away
+      // (not on the next frame): otherwise a blank frame flashes while dragging a panel.
+      const w = Math.max(1, Math.round(r.width * viewport.dpr));
+      const h = Math.max(1, Math.round(r.height * viewport.dpr));
+      if (canvas.width !== w) canvas.width = w;
+      if (canvas.height !== h) canvas.height = h;
+      cancelAnimationFrame(frame);
+      draw();
     };
     const ro = new ResizeObserver(resize);
     ro.observe(wrap);

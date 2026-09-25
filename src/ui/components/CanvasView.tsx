@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { pack } from '../../engine/color';
 import { flatten } from '../../engine/composite';
 import type { ToolId } from '../../engine/tools';
@@ -6,7 +6,7 @@ import { useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
 import { useEditor, useEditorState } from '../EditorContext';
 import { keyState } from '../keyState';
-import { drawScene, type BrushPreview } from '../render/drawScene';
+import { drawScene, LABEL, labelRect, type BrushPreview } from '../render/drawScene';
 import { readTheme, type Theme } from '../render/theme';
 import { BRUSH_TOOLS } from '../tools';
 import { hoverStore, uiStore } from '../uiStore';
@@ -30,8 +30,21 @@ export function CanvasView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [dropping, setDropping] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const renamingRef = useRef(false);
+  const redrawRef = useRef(() => {});
+  const [, follow] = useReducer((n: number) => n + 1, 0);
   const tool = useEditorState((s) => s.tool);
+  const docId = useEditorState((s) => s.doc.id);
+  const docName = useEditorState((s) => s.doc.name);
   const t = useT();
+
+  useEffect(() => {
+    renamingRef.current = renaming;
+    redrawRef.current();
+    // Keep the field glued to the frame while zooming or panning.
+    return renaming ? viewport.subscribe(follow) : undefined;
+  }, [renaming]);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -75,15 +88,36 @@ export function CanvasView() {
         ctx,
         canvas.width,
         canvas.height,
-        { doc: live.doc, composite, view: live.view, selection: live.selection, brush, label: live.doc.name },
-        { dpr: viewport.dpr, scale: viewport.scale, originX: viewport.originX, originY: viewport.originY },
+        {
+          doc: live.doc,
+          composite,
+          view: live.view,
+          selection: live.selection,
+          brush,
+          label: renamingRef.current ? '' : live.doc.name,
+        },
+        camera(),
         theme,
       );
+    };
+
+    const camera = () => ({
+      dpr: viewport.dpr,
+      scale: viewport.scale,
+      originX: viewport.originX,
+      originY: viewport.originY,
+    });
+    const onLabel = (l: { x: number; y: number }) => {
+      const r = labelRect(ctx, editor.getState().doc.name, camera());
+      const x = l.x * viewport.dpr;
+      const y = l.y * viewport.dpr;
+      return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
     };
 
     const request = () => {
       if (!frame) frame = requestAnimationFrame(draw);
     };
+    redrawRef.current = request;
     const pixelsChanged = () => {
       compositeDirty = true;
       request();
@@ -164,6 +198,8 @@ export function CanvasView() {
       }
       if (e.button !== 0 && e.button !== 2) return;
       const l = local(e);
+      // The frame name is renamed by double-click, so clicking it never draws.
+      if (onLabel(l)) return;
       const p = viewport.toPixel(l.x, l.y);
       updateHover(p);
       const tool = editor.getState().tool;
@@ -199,6 +235,7 @@ export function CanvasView() {
         hover = p;
       }
       updateHover(hover);
+      if (!editor.isStroking) canvas.classList.toggle('on-label', onLabel(local(e)));
       request();
     };
 
@@ -257,6 +294,7 @@ export function CanvasView() {
     };
 
     const noMenu = (e: Event) => e.preventDefault();
+    const onDoubleClick = (e: MouseEvent) => onLabel(local(e)) && setRenaming(true);
     wrap.addEventListener('pointerdown', closeSheets, true);
     canvas.addEventListener('pointerdown', onDown);
     canvas.addEventListener('pointermove', onMove);
@@ -265,6 +303,7 @@ export function CanvasView() {
     canvas.addEventListener('pointerleave', onLeave);
     canvas.addEventListener('wheel', onWheel, { passive: false });
     canvas.addEventListener('contextmenu', noMenu);
+    canvas.addEventListener('dblclick', onDoubleClick);
 
     return () => {
       cancelAnimationFrame(frame);
@@ -280,6 +319,7 @@ export function CanvasView() {
       canvas.removeEventListener('pointerleave', onLeave);
       canvas.removeEventListener('wheel', onWheel);
       canvas.removeEventListener('contextmenu', noMenu);
+      canvas.removeEventListener('dblclick', onDoubleClick);
     };
   }, [editor]);
 
@@ -302,6 +342,30 @@ export function CanvasView() {
       }}
     >
       <canvas ref={canvasRef} className="canvas" />
+      {renaming && (
+        <input
+          className="frame-name-input"
+          defaultValue={docName}
+          autoFocus
+          onFocus={(e) => e.currentTarget.select()}
+          style={{
+            left: viewport.originX / viewport.dpr,
+            top: viewport.originY / viewport.dpr - LABEL.gap,
+          }}
+          onBlur={(e) => {
+            editor.renameFile(docId, e.currentTarget.value);
+            setRenaming(false);
+          }}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') e.currentTarget.blur();
+            if (e.key === 'Escape') {
+              e.currentTarget.value = docName;
+              e.currentTarget.blur();
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -59,8 +59,10 @@ function FileHeader() {
   const editor = useEditor();
   const actions = useActions();
   const doc = useEditorState((s) => s.doc);
-  const [name, setName] = useState(doc.name);
-  useEffect(() => setName(doc.name), [doc.name, doc.id]);
+  // Renames mutate the document in place, so select the name itself to re-render on change.
+  const docName = useEditorState((s) => s.doc.name);
+  const [name, setName] = useState(docName);
+  useEffect(() => setName(docName), [docName, doc.id]);
   return (
     <div className="panel-header">
       <button
@@ -80,7 +82,7 @@ function FileHeader() {
           aria-label={t('file.name')}
           spellCheck={false}
           onChange={(e) => setName(e.target.value)}
-          onBlur={() => (name.trim() ? editor.renameFile(doc.id, name) : setName(doc.name))}
+          onBlur={() => (name.trim() ? editor.renameFile(doc.id, name) : setName(docName))}
           onKeyDown={(e) =>
             (e.key === 'Enter' || e.key === 'Escape') && (e.target as HTMLInputElement).blur()
           }

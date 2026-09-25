@@ -32,6 +32,22 @@ export interface Scene {
 
 const FONT = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
+/** Frame name above the canvas, in CSS pixels. Shared with the inline rename field. */
+export const LABEL = { size: 11, gap: 6 };
+const labelFont = (dpr: number) => `500 ${Math.round(LABEL.size * dpr)}px ${FONT}`;
+
+/** Hit box of the frame name, in device pixels (a few pixels of slack around the text). */
+export function labelRect(ctx: CanvasRenderingContext2D, label: string, camera: Camera): Rect {
+  const { dpr, originX: X, originY: Y } = camera;
+  ctx.save();
+  ctx.font = labelFont(dpr);
+  const w = ctx.measureText(label).width;
+  ctx.restore();
+  const pad = Math.round(4 * dpr);
+  const h = Math.round((LABEL.size + LABEL.gap) * dpr);
+  return { x: X - pad, y: Y - h - pad, w: w + pad * 2, h: h + pad };
+}
+
 /** On-screen width of the render gap, proportional to the export settings. */
 export function gapPixels(doc: PixelDoc, scale: number): number {
   const { gap, pixelSize } = doc.render;
@@ -63,6 +79,8 @@ export function drawScene(
 
   const checker = checkerPattern(ctx, Math.max(4, Math.round(8 * dpr)), theme.checkA, theme.checkB);
 
+  // Tile preview: the 8 neighbors are drawn like the real canvas (checkerboard included) so seams
+  // are easy to spot, then slightly dimmed to keep the editable copy in focus.
   if (view.tile) {
     for (let j = -1; j <= 1; j++)
       for (let i = -1; i <= 1; i++) {
@@ -91,8 +109,6 @@ export function drawScene(
   ctx.drawImage(scene.composite, X, Y, cw, ch);
 
   // Render gap: paint strips between pixels with the background (or the checkerboard).
-  // Tile preview: the 8 neighbors are drawn like the real canvas (checkerboard included) so seams
-  // are easy to spot, then slightly dimmed to keep the editable copy in focus.
   const gap = view.showGap ? gapPixels(doc, s) : 0;
   if (gap) {
     ctx.save();
@@ -104,10 +120,10 @@ export function drawScene(
   }
 
   // Frame name above the canvas.
-  ctx.font = `500 ${Math.round(11 * dpr)}px ${FONT}`;
+  ctx.font = labelFont(dpr);
   ctx.fillStyle = theme.muted;
   ctx.textBaseline = 'bottom';
-  ctx.fillText(scene.label, X, Y - Math.round(6 * dpr));
+  ctx.fillText(scene.label, X, Y - Math.round(LABEL.gap * dpr));
 
   // Pixel grid (every pixel) and major grid (every 8 pixels).
   if (view.grid && s >= 6 && !gap) {

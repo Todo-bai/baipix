@@ -173,7 +173,7 @@ export const fr: Record<MessageKey, string> = {
   'export.file': 'Exporter {name}',
   'export.copySvg': 'Copier en SVG',
   'export.copyPng': 'Copier en PNG',
-  'export.copySvgHint': 'Colle directement dans Figma ou Illustrator',
+  'export.copySvgHint': 'Colle directement dans ton outil de design',
   'export.copyPngHint': "Copie l'image dans le presse-papier",
   'export.info': '{w} × {h} px,',
   'export.withBackground': 'avec fond',
@@ -194,7 +194,7 @@ export const fr: Record<MessageKey, string> = {
 
   'output.copySvgTitle': 'Copier le SVG',
   'output.copySvgBlocked':
-    'Le navigateur bloque la copie automatique. Copie ce code (Ctrl+C) puis colle-le dans Figma ou Illustrator.',
+    'Le navigateur bloque la copie automatique. Copie ce code (Ctrl+C) puis colle-le dans ton outil de design.',
   'output.copyPngTitle': "Copier l'image",
   'output.copyPngBlocked':
     "Le navigateur bloque la copie automatique. Fais un clic droit sur l'image puis « Copier l'image ».",
@@ -214,7 +214,7 @@ export const fr: Record<MessageKey, string> = {
   'toast.downloadCancelled': 'Téléchargement annulé.',
   'toast.downloadBusy': 'Une demande de téléchargement est déjà ouverte.',
   'toast.exportShrunk': 'Image trop grande : pixels réduits à {size} px.',
-  'toast.svgCopied': 'SVG copié. Colle-le dans Figma ou Illustrator.',
+  'toast.svgCopied': 'SVG copié. Colle-le dans ton outil de design.',
   'toast.pngCopied': 'Image copiée dans le presse-papier.',
   'toast.opened': '{name} ouvert.',
   'toast.notBaipix': "Ce n'est pas un fichier .baipix valide.",

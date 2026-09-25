@@ -13,7 +13,7 @@ interface ColorRowProps {
   dimmed?: boolean;
 }
 
-/** Figma-style fill row: swatch (opens the picker) + hex + opacity. */
+/** Fill row: swatch (opens the picker) + hex + opacity. */
 export function ColorRow({ slot, color, onChange, trailing, dimmed }: ColorRowProps) {
   const t = useT();
   const editing = uiStore.use((s) => s.picker?.slot === slot);

@@ -4,7 +4,7 @@ import { useEditor, useEditorState } from '../EditorContext';
 import { TOOL_GROUPS } from '../tools';
 import { IconButton } from './IconButton';
 
-/** Floating bottom toolbar, like Figma's. */
+/** Floating bottom toolbar. */
 export function Toolbar() {
   const t = useT();
   const editor = useEditor();

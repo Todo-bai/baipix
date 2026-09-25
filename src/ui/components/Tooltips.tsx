@@ -9,7 +9,7 @@ interface Tip {
 
 /**
  * Global tooltips: any element with `data-tip` (and optional `data-kbd`) gets a dark
- * Figma-style bubble after a short hover delay. Toolbar tooltips open above.
+ * bubble after a short hover delay. Toolbar tooltips open above.
  */
 export function Tooltips() {
   const [tip, setTip] = useState<Tip | null>(null);

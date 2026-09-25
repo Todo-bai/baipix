@@ -89,7 +89,7 @@ export function drawScene(
     ctx.restore();
   }
 
-  // Frame name, like Figma.
+  // Frame name above the canvas.
   ctx.font = `500 ${Math.round(11 * dpr)}px ${FONT}`;
   ctx.fillStyle = theme.muted;
   ctx.textBaseline = 'bottom';

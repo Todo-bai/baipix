@@ -7,7 +7,7 @@ interface NumberFieldProps {
   max: number;
   /** Called while typing or scrubbing (`final` is true on commit / release). */
   onChange: (value: number, final: boolean) => void;
-  /** Label on the left: drag it horizontally to scrub the value, like in Figma. */
+  /** Label on the left: drag it horizontally to scrub the value. */
   label?: ReactNode;
   suffix?: string;
   ariaLabel: string;

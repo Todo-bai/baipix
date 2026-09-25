@@ -171,7 +171,7 @@ export const en = {
   'export.file': 'Export {name}',
   'export.copySvg': 'Copy as SVG',
   'export.copyPng': 'Copy as PNG',
-  'export.copySvgHint': 'Paste straight into Figma or Illustrator',
+  'export.copySvgHint': 'Paste straight into your design tool',
   'export.copyPngHint': 'Copies the image to the clipboard',
   'export.info': '{w} × {h} px,',
   'export.withBackground': 'with background',
@@ -192,7 +192,7 @@ export const en = {
 
   'output.copySvgTitle': 'Copy the SVG',
   'output.copySvgBlocked':
-    'The browser blocked automatic copying. Copy this code (Ctrl+C), then paste it into Figma or Illustrator.',
+    'The browser blocked automatic copying. Copy this code (Ctrl+C), then paste it into your design tool.',
   'output.copyPngTitle': 'Copy the image',
   'output.copyPngBlocked': 'The browser blocked automatic copying. Right-click the image, then “Copy image”.',
 
@@ -211,7 +211,7 @@ export const en = {
   'toast.downloadCancelled': 'Download cancelled.',
   'toast.downloadBusy': 'A download request is already open.',
   'toast.exportShrunk': 'Image too large: pixels reduced to {size} px.',
-  'toast.svgCopied': 'SVG copied. Paste it into Figma or Illustrator.',
+  'toast.svgCopied': 'SVG copied. Paste it into your design tool.',
   'toast.pngCopied': 'Image copied to the clipboard.',
   'toast.opened': '{name} opened.',
   'toast.notBaipix': 'This is not a valid .baipix file.',

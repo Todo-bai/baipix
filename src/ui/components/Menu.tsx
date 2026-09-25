@@ -21,7 +21,7 @@ export function closeMenu(): void {
 
 export const isMenuOpen = (): boolean => menuStore.get().anchor !== null;
 
-/** Dark, Figma-style dropdown menu. Rendered once at the app root. */
+/** Dark dropdown menu. Rendered once at the app root. */
 export function MenuHost() {
   const { anchor, items } = menuStore.use((s) => s);
   const ref = useRef<HTMLDivElement>(null);

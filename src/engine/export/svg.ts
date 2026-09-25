@@ -39,7 +39,7 @@ const fillAttrs = (c: Color): string =>
 
 /**
  * Crisp SVG: one <path> per color. Without a gap, horizontal runs of the same color are merged
- * into a single rectangle, which keeps files small and makes them pleasant to edit in Figma.
+ * into a single rectangle, which keeps files small and makes them pleasant to edit in design tools.
  */
 export function toSvg(
   pixels: Uint32Array,

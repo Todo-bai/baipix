@@ -7,7 +7,7 @@ import { NumberField } from '../components/NumberField';
 import { Row, Section } from '../components/Section';
 import { toolMeta } from '../tools';
 
-/** Options of the active tool, like Figma's contextual properties. */
+/** Contextual options of the active tool. */
 export function ToolSection() {
   const t = useT();
   const editor = useEditor();

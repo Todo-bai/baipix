@@ -1,7 +1,7 @@
 {
   "name": "baipix",
   "version": "0.1.0",
-  "description": "A pixel art editor for designers, with a Figma-like interface.",
+  "description": "A pixel art editor for designers, with the interface of a modern design tool.",
   "license": "MIT",
   "type": "module",
   "private": true,
@@ -43,7 +43,6 @@
   "keywords": [
     "pixel-art",
     "editor",
-    "figma",
     "svg",
     "react",
     "typescript"

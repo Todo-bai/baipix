@@ -11,7 +11,7 @@
 - **Palettes:** Sweetie 16, PICO-8, Endesga 32, Game Boy… Paste any Lospec palette, build one from your drawing, or generate hue-shifted ramps.
 - **Layers, multiple files, symmetry, tile preview, checkerboard dithering.**
 - **Rendering for design work:** choose the exported pixel size and a gap between pixels (LED / dot-matrix look), previewed live on the canvas.
-- **Export:** PNG, clean SVG (one path per color, merged runs), **copy as SVG to paste straight into your design or vector tool**, `.baipix` project files, Lospec `.hex` palettes.
+- **Export:** PNG, clean SVG (one path per color, merged runs), **copy as SVG to paste straight into Figma or Illustrator**, `.baipix` project files, Lospec `.hex` palettes.
 - **Local-first:** everything is saved in your browser (IndexedDB). Nothing is sent anywhere.
 - English and French.
 

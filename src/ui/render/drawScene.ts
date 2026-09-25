@@ -64,11 +64,23 @@ export function drawScene(
   const checker = checkerPattern(ctx, Math.max(4, Math.round(8 * dpr)), theme.checkA, theme.checkB);
 
   if (view.tile) {
-    ctx.globalAlpha = 0.5;
     for (let j = -1; j <= 1; j++)
-      for (let i = -1; i <= 1; i++)
-        if (i || j) ctx.drawImage(scene.composite, X + i * cw, Y + j * ch, cw, ch);
-    ctx.globalAlpha = 1;
+      for (let i = -1; i <= 1; i++) {
+        if (!i && !j) continue;
+        const x = X + i * cw;
+        const y = Y + j * ch;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = checker;
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.restore();
+        ctx.drawImage(scene.composite, x, y, cw, ch);
+      }
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = theme.canvas;
+    ctx.fillRect(X - cw, Y - ch, cw * 3, ch * 3);
+    ctx.restore();
   }
 
   ctx.save();
@@ -79,6 +91,8 @@ export function drawScene(
   ctx.drawImage(scene.composite, X, Y, cw, ch);
 
   // Render gap: paint strips between pixels with the background (or the checkerboard).
+  // Tile preview: the 8 neighbors are drawn like the real canvas (checkerboard included) so seams
+  // are easy to spot, then slightly dimmed to keep the editable copy in focus.
   const gap = view.showGap ? gapPixels(doc, s) : 0;
   if (gap) {
     ctx.save();

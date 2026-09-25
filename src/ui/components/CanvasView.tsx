@@ -91,7 +91,7 @@ export function CanvasView() {
 
     const resize = () => {
       const r = wrap.getBoundingClientRect();
-      viewport.setSize(r.width, r.height);
+      viewport.setSize(r.width, r.height, r.left, r.top);
       canvas.width = Math.max(1, Math.round(r.width * viewport.dpr));
       canvas.height = Math.max(1, Math.round(r.height * viewport.dpr));
       request();

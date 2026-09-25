@@ -21,6 +21,8 @@ class Viewport {
   height = 0;
   private left = 0;
   private top = 0;
+  private windowW = 0;
+  private windowH = 0;
   dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   private docId: string | null = null;
   private saved = new Map<string, View>();
@@ -65,19 +67,22 @@ class Viewport {
   }
 
   /**
-   * `left`/`top` are the workspace position in the window. When an edge moves (panels shown,
-   * hidden or resized), the drawing keeps its place on screen; otherwise it stays centered.
+   * `left`/`top` are the workspace position in the window. Panels shown, hidden or resized never
+   * move the drawing on screen; resizing the window keeps it in place relative to the window center.
    */
   setSize(width: number, height: number, left = 0, top = 0): void {
-    const first = this.width === 0;
-    if (!first) {
-      this.panX += left !== this.left ? this.left - left : (width - this.width) / 2;
-      this.panY += top !== this.top ? this.top - top : (height - this.height) / 2;
+    const windowW = window.innerWidth;
+    const windowH = window.innerHeight;
+    if (this.width !== 0) {
+      this.panX += this.left - left + (windowW - this.windowW) / 2;
+      this.panY += this.top - top + (windowH - this.windowH) / 2;
     }
     this.width = width;
     this.height = height;
     this.left = left;
     this.top = top;
+    this.windowW = windowW;
+    this.windowH = windowH;
     this.dpr = window.devicePixelRatio || 1;
     if (this.pendingFit && width > 0) {
       const doc = this.pendingFit;

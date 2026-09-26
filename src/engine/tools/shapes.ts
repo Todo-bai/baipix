@@ -46,7 +46,14 @@ function drawShape(kind: ShapeKind, s: Stroke, p: Point, mods: Modifiers): void 
       } else rectOutline(x0, y0, x1, y1, outline);
       return;
     case 'roundRect':
-      (filled ? roundRectFilled : roundRectOutline)(x0, y0, x1, y1, s.options.radius, filled ? fill : outline);
+      (filled ? roundRectFilled : roundRectOutline)(
+        x0,
+        y0,
+        x1,
+        y1,
+        s.options.radius,
+        filled ? fill : outline,
+      );
       return;
     case 'ellipse':
       (filled ? ellipseFilled : ellipseOutline)(x0, y0, x1, y1, filled ? fill : outline);

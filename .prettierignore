@@ -1,0 +1,8 @@
+node_modules/
+dist/
+site/dist/
+site/.astro/
+package-lock.json
+site/package-lock.json
+gallery/*.baipix
+docs/*.baipix

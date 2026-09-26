@@ -79,19 +79,11 @@ export function ToolSection() {
       break;
     case 'eraser':
       info = t('hint.eraser');
-      body = (
-        <>
-          {size}
-        </>
-      );
+      body = <>{size}</>;
       break;
     case 'line':
       info = t('hint.line');
-      body = (
-        <>
-          {size}
-        </>
-      );
+      body = <>{size}</>;
       break;
     case 'rect':
     case 'roundRect':
@@ -142,11 +134,7 @@ export function ToolSection() {
     case 'shade':
     case 'lighten':
       info = t(tool === 'shade' ? 'hint.shade' : 'hint.lighten');
-      body = (
-        <>
-          {size}
-        </>
-      );
+      body = <>{size}</>;
       break;
     case 'blur':
       info = options.blurSnap ? t('hint.blurSnap') : t('hint.blurFree');
@@ -191,11 +179,7 @@ export function ToolSection() {
       break;
     case 'move':
       info = hasSelection ? t('hint.moveSelection') : t('hint.moveLayer');
-      body = (
-        <>
-          {flips}
-        </>
-      );
+      body = <>{flips}</>;
       break;
   }
 

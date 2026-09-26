@@ -1,0 +1,473 @@
+---
+import Dither from '../components/Dither.astro';
+import Gallery from '../components/Gallery.astro';
+import Logo from '../components/Logo.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import Base from '../layouts/Base.astro';
+import { APP_URL, LICENSE_URL, REPO_URL } from '../links';
+
+const base = import.meta.env.BASE_URL;
+const STAR = ['...#...', '..###..', '#######', '.#####.', '..###..', '.##.##.', '.#...#.'];
+const clone = 'git clone https://github.com/Todo-bai/baipix.git\ncd baipix\nnpm install\nnpm run dev';
+
+const features = [
+  {
+    title: 'Clean vector export',
+    text: 'Every color becomes a single SVG path. Copy as SVG and paste it straight into Figma or Illustrator.',
+    icon: ['##.....', '##.....', '..#....', '...#...', '....#..', '.....##', '.....##'],
+  },
+  {
+    title: 'Pixel gap rendering',
+    text: 'Space pixels apart for an LED or dot-matrix look, previewed live and exported as real vector.',
+    icon: ['#.#.#.#', '.......', '#.#.#.#', '.......', '#.#.#.#', '.......', '#.#.#.#'],
+  },
+  {
+    title: 'Palette-aware tools',
+    text: 'Shade and lighten with the next palette color, adjust hue and saturation in one pass, paste any Lospec palette.',
+    icon: ['###.###', '###.###', '###.###', '.......', '###.###', '###.#.#', '###.###'],
+  },
+  {
+    title: 'Shapes, pixel perfect',
+    text: 'Lines, rectangles, rounded rectangles, ellipses, triangles and stars, with a pixel-perfect pencil.',
+    icon: ['...#...', '..###..', '#######', '.#####.', '..###..', '.##.##.', '.#...#.'],
+  },
+  {
+    title: 'Layers and symmetry',
+    text: 'Drag layers around, draw with mirror symmetry, preview tiles, rotate and flip in one click.',
+    icon: ['.#####.', '.......', '#######', '.......', '#######', '.......', '#######'],
+  },
+  {
+    title: 'Private by default',
+    text: 'No account, no upload. Your drawings are saved in your browser and never leave your device.',
+    icon: ['..###..', '.#...#.', '.#...#.', '#######', '###.###', '###.###', '#######'],
+  },
+];
+---
+
+<Base
+  title="Baipix, pixel art for designers"
+  description="A free, open source pixel art editor with the interface of a modern design tool. Draw pixel by pixel, export clean vector."
+>
+  <header class="nav container">
+    <a class="brand" href={base} aria-label="Baipix home">
+      <Logo size={18} />
+      <span>Baipix</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#install">Get started</a>
+    </nav>
+    <a class="btn btn-small star" href={REPO_URL} aria-label="Star Baipix on GitHub">
+      <PixelIcon rows={STAR} size={13} />
+      <span>Star</span>
+      <span class="star-count" data-stars hidden></span>
+    </a>
+    <a class="btn btn-dark btn-small" href={APP_URL}>Open the editor</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-grid" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <h1>Pixel art has never been this easy<span class="pixel-dot" aria-hidden="true"></span></h1>
+        <p class="lead">
+          Baipix is a pixel art editor with the interface of a modern design tool. Draw pixel by pixel, then drop
+          clean vector straight into your design files.
+        </p>
+        <div class="actions">
+          <a class="btn btn-dark" href={APP_URL}>Open the editor</a>
+          <a class="btn" href={REPO_URL}>View on GitHub</a>
+        </div>
+      </div>
+      <div class="container">
+        <figure class="shot">
+          <img
+            src={`${base}screenshot.png`}
+            width="1440"
+            height="900"
+            alt="The Baipix editor with a pixel art sunset: layers on the left, tools at the bottom, properties on the right."
+          />
+          <span class="shot-pixel" aria-hidden="true"></span>
+        </figure>
+      </div>
+    </section>
+
+    <section id="install" class="install container">
+      <h2>Up and running in seconds.</h2>
+      <div class="install-grid">
+        <div class="card">
+          <h3>Use it in your browser</h3>
+          <p class="muted">Nothing to install, no account. Your drawings stay on your device.</p>
+          <a class="btn btn-dark" href={APP_URL}>Open the editor</a>
+        </div>
+        <div class="card">
+          <h3>Run it locally</h3>
+          <p class="muted">Clone the repository and start the dev server. Requires Node.js.</p>
+          <div class="code">
+            <pre><code>{clone}</code></pre>
+            <button class="copy" type="button" data-copy={clone}>Copy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features container">
+      <h2>Everything you need. Nothing you don't.</h2>
+      <div class="feature-grid">
+        {
+          features.map((f) => (
+            <article class="feature">
+              <PixelIcon rows={f.icon} size={24} />
+              <h3>{f.title}</h3>
+              <p class="muted">{f.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <Gallery />
+
+    <section class="cta container">
+      <div class="cta-card">
+        <Dither
+          class="cta-dither"
+          cols={28}
+          rows={10}
+          cell={8}
+        />
+        <h2>Draw your first pixel.</h2>
+        <div class="actions">
+          <a class="btn btn-light" href={APP_URL}>Open the editor</a>
+          <a class="btn btn-ghost" href="#install">Run it locally</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <a class="brand" href={base}>
+      <Logo size={14} />
+      <span>Baipix</span>
+    </a>
+    <nav class="footer-links">
+      <a href={REPO_URL}>GitHub</a>
+      <a href={LICENSE_URL}>MIT License</a>
+    </nav>
+    <p class="muted">© 2026 Baipix</p>
+  </footer>
+
+  <script>
+    // Star count from the GitHub API; the button works without it.
+    fetch('https://api.github.com/repos/Todo-bai/baipix')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((repo) => {
+        const el = document.querySelector<HTMLElement>('[data-stars]');
+        if (!el || typeof repo?.stargazers_count !== 'number') return;
+        el.textContent = new Intl.NumberFormat('en', { notation: 'compact' }).format(repo.stargazers_count);
+        el.hidden = false;
+      })
+      .catch(() => {});
+
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy ?? '');
+          button.textContent = 'Copied';
+        } catch {
+          button.textContent = 'Press Ctrl+C';
+        }
+        setTimeout(() => (button.textContent = 'Copy'), 1600);
+      });
+    }
+  </script>
+</Base>
+
+<style>
+  /* ---- Nav ---- */
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 72px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .nav-links {
+    display: flex;
+    gap: 24px;
+    margin-right: auto;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .nav-links a:hover {
+    color: var(--text);
+  }
+  .star-count {
+    padding-left: 8px;
+    border-left: 1px solid var(--line);
+    font: 500 13px/1 var(--mono);
+    color: var(--muted);
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    position: relative;
+    padding: 72px 0 0;
+    overflow: hidden;
+  }
+  /* A faint pixel grid, like an empty canvas, fading out around the title. */
+  .hero-grid {
+    position: absolute;
+    inset: 0 0 35%;
+    background-image: radial-gradient(circle at 1px 1px, #d9d9d6 1px, transparent 1.5px);
+    background-size: 16px 16px;
+    mask-image: radial-gradient(ellipse 60% 70% at 50% 35%, #000 20%, transparent 75%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  h1 {
+    max-width: 14ch;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  /* The final period is a single square pixel. */
+  .pixel-dot {
+    display: inline-block;
+    width: 0.16em;
+    height: 0.16em;
+    margin-left: 0.06em;
+    background: currentColor;
+  }
+  .lead {
+    max-width: 580px;
+    text-wrap: balance;
+    margin-top: 24px;
+    font-size: 18px;
+    color: var(--muted);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 36px;
+  }
+  .shot {
+    position: relative;
+    margin: 64px 0 0;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .shot img {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+  }
+  /* The logo's escaping pixel, leaving the screenshot's corner. */
+  .shot-pixel {
+    position: absolute;
+    top: -22px;
+    right: -22px;
+    width: 14px;
+    height: 14px;
+    background: var(--ink);
+  }
+
+  /* ---- Sections ---- */
+  section.install,
+  section.features {
+    padding-top: 120px;
+  }
+  h3 {
+    font-size: 18px;
+    letter-spacing: -0.01em;
+  }
+
+  .install-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 40px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+  .card .btn {
+    margin-top: auto;
+  }
+  /* Cards share their borders, like the feature grid. */
+  .card + .card {
+    border-left: 0;
+  }
+  .code {
+    position: relative;
+    width: 100%;
+    margin-top: 4px;
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  pre {
+    margin: 0;
+    padding: 16px 84px 16px 18px; /* room for the copy button */
+    overflow-x: auto;
+    font: 400 13px/1.7 var(--mono);
+  }
+  .copy {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--bg);
+    font: 500 12px/1 var(--mono);
+    cursor: pointer;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 40px;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .feature {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 32px 28px 36px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .feature h3 {
+    margin-top: 12px;
+  }
+  .feature p {
+    font-size: 15px;
+  }
+
+  /* ---- Final call to action ---- */
+  .cta {
+    padding-top: 120px;
+  }
+  .cta-card {
+    position: relative;
+    overflow: hidden;
+    padding: 72px 48px;
+    border-radius: var(--radius-lg);
+    background: var(--ink);
+    color: var(--ink-text);
+  }
+  .cta-card .actions {
+    justify-content: flex-start;
+  }
+  /* Child component: scoped styles need :global to reach it. */
+  .cta-card :global(.cta-dither) {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: #2b2b30;
+    pointer-events: none;
+  }
+  .btn-light {
+    border-color: #fff;
+    background: #fff;
+    color: var(--ink);
+  }
+  .btn-light:hover {
+    border-color: #e9e9e7;
+    background: #e9e9e7;
+  }
+  .btn-ghost {
+    border-color: #3a3a40;
+    background: transparent;
+    color: #fff;
+  }
+  .btn-ghost:hover {
+    border-color: #55555c;
+    background: #1c1c20;
+  }
+
+  /* ---- Footer ---- */
+  .footer {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 96px;
+    padding: 28px 0 40px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .footer-links {
+    display: flex;
+    gap: 20px;
+    margin-right: auto;
+    color: var(--muted);
+  }
+  .footer-links a:hover {
+    color: var(--text);
+  }
+
+  /* ---- Small screens ---- */
+  @media (max-width: 860px) {
+    .feature-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .nav-links,
+    .star {
+      display: none;
+    }
+    .nav {
+      justify-content: space-between;
+    }
+    .hero {
+      padding-top: 40px;
+    }
+    .install-grid,
+    .feature-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .card + .card {
+      border-left: 1px solid var(--line);
+      border-top: 0;
+    }
+    .shot {
+      margin-top: 40px;
+      padding: 6px;
+    }
+    .shot-pixel {
+      display: none;
+    }
+    .cta-card {
+      padding: 48px 24px 120px;
+    }
+    .footer {
+      flex-wrap: wrap;
+    }
+  }
+</style>

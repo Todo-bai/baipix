@@ -1,0 +1,99 @@
+/* Baipix site: plain and quiet, like a design tool. Pixel art is only hinted at. */
+:root {
+  --bg: #ffffff;
+  --surface: #f6f6f5;
+  --line: #e7e7e5;
+  --text: #0d0d0f;
+  --muted: #6b6b70;
+  --ink: #0d0d0f;
+  --ink-text: #ffffff;
+  /* Square everywhere, like pixels. */
+  --radius: 0;
+  --radius-lg: 0;
+  --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --container: 1120px;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+p {
+  margin: 0;
+}
+
+/* Section titles, shared by the page and its components. */
+h2 {
+  margin: 0;
+  font-size: clamp(30px, 4.4vw, 46px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.container {
+  width: min(var(--container), 100% - 32px);
+  margin-inline: auto;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font: 500 15px/1 var(--sans);
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.btn:hover {
+  border-color: #cfcfcc;
+  background: var(--surface);
+}
+.btn-dark {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ink-text);
+}
+.btn-dark:hover {
+  border-color: #2a2a2e;
+  background: #2a2a2e;
+}
+.btn-small {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+}

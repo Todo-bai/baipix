@@ -1,0 +1,14 @@
+{
+  "name": "baipix-site",
+  "private": true,
+  "type": "module",
+  "description": "Baipix website: landing page (docs and community gallery later).",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^7.3.5"
+  }
+}

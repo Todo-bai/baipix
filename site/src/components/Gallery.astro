@@ -1,0 +1,165 @@
+---
+import { gallery } from '../gallery';
+import PixelIcon from './PixelIcon.astro';
+
+const ARROW = ['...#...', '..#....', '.#.....', '#######', '.#.....', '..#....', '...#...'];
+const ARROW_RIGHT = ARROW.map((r) => [...r].reverse().join(''));
+---
+
+<section id="gallery" class="gallery">
+  <div class="container gallery-head">
+    <div>
+      <h2>Made with Baipix.</h2>
+      <p class="muted sub">Every piece below is rendered with Baipix's own SVG export, right in this page.</p>
+    </div>
+    <div class="controls">
+      <button type="button" class="nav-btn" data-dir="-1" aria-label="Previous">
+        <PixelIcon rows={ARROW} size={14} />
+      </button>
+      <button type="button" class="nav-btn" data-dir="1" aria-label="Next">
+        <PixelIcon rows={ARROW_RIGHT} size={14} />
+      </button>
+    </div>
+  </div>
+  <!-- Full-bleed row: pieces at their own proportions, side by side, edge to edge. -->
+  <div class="track" tabindex="0" aria-label="Gallery of pixel art made with Baipix">
+    {
+      gallery.map((piece) => (
+        <figure class="piece" style={`--ratio: ${piece.width / piece.height}`}>
+          <div class={`art${piece.transparent ? ' is-transparent' : ''}`} set:html={piece.svg} role="img" aria-label={piece.title} />
+          <figcaption>
+            <span class="title">{piece.title}</span>
+            <span class="muted meta">
+              {piece.style} · {piece.width}×{piece.height} · {piece.colors} colors
+            </span>
+            <a class="download" href={piece.download} download={piece.file}>
+              .baipix
+            </a>
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  const track = document.querySelector<HTMLElement>('.gallery .track')!;
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.gallery .nav-btn')) {
+    button.addEventListener('click', () => {
+      const pieces = [...track.querySelectorAll<HTMLElement>('.piece')];
+      const left = track.scrollLeft;
+      // Snap to the next or previous piece's left edge.
+      const target =
+        Number(button.dataset.dir) > 0
+          ? pieces.find((p) => p.offsetLeft > left + 4)
+          : pieces.reverse().find((p) => p.offsetLeft < left - 4);
+      track.scrollTo({ left: target?.offsetLeft ?? (Number(button.dataset.dir) > 0 ? track.scrollWidth : 0), behavior: 'smooth' });
+    });
+  }
+</script>
+
+<style>
+  .gallery {
+    padding-top: 120px;
+  }
+  .gallery-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .sub {
+    margin-top: 12px;
+  }
+  .controls {
+    display: flex;
+  }
+  .nav-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .nav-btn + .nav-btn {
+    border-left: 0;
+  }
+  .nav-btn:hover {
+    background: var(--surface);
+  }
+  .track {
+    --height: clamp(280px, 38vw, 540px);
+    display: flex;
+    gap: 2px;
+    margin-top: 40px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+  .track:focus-visible {
+    outline: none;
+  }
+  .piece {
+    /* Height from the row, capped so a piece never gets wider than 88% of the screen. */
+    --h: min(var(--height), calc(88vw / max(var(--ratio), 1)));
+    flex: none;
+    width: calc(var(--h) * max(var(--ratio), 1));
+    margin: 0;
+    scroll-snap-align: start;
+  }
+  .art {
+    display: grid;
+    place-items: center;
+    height: var(--h);
+    background: var(--surface);
+  }
+  /* Pieces without a background (sprites) get some air; the others fill their frame. */
+  .art.is-transparent {
+    padding: 8%;
+  }
+  .art :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  figcaption {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 14px 16px 0;
+    font-size: 14px;
+  }
+  .title {
+    font-weight: 500;
+  }
+  .meta {
+    font-size: 13px;
+  }
+  .download {
+    margin-left: auto;
+    font: 500 12px/1.4 var(--mono);
+    color: var(--muted);
+  }
+  .download:hover {
+    color: var(--text);
+  }
+  @media (max-width: 640px) {
+    .controls {
+      display: none;
+    }
+    figcaption {
+      flex-wrap: wrap;
+      row-gap: 2px;
+    }
+    .meta {
+      order: 3;
+      width: 100%;
+    }
+  }
+</style>

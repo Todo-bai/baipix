@@ -1,0 +1,17 @@
+---
+/** Small monochrome pixel icon from rows of '#' (filled) and '.' (empty). */
+interface Props {
+  rows: string[];
+  size?: number;
+}
+const { rows, size = 28 } = Astro.props;
+const w = rows[0].length;
+const h = rows.length;
+const d = rows
+  .flatMap((row, y) => [...row].map((c, x) => (c === '#' ? `M${x} ${y}h1v1h-1z` : '')))
+  .join('');
+---
+
+<svg viewBox={`0 0 ${w} ${h}`} width={size} height={(size * h) / w} shape-rendering="crispEdges" aria-hidden="true">
+  <path fill="currentColor" d={d}></path>
+</svg>

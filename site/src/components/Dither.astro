@@ -1,0 +1,35 @@
+---
+/**
+ * Ordered-dither fade (Bayer 4×4): solid on one side, fading out on the other. A quiet nod to
+ * pixel art for corners and edges.
+ */
+interface Props {
+  cols?: number;
+  rows?: number;
+  cell?: number;
+  class?: string;
+  /** Colors from the sparse side to the dense side; one color per vertical band. */
+  colors?: string[];
+}
+const { cols = 24, rows = 8, cell = 8, class: className, colors = ['currentColor'] } = Astro.props;
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const paths = colors.map(() => '');
+for (let y = 0; y < rows; y++)
+  for (let x = 0; x < cols; x++) {
+    // Density goes from 1 (right) to 0 (left), a bit steeper toward the top.
+    const density = (x / (cols - 1)) * (0.55 + (0.45 * y) / Math.max(1, rows - 1));
+    if (density * 16 > BAYER[(y % 4) * 4 + (x % 4)] + 0.5)
+      paths[Math.min(colors.length - 1, Math.floor((x / cols) * colors.length))] += `M${x} ${y}h1v1h-1z`;
+  }
+---
+
+<svg
+  class={className}
+  viewBox={`0 0 ${cols} ${rows}`}
+  width={cols * cell}
+  height={rows * cell}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+>
+  {paths.map((d, i) => <path fill={colors[i]} d={d} />)}
+</svg>

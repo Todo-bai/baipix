@@ -16,6 +16,7 @@ export type ToolId =
   | 'triangle'
   | 'star'
   | 'shade'
+  | 'lighten'
   | 'blur'
   | 'picker';
 
@@ -27,7 +28,6 @@ export interface ToolOptions {
   /** Corner radius of the rounded rectangle, in pixels. */
   radius: number;
   contiguous: boolean;
-  shadeInvert: boolean;
   blurStrength: number;
   blurSnap: boolean;
 }
@@ -39,7 +39,6 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   filled: false,
   radius: 2,
   contiguous: true,
-  shadeInvert: false,
   blurStrength: 1,
   blurSnap: true,
 };

@@ -36,7 +36,8 @@ export const fr: Record<MessageKey, string> = {
   'tool.ellipse': 'Ellipse',
   'tool.triangle': 'Triangle',
   'tool.star': 'Étoile',
-  'tool.shade': 'Ombrage',
+  'tool.shade': 'Ombrer',
+  'tool.lighten': 'Éclaircir',
   'tool.blur': 'Flou',
   'tool.picker': 'Pipette',
 
@@ -111,7 +112,6 @@ export const fr: Record<MessageKey, string> = {
   'options.filled': 'Forme pleine',
   'options.radius': 'Rayon',
   'options.contiguous': 'Zone contiguë uniquement',
-  'options.shadeInvert': 'Inverser le sens',
   'options.strength': 'Force',
   'options.blurSnap': 'Rester dans la palette',
 
@@ -122,8 +122,8 @@ export const fr: Record<MessageKey, string> = {
   'hint.shape': 'Maj pour une forme régulière.',
   'hint.bucketContiguous': 'Remplit la zone de même couleur sous le curseur.',
   'hint.bucketGlobal': 'Remplace cette couleur partout sur le calque.',
-  'hint.shade': 'Clic gauche éclaircit, clic droit assombrit, avec les couleurs de la palette.',
-  'hint.shadeInverted': 'Clic gauche assombrit, clic droit éclaircit, avec les couleurs de la palette.',
+  'hint.shade': 'Assombrit avec la couleur plus foncée suivante de la palette. Clic droit pour éclaircir.',
+  'hint.lighten': 'Éclaircit avec la couleur plus claire suivante de la palette. Clic droit pour assombrir.',
   'hint.blurSnap':
     'Mélange les pixels voisins puis choisit la couleur la plus proche dans la palette. Repasse pour flouter davantage.',
   'hint.blurFree':

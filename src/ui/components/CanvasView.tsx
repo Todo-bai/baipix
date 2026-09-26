@@ -12,7 +12,7 @@ import { BRUSH_TOOLS, SHAPE_IDS } from '../tools';
 import { hoverStore, uiStore } from '../uiStore';
 import { viewport } from '../viewport';
 
-const DRAWING_TOOLS: ToolId[] = ['pencil', 'eraser', ...SHAPE_IDS, 'bucket', 'shade', 'blur'];
+const DRAWING_TOOLS: ToolId[] = ['pencil', 'eraser', ...SHAPE_IDS, 'bucket', 'shade', 'lighten', 'blur'];
 
 interface Pinch {
   distance: number;
@@ -80,7 +80,7 @@ export function CanvasView() {
       let brush: BrushPreview | null = null;
       const shapeInProgress = live.stroking !== null && SHAPE_IDS.includes(live.stroking);
       if (hover && !panStart && !pinch && BRUSH_TOOLS.includes(tool) && !shapeInProgress) {
-        const paints = tool !== 'eraser' && tool !== 'shade' && tool !== 'blur';
+        const paints = !['eraser', 'shade', 'lighten', 'blur'].includes(tool);
         brush = { at: hover, size: state.options.size, color: paints ? state.primary : null };
       }
       drawScene(

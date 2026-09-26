@@ -13,6 +13,7 @@ export const SHORTCUT_GROUPS: { title: MessageKey; items: [MessageKey, string][]
       ['tool.rect', 'R'],
       ['tool.ellipse', 'C'],
       ['tool.shade', 'S'],
+      ['tool.lighten', 'O'],
       ['tool.blur', 'F'],
       ['tool.picker', 'I / Alt'],
     ],

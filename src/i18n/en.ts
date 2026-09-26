@@ -35,7 +35,8 @@ export const en = {
   'tool.ellipse': 'Ellipse',
   'tool.triangle': 'Triangle',
   'tool.star': 'Star',
-  'tool.shade': 'Shading',
+  'tool.shade': 'Shade',
+  'tool.lighten': 'Lighten',
   'tool.blur': 'Blur',
   'tool.picker': 'Eyedropper',
 
@@ -110,7 +111,6 @@ export const en = {
   'options.filled': 'Filled shape',
   'options.radius': 'Radius',
   'options.contiguous': 'Contiguous area only',
-  'options.shadeInvert': 'Invert direction',
   'options.strength': 'Strength',
   'options.blurSnap': 'Stay within the palette',
 
@@ -120,8 +120,8 @@ export const en = {
   'hint.shape': 'Shift for a regular shape.',
   'hint.bucketContiguous': 'Fills the same-color area under the cursor.',
   'hint.bucketGlobal': 'Replaces this color everywhere on the layer.',
-  'hint.shade': 'Left click lightens, right click darkens, using palette colors.',
-  'hint.shadeInverted': 'Left click darkens, right click lightens, using palette colors.',
+  'hint.shade': 'Darkens with the next darker palette color. Right click to lighten.',
+  'hint.lighten': 'Lightens with the next lighter palette color. Right click to darken.',
   'hint.blurSnap':
     'Mixes neighboring pixels, then picks the closest palette color. Paint again to blur more.',
   'hint.blurFree':

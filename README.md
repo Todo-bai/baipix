@@ -7,7 +7,7 @@
 ## Features
 
 - **Drawing tools:** pencil with pixel-perfect mode, eraser, line, rectangle, ellipse (outline or filled), paint bucket (contiguous or global), selection and move, eyedropper.
-- **Palette-aware tools:** shading picks the next lighter or darker palette color in OKLab; blur can snap its result back to the palette.
+- **Palette-aware tools:** shade and lighten pick the next darker or lighter palette color in OKLab; blur can snap its result back to the palette.
 - **Palettes:** Sweetie 16, PICO-8, Endesga 32, Game Boy… Paste any Lospec palette, build one from your drawing, or generate hue-shifted ramps.
 - **Layers, multiple files, symmetry, tile preview, checkerboard dithering.**
 - **Rendering for design work:** choose the exported pixel size and a gap between pixels (LED / dot-matrix look), previewed live on the canvas.

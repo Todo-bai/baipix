@@ -139,15 +139,11 @@ export function ToolSection() {
       );
       break;
     case 'shade':
+    case 'lighten':
       body = (
         <>
           {size}
-          <Checkbox
-            checked={options.shadeInvert}
-            onChange={set('shadeInvert')}
-            label={t('options.shadeInvert')}
-          />
-          {hint(options.shadeInvert ? t('hint.shadeInverted') : t('hint.shade'))}
+          {hint(t(tool === 'shade' ? 'hint.shade' : 'hint.lighten'))}
         </>
       );
       break;

@@ -5,7 +5,7 @@ import { move } from './move';
 import { pencil } from './pencil';
 import { picker } from './picker';
 import { select } from './select';
-import { shade } from './shade';
+import { lighten, shade } from './shade';
 import { ellipseTool, lineTool, rectTool, roundRectTool, starTool, triangleTool } from './shapes';
 import type { Tool, ToolId } from './types';
 
@@ -23,6 +23,7 @@ export const TOOLS: Record<ToolId, Tool> = {
   triangle: triangleTool,
   star: starTool,
   shade,
+  lighten,
   blur,
   picker,
 };

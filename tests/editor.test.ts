@@ -165,4 +165,23 @@ describe('Editor', () => {
       expect(painted(e)).toBeGreaterThan(outline);
     }
   });
+
+  it('shades darker and lightens lighter with palette colors', () => {
+    const GREEN = pack(0x38, 0xb7, 0x64);
+    const brightness = (c: number) => (c & 0xff) + ((c >> 8) & 0xff) + ((c >> 16) & 0xff);
+    for (const [tool, darker] of [
+      ['shade', true],
+      ['lighten', false],
+    ] as const) {
+      const e = new Editor();
+      e.setColor('primary', GREEN);
+      drag(e, [[5, 5]]);
+      const before = layer(e)[5 * 32 + 5];
+      e.setTool(tool);
+      drag(e, [[5, 5]]);
+      const after = layer(e)[5 * 32 + 5];
+      expect(after).not.toBe(before);
+      expect(brightness(after) < brightness(before)).toBe(darker);
+    }
+  });
 });

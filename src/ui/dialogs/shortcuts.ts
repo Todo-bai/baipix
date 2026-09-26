@@ -45,6 +45,7 @@ export const SHORTCUT_GROUPS: { title: MessageKey; items: [MessageKey, string][]
       ['menu.hideUi', '@'],
       ['menu.open', 'Ctrl+O'],
       ['menu.export', 'Ctrl+E'],
+      ['menu.adjustColors', 'Ctrl+U'],
     ],
   },
 ];

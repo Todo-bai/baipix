@@ -16,6 +16,8 @@ export interface UiState {
   picker: { slot: ColorSlot; top: number } | null;
   /** Mobile bottom sheet. */
   sheet: 'left' | 'right' | null;
+  /** Color adjustment panel open. */
+  adjust: boolean;
   panelWidths: { left: number; right: number };
   uiHidden: boolean;
   exportFormat: 'png' | 'svg';
@@ -31,6 +33,7 @@ export const uiStore = createStore<UiState>({
   dialog: null,
   picker: null,
   sheet: null,
+  adjust: false,
   panelWidths: { left: PANEL_LIMITS.left.default, right: PANEL_LIMITS.right.default },
   uiHidden: false,
   exportFormat: 'png',

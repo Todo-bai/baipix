@@ -1,4 +1,4 @@
-import { alpha, opaque, type Color } from './color';
+import { adjustColor, alpha, opaque, type Color, type ColorAdjustment } from './color';
 import { flatten, mergeLayerInto, type FlattenOptions } from './composite';
 import {
   activeLayer,
@@ -121,6 +121,8 @@ export class Editor {
   private view: ViewSettings = { grid: true, tile: false, mirrorX: false, mirrorY: false, showGap: true };
   private clipboard: PixelBlock | null = null;
   private stroke: Stroke | null = null;
+  /** Color adjustment in progress: the original pixels of the layers being adjusted. */
+  private adjusting: { layers: { id: string; base: Uint32Array }[]; rect: Rect } | null = null;
   private strokeTool: ToolId | null = null;
   private opacityChange = false;
   private revision = 0;
@@ -227,7 +229,7 @@ export class Editor {
   }
 
   undo(): void {
-    if (this.stroke) return;
+    if (this.stroke || this.adjusting) return;
     const prev = this.active.history.undo(takeSnapshot(this.doc, this.active.selection));
     if (prev) {
       this.restore(prev);
@@ -236,7 +238,7 @@ export class Editor {
   }
 
   redo(): void {
-    if (this.stroke) return;
+    if (this.stroke || this.adjusting) return;
     const next = this.active.history.redo(takeSnapshot(this.doc, this.active.selection));
     if (next) {
       this.restore(next);
@@ -299,6 +301,7 @@ export class Editor {
     const target = this.sessions.find((s) => s.doc.id === id);
     if (!target || target === this.active) return;
     this.cancelStroke();
+    this.cancelAdjust();
     this.active = target;
     this.commit();
   }
@@ -618,6 +621,70 @@ export class Editor {
     });
   }
 
+  /* ------------------------------------------------------------------ color adjustment */
+
+  get isAdjusting(): boolean {
+    return this.adjusting !== null;
+  }
+
+  /**
+   * Starts adjusting colors of the active layer (or all layers), limited to the selection if any.
+   * Previews are live and not in the history; `applyAdjust` makes one undo step.
+   */
+  beginAdjust(allLayers: boolean): void {
+    this.cancelStroke();
+    this.cancelAdjust();
+    const doc = this.doc;
+    const layers = allLayers ? doc.layers : [activeLayer(doc)];
+    this.adjusting = {
+      layers: layers.map((l) => ({ id: l.id, base: l.pixels.slice() })),
+      rect: clipRect(this.targetRect(), doc.width, doc.height),
+    };
+  }
+
+  /** Rewrites the adjusted layers from their original pixels. */
+  private writeAdjustment(adj: ColorAdjustment | null): void {
+    const { layers, rect } = this.adjusting!;
+    const width = this.doc.width;
+    const cache = new Map<Color, Color>();
+    for (const { id, base } of layers) {
+      const layer = this.doc.layers.find((l) => l.id === id);
+      if (!layer) continue;
+      layer.pixels.set(base);
+      if (!adj) continue;
+      for (let y = rect.y; y < rect.y + rect.h; y++)
+        for (let x = rect.x; x < rect.x + rect.w; x++) {
+          const i = y * width + x;
+          const c = base[i];
+          let next = cache.get(c);
+          if (next === undefined) cache.set(c, (next = adjustColor(c, adj)));
+          layer.pixels[i] = next;
+        }
+    }
+  }
+
+  previewAdjust(adj: ColorAdjustment): void {
+    if (!this.adjusting) return;
+    this.writeAdjustment(adj);
+    this.pixelsChanged();
+  }
+
+  /** Commits the adjustment as one undo step; `palette` also adjusts the palette colors. */
+  applyAdjust(adj: ColorAdjustment, palette: boolean): void {
+    if (!this.adjusting) return;
+    this.writeAdjustment(null);
+    this.edit(() => this.writeAdjustment(adj));
+    this.adjusting = null;
+    if (palette) this.setPaletteColors(this.palette.colors.map((c) => adjustColor(c, adj)));
+  }
+
+  cancelAdjust(): void {
+    if (!this.adjusting) return;
+    this.writeAdjustment(null);
+    this.adjusting = null;
+    this.pixelsChanged();
+  }
+
   /** Moves the selection (or the layer) by a few pixels, as one undo step. */
   nudge(dx: number, dy: number): void {
     if (this.stroke || !activeLayer(this.doc).visible) return;
@@ -724,6 +791,7 @@ export class Editor {
    */
   beginStroke(p: Point, secondary: boolean, mods: Modifiers, toolOverride?: ToolId): boolean {
     this.cancelStroke();
+    if (this.adjusting) return false;
     const id = toolOverride ?? this.tool;
     const tool = TOOLS[id];
     if (tool.editsPixels && !activeLayer(this.doc).visible) {

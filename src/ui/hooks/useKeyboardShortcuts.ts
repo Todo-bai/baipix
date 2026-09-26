@@ -52,6 +52,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
               true
             );
           if (key === 'o') return (void actions.openDocument(), true);
+          if (key === 'u') return (uiStore.set({ adjust: true }), true);
           return false;
         })();
         if (handled) e.preventDefault();

@@ -184,4 +184,35 @@ describe('Editor', () => {
       expect(brightness(after) < brightness(before)).toBe(darker);
     }
   });
+
+  it('adjusts colors with a live preview, then as one undo step', () => {
+    const e = new Editor();
+    const RED_HUE = { hue: 120, saturation: 100, brightness: 100 };
+    e.setColor('primary', RED);
+    drag(e, [
+      [0, 0],
+      [3, 0],
+    ]);
+    const before = [...layer(e)];
+    e.beginAdjust(false);
+    e.previewAdjust(RED_HUE);
+    expect(layer(e)[0]).toBe(pack(0, 255, 0));
+    e.cancelAdjust();
+    expect([...layer(e)]).toEqual(before);
+
+    // Limited to the selection, and one undo step.
+    e.setTool('select');
+    drag(e, [
+      [0, 0],
+      [1, 0],
+    ]);
+    e.beginAdjust(false);
+    e.previewAdjust(RED_HUE);
+    e.applyAdjust(RED_HUE, true);
+    expect(layer(e)[1]).toBe(pack(0, 255, 0));
+    expect(layer(e)[2]).toBe(RED);
+    expect(e.getState().palette.colors).not.toContain(pack(0x1a, 0x1c, 0x2c));
+    e.undo();
+    expect(layer(e)[1]).toBe(RED);
+  });
 });

@@ -79,6 +79,33 @@ export function hsvToRgb({ h, s, v }: Hsv): [number, number, number] {
   return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
 }
 
+/** Hue shift in degrees; saturation and brightness in %, 100 = unchanged, 0..200. */
+export interface ColorAdjustment {
+  hue: number;
+  saturation: number;
+  brightness: number;
+}
+
+export const NO_ADJUSTMENT: ColorAdjustment = { hue: 0, saturation: 100, brightness: 100 };
+
+/** Below 100% scales the value down; above, moves it toward 1 (so full values still change). */
+const scaleUnit = (v: number, percent: number): number => {
+  const k = Math.max(0, Math.min(200, percent)) / 100;
+  return k <= 1 ? v * k : v + (1 - v) * (k - 1);
+};
+
+/** Adjusts hue, saturation and brightness (HSV) of a color; alpha and transparent pixels are kept. */
+export function adjustColor(c: Color, adj: ColorAdjustment): Color {
+  if (!alpha(c)) return c;
+  const hsv = rgbToHsv(red(c), green(c), blue(c));
+  const [r, g, b] = hsvToRgb({
+    h: hsv.h + adj.hue,
+    s: scaleUnit(hsv.s, adj.saturation),
+    v: scaleUnit(hsv.v, adj.brightness),
+  });
+  return pack(r, g, b, alpha(c));
+}
+
 /* ---- OKLab: a perceptual color space, used for shading, ramps and nearest-color search ---- */
 
 export type Lab = [number, number, number];

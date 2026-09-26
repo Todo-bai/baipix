@@ -4,6 +4,8 @@
 
 ![Baipix](docs/screenshot.png)
 
+The sky above is [`docs/sunset.baipix`](docs/sunset.baipix): open it in Baipix (Open a .baipix file, or drop it on the canvas) to explore its layers.
+
 ## Pixel art that leaves as clean vector
 
 Every color becomes a single SVG path, with neighboring pixels merged: light files, no seams between pixels, and one click to recolor in your design tool. **Copy as SVG** and paste straight into Figma or Illustrator, pixel gap included.

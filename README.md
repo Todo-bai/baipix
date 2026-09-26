@@ -4,16 +4,21 @@
 
 ![Baipix](docs/screenshot.png)
 
+## Pixel art that leaves as clean vector
+
+Every color becomes a single SVG path, with neighboring pixels merged: light files, no seams between pixels, and one click to recolor in your design tool. **Copy as SVG** and paste straight into Figma or Illustrator, pixel gap included.
+
 ## Features
 
-- **Drawing tools:** pencil with pixel-perfect mode, eraser, line, rectangle, ellipse (outline or filled), paint bucket (contiguous or global), selection and move, eyedropper.
+- **Drawing tools:** pencil with pixel-perfect mode, eraser, paint bucket (contiguous or global), selection and move, eyedropper.
+- **Shapes:** line, rectangle, rounded rectangle, ellipse, triangle and star, outlined or filled.
 - **Palette-aware tools:** shade and lighten pick the next darker or lighter palette color in OKLab; blur can snap its result back to the palette.
 - **Palettes:** Sweetie 16, PICO-8, Endesga 32, Game Boy… Paste any Lospec palette, build one from your drawing, or generate hue-shifted ramps.
-- **Layers, multiple files, symmetry, tile preview, checkerboard dithering.**
+- **Layers, multiple files, symmetry, tile preview, checkerboard dithering, 90° rotation and flips.**
 - **Rendering for design work:** choose the exported pixel size and a gap between pixels (LED / dot-matrix look), previewed live on the canvas.
 - **Export:** PNG, clean SVG (one path per color, merged runs), **copy as SVG to paste straight into Figma or Illustrator**, `.baipix` project files, Lospec `.hex` palettes.
 - **Local-first:** everything is saved in your browser (IndexedDB). Nothing is sent anywhere.
-- English and French.
+- English and French, light and dark themes.
 
 ## Getting started
 

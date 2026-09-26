@@ -8,13 +8,14 @@ interface IconProps {
 
 export function Icon({ name, size = 16 }: IconProps) {
   if (name === 'logo') {
-    // `size` is the logo height.
+    // `size` is the logo height; multiples of 8 keep every square on whole pixels.
     return (
       <svg
         className="icon"
         viewBox={`0 0 ${LOGO.width} ${LOGO.height}`}
         width={(size * LOGO.width) / LOGO.height}
         height={size}
+        shapeRendering="crispEdges"
         aria-hidden="true"
       >
         <path fill="currentColor" d={LOGO.d} />

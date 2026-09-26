@@ -71,9 +71,12 @@ export const ICONS = {
 
 export type IconName = keyof typeof ICONS | 'logo';
 
-/** The Baipix logo, a 13×17 "B" drawn in the text color (white on dark, black on light). */
+/**
+ * The Baipix logo: a pixel escaping a 2×2 block, on an 8×8 grid (3×3 squares). Drawn in the text
+ * color, so it is black on light and white on dark.
+ */
 export const LOGO = {
-  width: 13,
-  height: 17,
-  d: 'M2.314 16.822V14.586H0V2.288H2.314V0H10.01V2.288H12.35V7.774H10.01V9.048H12.35V14.586H10.01V16.822H2.314ZM3.068 13.598H9.256V10.01H4.602V6.812H9.256V3.25H3.068V13.598Z',
+  width: 8,
+  height: 8,
+  d: 'M0 2h3v6H0zM3 5h3v3H3zM5 0h3v3H5z',
 };

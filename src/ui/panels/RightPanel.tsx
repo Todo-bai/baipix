@@ -248,6 +248,7 @@ function CanvasSection() {
   return (
     <Section
       title={t('section.canvas')}
+      info={t('canvas.resizeHint')}
       aside={<IconButton icon="plus" label={t('file.new')} onClick={() => openDialog({ type: 'newFile' })} />}
     >
       <div className="two-columns">
@@ -270,7 +271,6 @@ function CanvasSection() {
           onChange={(v, final) => final && editor.resize(doc.width, v)}
         />
       </div>
-      <p className="hint">{t('canvas.resizeHint')}</p>
       <div className="subsection-title">
         <span>{t('canvas.background')}</span>
         {!hasBg && (
@@ -311,9 +311,7 @@ function CanvasSection() {
             </>
           }
         />
-      ) : (
-        <p className="hint">{t('canvas.noBackground')}</p>
-      )}
+      ) : null}
     </Section>
   );
 }
@@ -371,6 +369,7 @@ function ExportSection() {
       <button
         type="button"
         className="btn btn-wide"
+        data-tip={`${t('export.info', { w: g.width, h: g.height })} ${bg ? t('export.withBackground') : t('export.transparent')}`}
         onClick={() => void actions.exportImage(format, onlyLayer)}
       >
         {t('export.file', { name: `${doc.name}.${format}` })}
@@ -394,10 +393,6 @@ function ExportSection() {
           {t('export.copyPng')}
         </button>
       </div>
-      <p className="hint">
-        {t('export.info', { w: g.width, h: g.height })}{' '}
-        {bg ? t('export.withBackground') : t('export.transparent')}
-      </p>
     </Section>
   );
 }
@@ -407,12 +402,12 @@ export function RightPanel() {
   return (
     <aside className="panel panel-right" aria-label={t('panel.right')}>
       <TopBar />
+      <CanvasSection />
       <RenderSection />
       <ToolSection />
       <ColorsSection />
       <PaletteSection />
       <LayerSection />
-      <CanvasSection />
       <DisplaySection />
       <ExportSection />
     </aside>

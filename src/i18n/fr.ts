@@ -179,7 +179,6 @@ export const fr: Record<MessageKey, string> = {
   'canvas.hideBackground': 'Masquer le fond',
   'canvas.showBackground': 'Afficher le fond',
   'canvas.removeBackground': 'Retirer le fond',
-  'canvas.noBackground': 'Aucun fond : les zones vides restent transparentes.',
   'canvas.drop': "Dépose une image pour l'importer",
 
   'display.grid': 'Grille de pixels',

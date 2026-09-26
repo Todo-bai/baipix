@@ -189,6 +189,24 @@ body.is-resizing * {
 .section-name {
   flex: 1;
 }
+/* With an info icon, the icon sits right after the title and pushes the aside to the right. */
+.section-name:has(+ .section-info) {
+  flex: 0 1 auto;
+}
+.section-info {
+  display: grid;
+  place-items: center;
+  margin-right: auto;
+  padding: 2px;
+  border-radius: 50%;
+  color: var(--muted);
+  cursor: help;
+}
+.section-info:hover,
+.section-info:focus-visible {
+  color: var(--text);
+  outline: none;
+}
 .section-title .muted {
   font-weight: 400;
   max-width: 50%;
@@ -986,7 +1004,10 @@ body.is-panning .canvas {
   border-radius: var(--radius);
   background: var(--tooltip-bg);
   color: #fff;
-  white-space: nowrap;
+  /* Short labels stay on one line; help texts wrap. */
+  width: max-content;
+  max-width: 240px;
+  line-height: 1.4;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.1s;

@@ -177,7 +177,6 @@ export const en = {
   'canvas.hideBackground': 'Hide the background',
   'canvas.showBackground': 'Show the background',
   'canvas.removeBackground': 'Remove the background',
-  'canvas.noBackground': 'No background: empty areas stay transparent.',
   'canvas.drop': 'Drop an image to import it',
 
   'display.grid': 'Pixel grid',

@@ -36,7 +36,8 @@ export function ToolSection() {
       />
     </Row>
   );
-  const hint = (text: string) => <p className="hint">{text}</p>;
+  // Help texts go in the section's info tooltip, not in the panel.
+  let info: string | undefined;
   const flips = (
     <div className="button-group">
       <IconButton
@@ -63,6 +64,7 @@ export function ToolSection() {
   let body: ReactNode;
   switch (tool) {
     case 'pencil':
+      info = t('hint.pencil');
       body = (
         <>
           {size}
@@ -72,23 +74,22 @@ export function ToolSection() {
             label={t('options.pixelPerfect')}
           />
           <Checkbox checked={options.dither} onChange={set('dither')} label={t('options.dither')} />
-          {hint(t('hint.pencil'))}
         </>
       );
       break;
     case 'eraser':
+      info = t('hint.eraser');
       body = (
         <>
           {size}
-          {hint(t('hint.eraser'))}
         </>
       );
       break;
     case 'line':
+      info = t('hint.line');
       body = (
         <>
           {size}
-          {hint(t('hint.line'))}
         </>
       );
       break;
@@ -97,6 +98,7 @@ export function ToolSection() {
     case 'ellipse':
     case 'triangle':
     case 'star':
+      info = t('hint.shape');
       body = (
         <>
           {size}
@@ -116,11 +118,11 @@ export function ToolSection() {
             </Row>
           )}
           <Checkbox checked={options.filled} onChange={set('filled')} label={t('options.filled')} />
-          {hint(t('hint.shape'))}
         </>
       );
       break;
     case 'bucket':
+      info = options.contiguous ? t('hint.bucketContiguous') : t('hint.bucketGlobal');
       body = (
         <>
           <Checkbox
@@ -129,7 +131,6 @@ export function ToolSection() {
             label={t('options.contiguous')}
           />
           <Checkbox checked={options.dither} onChange={set('dither')} label={t('options.dither')} />
-          {hint(options.contiguous ? t('hint.bucketContiguous') : t('hint.bucketGlobal'))}
           <div className="button-row">
             <button type="button" className="btn" data-kbd="Shift+Del" onClick={() => editor.fill()}>
               {hasSelection ? t('menu.fillSelection') : t('menu.fillLayer')}
@@ -140,14 +141,15 @@ export function ToolSection() {
       break;
     case 'shade':
     case 'lighten':
+      info = t(tool === 'shade' ? 'hint.shade' : 'hint.lighten');
       body = (
         <>
           {size}
-          {hint(t(tool === 'shade' ? 'hint.shade' : 'hint.lighten'))}
         </>
       );
       break;
     case 'blur':
+      info = options.blurSnap ? t('hint.blurSnap') : t('hint.blurFree');
       body = (
         <>
           {size}
@@ -164,14 +166,15 @@ export function ToolSection() {
             />
           </Row>
           <Checkbox checked={options.blurSnap} onChange={set('blurSnap')} label={t('options.blurSnap')} />
-          {hint(options.blurSnap ? t('hint.blurSnap') : t('hint.blurFree'))}
         </>
       );
       break;
     case 'picker':
-      body = hint(t('hint.picker'));
+      info = t('hint.picker');
+      body = null;
       break;
     case 'select':
+      info = t('hint.select');
       body = (
         <>
           <div className="button-row">
@@ -183,22 +186,21 @@ export function ToolSection() {
             </button>
           </div>
           {flips}
-          {hint(t('hint.select'))}
         </>
       );
       break;
     case 'move':
+      info = hasSelection ? t('hint.moveSelection') : t('hint.moveLayer');
       body = (
         <>
           {flips}
-          {hint(hasSelection ? t('hint.moveSelection') : t('hint.moveLayer'))}
         </>
       );
       break;
   }
 
   return (
-    <Section title={t(meta.label)} aside={<span className="muted">{meta.shortcut}</span>}>
+    <Section title={t(meta.label)} info={info} aside={<span className="muted">{meta.shortcut}</span>}>
       {body}
     </Section>
   );

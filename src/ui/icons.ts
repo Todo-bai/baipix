@@ -12,6 +12,7 @@ import {
   EyeOff,
   FlipHorizontal2,
   FlipVertical2,
+  Info,
   Layers,
   Menu,
   Minus,
@@ -80,6 +81,7 @@ export const ICONS = {
   layers: Layers,
   panel: SlidersHorizontal,
   close: X,
+  info: Info,
   rotate: RotateCwSquare,
   // Lucide names these after the axis line: the vertical line mirrors left-right.
   flipH: FlipVertical2,

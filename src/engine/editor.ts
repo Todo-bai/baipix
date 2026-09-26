@@ -424,6 +424,17 @@ export class Editor {
     });
   }
 
+  /** Moves a layer to another position (indices bottom to top), as one undo step. It stays active. */
+  reorderLayer(from: number, to: number): void {
+    const n = this.doc.layers.length;
+    if (from === to || from < 0 || to < 0 || from >= n || to >= n) return;
+    this.edit((doc) => {
+      const [layer] = doc.layers.splice(from, 1);
+      doc.layers.splice(to, 0, layer);
+      doc.activeLayer = to;
+    });
+  }
+
   mergeDown(): void {
     const i = this.doc.activeLayer;
     if (i <= 0) return;

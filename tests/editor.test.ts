@@ -215,4 +215,17 @@ describe('Editor', () => {
     e.undo();
     expect(layer(e)[1]).toBe(RED);
   });
+
+  it('reorders layers to any position, as one undo step', () => {
+    const e = new Editor();
+    e.addLayer();
+    e.addLayer();
+    const names = () => e.getState().doc.layers.map((l) => l.name);
+    const before = names();
+    e.reorderLayer(0, 2);
+    expect(names()).toEqual([before[1], before[2], before[0]]);
+    expect(e.getState().doc.activeLayer).toBe(2);
+    e.undo();
+    expect(names()).toEqual(before);
+  });
 });

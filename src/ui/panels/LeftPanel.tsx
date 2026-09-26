@@ -161,18 +161,73 @@ function LayersSection() {
   const doc = useEditorState((s) => s.doc);
   const revision = useEditorState((s) => s.revision);
   const layers = doc.layers.map((layer, index) => ({ layer, index })).reverse();
+  const n = layers.length;
+  const listRef = useRef<HTMLDivElement>(null);
+  // Drag to reorder: `slot` is the gap (in display order, top first) where the layer would land.
+  const [drag, setDrag] = useState<{ from: number; slot: number } | null>(null);
+  const dragged = useRef(false);
+
+  const startDrag = (e: React.PointerEvent, displayPos: number, index: number) => {
+    if (e.button !== 0 || (e.target as HTMLElement).closest('button, input')) return;
+    const y0 = e.clientY;
+    let started = false;
+    const slotAt = (y: number) => {
+      const items = [...(listRef.current?.querySelectorAll('.item') ?? [])];
+      const k = items.findIndex((el) => {
+        const r = el.getBoundingClientRect();
+        return y < r.top + r.height / 2;
+      });
+      return k < 0 ? items.length : k;
+    };
+    const move = (ev: PointerEvent) => {
+      if (!started && Math.abs(ev.clientY - y0) < 4) return;
+      started = true;
+      document.body.classList.add('is-dragging-layer');
+      setDrag({ from: index, slot: slotAt(ev.clientY) });
+    };
+    const end = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      document.body.classList.remove('is-dragging-layer');
+      setDrag(null);
+      if (!started) return;
+      dragged.current = true; // swallow the click that follows the drag
+      const slot = slotAt(ev.clientY);
+      const pos = slot > displayPos ? slot - 1 : slot;
+      if (ev.type === 'pointerup') editor.reorderLayer(index, n - 1 - pos);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+  };
+  // No indicator when dropping would not move the layer.
+  const dropClass = (displayPos: number) => {
+    if (!drag) return '';
+    const from = n - 1 - drag.from;
+    if (drag.slot === from || drag.slot === from + 1) return '';
+    if (drag.slot === displayPos) return ' drop-before';
+    if (drag.slot === n && displayPos === n - 1) return ' drop-after';
+    return '';
+  };
   return (
     <Section
       title={t('section.layers')}
       className="grow"
       aside={<IconButton icon="plus" label={t('layer.new')} onClick={() => editor.addLayer()} />}
     >
-      <div className="item-list">
-        {layers.map(({ layer, index }) => (
+      <div className="item-list" ref={listRef}>
+        {layers.map(({ layer, index }, displayPos) => (
           <div
             key={layer.id}
-            className={`item${index === doc.activeLayer ? ' is-active' : ''}${layer.visible ? '' : ' is-hidden'}`}
-            onClick={() => editor.setActiveLayer(index)}
+            className={`item${index === doc.activeLayer ? ' is-active' : ''}${layer.visible ? '' : ' is-hidden'}${
+              drag?.from === index ? ' is-dragging' : ''
+            }${dropClass(displayPos)}`}
+            onPointerDown={(e) => startDrag(e, displayPos, index)}
+            onClick={() => {
+              if (dragged.current) dragged.current = false;
+              else editor.setActiveLayer(index);
+            }}
           >
             <Thumbnail pixels={() => layer.pixels} width={doc.width} height={doc.height} version={revision} />
             <EditableName value={layer.name} onRename={(v) => editor.renameLayer(index, v)} />

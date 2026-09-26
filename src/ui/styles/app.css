@@ -680,6 +680,20 @@ body.is-panning .canvas {
   opacity: 0.3;
   background: transparent;
 }
+.item.is-dragging {
+  opacity: 0.5;
+}
+.item.drop-before {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+.item.drop-after {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+body.is-dragging-layer,
+body.is-dragging-layer * {
+  cursor: grabbing !important;
+  user-select: none;
+}
 .tool-split {
   display: flex;
   align-items: center;

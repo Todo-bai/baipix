@@ -93,10 +93,28 @@ export function ToolSection() {
       );
       break;
     case 'rect':
+    case 'roundRect':
     case 'ellipse':
+    case 'triangle':
+    case 'star':
       body = (
         <>
           {size}
+          {tool === 'roundRect' && (
+            <Row label={t('options.radius')}>
+              <NumberField
+                value={options.radius}
+                min={1}
+                max={32}
+                label="◜"
+                suffix="px"
+                ariaLabel={t('options.radius')}
+                scrubHint={t('common.dragToAdjust')}
+                sensitivity={8}
+                onChange={(v) => editor.setOption('radius', v)}
+              />
+            </Row>
+          )}
           <Checkbox checked={options.filled} onChange={set('filled')} label={t('options.filled')} />
           {hint(t('hint.shape'))}
         </>

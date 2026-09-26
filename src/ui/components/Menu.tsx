@@ -1,8 +1,18 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { IconName } from '../icons';
 import { createStore } from '../store';
+import { Icon } from './Icon';
 
 export type MenuItem =
-  '-' | { label: string; shortcut?: string; checked?: boolean; disabled?: boolean; onSelect: () => void };
+  | '-'
+  | {
+      label: string;
+      icon?: IconName;
+      shortcut?: string;
+      checked?: boolean;
+      disabled?: boolean;
+      onSelect: () => void;
+    };
 
 const menuStore = createStore<{ anchor: HTMLElement | null; items: MenuItem[] }>({ anchor: null, items: [] });
 
@@ -86,6 +96,7 @@ export function MenuHost() {
               item.onSelect();
             }}
           >
+            {item.icon && <Icon name={item.icon} size={16} />}
             <span>{item.label}</span>
             {item.shortcut && <span className="menu-shortcut">{item.shortcut}</span>}
           </button>

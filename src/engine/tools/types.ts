@@ -11,7 +11,10 @@ export type ToolId =
   | 'bucket'
   | 'line'
   | 'rect'
+  | 'roundRect'
   | 'ellipse'
+  | 'triangle'
+  | 'star'
   | 'shade'
   | 'blur'
   | 'picker';
@@ -21,6 +24,8 @@ export interface ToolOptions {
   pixelPerfect: boolean;
   dither: boolean;
   filled: boolean;
+  /** Corner radius of the rounded rectangle, in pixels. */
+  radius: number;
   contiguous: boolean;
   shadeInvert: boolean;
   blurStrength: number;
@@ -32,6 +37,7 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   pixelPerfect: true,
   dither: false,
   filled: false,
+  radius: 2,
   contiguous: true,
   shadeInvert: false,
   blurStrength: 1,

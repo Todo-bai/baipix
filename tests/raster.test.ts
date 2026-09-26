@@ -7,6 +7,12 @@ import {
   isDoubledCorner,
   line,
   mirrored,
+  mirroredHalf,
+  polygonFilled,
+  polygonOutline,
+  roundRectOutline,
+  starPoints,
+  trianglePoints,
 } from '../src/engine/raster';
 
 const collect = (fn: (plot: (x: number, y: number) => void) => void) => {
@@ -73,5 +79,43 @@ describe('mirrored', () => {
       { x: 1, y: 5 },
       { x: 6, y: 5 },
     ]);
+  });
+});
+
+describe('shapes', () => {
+  const mirrorOf = (set: Set<string>, x0: number, x1: number) =>
+    [...set].every((k) => {
+      const [x, y] = k.split(',').map(Number);
+      return set.has(`${x0 + x1 - x},${y}`);
+    });
+
+  it('draws a rounded rectangle with empty corners', () => {
+    const px = collect((p) => roundRectOutline(0, 0, 9, 7, 2, p));
+    expect(px.has('0,0')).toBe(false);
+    expect(px.has('9,7')).toBe(false);
+    expect(px.has('4,0')).toBe(true);
+    expect(px.has('0,4')).toBe(true);
+    // A zero radius is a plain rectangle.
+    expect(collect((p) => roundRectOutline(0, 0, 5, 5, 0, p)).has('0,0')).toBe(true);
+  });
+
+  it('keeps triangles and stars symmetric, and fills them without holes', () => {
+    for (const [x1, y1] of [
+      [8, 8],
+      [9, 6],
+      [15, 15],
+    ]) {
+      for (const points of [trianglePoints(0, 0, x1, y1), starPoints(0, 0, x1, y1)]) {
+        const outline = collect((p) => polygonOutline(points, mirroredHalf(0, x1, p)));
+        const filled = collect((p) => polygonFilled(points, mirroredHalf(0, x1, p)));
+        expect(mirrorOf(outline, 0, x1)).toBe(true);
+        expect(mirrorOf(filled, 0, x1)).toBe(true);
+        expect([...outline].every((k) => filled.has(k))).toBe(true);
+        expect(filled.size).toBeGreaterThan(outline.size);
+      }
+    }
+    const tri = trianglePoints(0, 0, 8, 8);
+    expect(tri[0]).toEqual({ x: 4, y: 0 });
+    expect(tri[2]).toEqual({ x: 8, y: 8 });
   });
 });

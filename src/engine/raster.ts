@@ -106,9 +106,10 @@ export function ellipseOutline(x0: number, y0: number, x1: number, y1: number, p
 }
 
 /** Filled ellipse: collects the outline's horizontal spans, then fills them. */
-export function ellipseFilled(x0: number, y0: number, x1: number, y1: number, plot: PlotFn): void {
+/** Fills a convex outline row by row, from its leftmost to its rightmost point on each row. */
+function fillConvex(outline: (plot: PlotFn) => void, plot: PlotFn): void {
   const spans = new Map<number, [number, number]>();
-  ellipseOutline(x0, y0, x1, y1, (x, y) => {
+  outline((x, y) => {
     const s = spans.get(y);
     if (!s) spans.set(y, [x, x]);
     else {
@@ -118,6 +119,118 @@ export function ellipseFilled(x0: number, y0: number, x1: number, y1: number, pl
   });
   spans.forEach(([a, b], y) => {
     for (let x = a; x <= b; x++) plot(x, y);
+  });
+}
+
+export function ellipseFilled(x0: number, y0: number, x1: number, y1: number, plot: PlotFn): void {
+  fillConvex((p) => ellipseOutline(x0, y0, x1, y1, p), plot);
+}
+
+/** Rectangle with quarter-circle corners of radius `r` (clamped to fit). Points can repeat. */
+export function roundRectOutline(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  r: number,
+  plot: PlotFn,
+): void {
+  r = Math.max(0, Math.min(Math.floor(r), Math.floor((x1 - x0) / 2), Math.floor((y1 - y0) / 2)));
+  if (r === 0) return rectOutline(x0, y0, x1, y1, plot);
+  const d = 2 * r;
+  // Each corner is the matching quadrant of a (2r+1)-wide circle.
+  ellipseOutline(x0, y0, x0 + d, y0 + d, (x, y) => x <= x0 + r && y <= y0 + r && plot(x, y));
+  ellipseOutline(x1 - d, y0, x1, y0 + d, (x, y) => x >= x1 - r && y <= y0 + r && plot(x, y));
+  ellipseOutline(x0, y1 - d, x0 + d, y1, (x, y) => x <= x0 + r && y >= y1 - r && plot(x, y));
+  ellipseOutline(x1 - d, y1 - d, x1, y1, (x, y) => x >= x1 - r && y >= y1 - r && plot(x, y));
+  for (let x = x0 + r + 1; x < x1 - r; x++) {
+    plot(x, y0);
+    plot(x, y1);
+  }
+  for (let y = y0 + r + 1; y < y1 - r; y++) {
+    plot(x0, y);
+    plot(x1, y);
+  }
+}
+
+export function roundRectFilled(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  r: number,
+  plot: PlotFn,
+): void {
+  fillConvex((p) => roundRectOutline(x0, y0, x1, y1, r, p), plot);
+}
+
+/** Closed polygon outline, Bresenham lines between consecutive vertices. */
+export function polygonOutline(points: Point[], plot: PlotFn): void {
+  points.forEach((a, i) => {
+    const b = points[(i + 1) % points.length];
+    line(a.x, a.y, b.x, b.y, plot);
+  });
+}
+
+/** Filled polygon (even-odd rule on pixel centers), outline included so edges match the outline. */
+export function polygonFilled(points: Point[], plot: PlotFn): void {
+  const ys = points.map((p) => p.y);
+  for (let y = Math.min(...ys); y <= Math.max(...ys); y++) {
+    const cy = y + 0.5;
+    const xs: number[] = [];
+    points.forEach((a, i) => {
+      const b = points[(i + 1) % points.length];
+      const ay = a.y + 0.5;
+      const by = b.y + 0.5;
+      if (ay <= cy !== by <= cy) xs.push(a.x + 0.5 + ((cy - ay) / (by - ay)) * (b.x - a.x));
+    });
+    xs.sort((a, b) => a - b);
+    for (let k = 0; k + 1 < xs.length; k += 2)
+      for (let x = Math.ceil(xs[k] - 0.5); x + 0.5 <= xs[k + 1]; x++) plot(x, y);
+  }
+  polygonOutline(points, plot);
+}
+
+/**
+ * Keeps only the left half of what is plotted and mirrors it around the axis between x0 and x1.
+ * Lines are not symmetric on their own (a→b and its mirror pick different pixels), so symmetric
+ * shapes are drawn through this to stay exactly symmetric.
+ */
+export function mirroredHalf(x0: number, x1: number, plot: PlotFn): PlotFn {
+  return (x, y) => {
+    if (2 * x > x0 + x1) return;
+    plot(x, y);
+    if (2 * x < x0 + x1) plot(x0 + x1 - x, y);
+  };
+}
+
+/** Triangle pointing up, inscribed in the rectangle. Even widths get a 2-pixel tip, to stay symmetric. */
+export function trianglePoints(x0: number, y0: number, x1: number, y1: number): Point[] {
+  const mid = (x0 + x1) / 2;
+  return [
+    { x: Math.floor(mid), y: y0 },
+    { x: Math.ceil(mid), y: y0 },
+    { x: x1, y: y1 },
+    { x: x0, y: y1 },
+  ];
+}
+
+/** Five-pointed star inscribed in the rectangle, mirrored exactly around its vertical axis. */
+export function starPoints(x0: number, y0: number, x1: number, y1: number): Point[] {
+  const unit = Array.from({ length: 10 }, (_, i) => {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const radius = i % 2 ? 0.5 : 1;
+    return { x: Math.cos(a) * radius, y: Math.sin(a) * radius };
+  });
+  const minY = Math.min(...unit.map((p) => p.y));
+  const maxY = Math.max(...unit.map((p) => p.y));
+  const maxX = Math.max(...unit.map((p) => p.x));
+  const w = x1 - x0;
+  const h = y1 - y0;
+  return unit.map((p) => {
+    const u = (p.x + maxX) / (2 * maxX); // 0..1, left to right
+    const x = u <= 0.5 ? x0 + Math.round(u * w) : x1 - Math.round((1 - u) * w);
+    return { x, y: y0 + Math.round(((p.y - minY) / (maxY - minY)) * h) };
   });
 }
 

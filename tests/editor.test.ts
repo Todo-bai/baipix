@@ -145,4 +145,24 @@ describe('Editor', () => {
     e.undo();
     expect(layer(e)[4 * W + 4]).toBe(0);
   });
+
+  it('draws the new shapes, outlined and filled', () => {
+    for (const tool of ['roundRect', 'triangle', 'star'] as const) {
+      const e = new Editor();
+      e.setTool(tool);
+      drag(e, [
+        [2, 2],
+        [14, 14],
+      ]);
+      const outline = painted(e);
+      expect(outline).toBeGreaterThan(10);
+      e.undo();
+      e.setOption('filled', true);
+      drag(e, [
+        [2, 2],
+        [14, 14],
+      ]);
+      expect(painted(e)).toBeGreaterThan(outline);
+    }
+  });
 });

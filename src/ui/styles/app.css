@@ -655,6 +655,26 @@ body.is-panning .canvas {
   opacity: 0.3;
   background: transparent;
 }
+.tool-split {
+  display: flex;
+  align-items: center;
+}
+.tool-caret {
+  width: 14px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+}
+.tool-caret:hover,
+.tool-caret[aria-expanded='true'] {
+  background: var(--hover);
+  color: var(--text);
+}
 .toolbar-divider {
   width: 1px;
   height: 20px;
@@ -852,6 +872,9 @@ body.is-panning .canvas {
 }
 .menu-item:disabled {
   color: var(--menu-muted);
+}
+.menu-item > .icon {
+  margin-right: -8px;
 }
 .menu-item.is-checked::before {
   content: '✓';

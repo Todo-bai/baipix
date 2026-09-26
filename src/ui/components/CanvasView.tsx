@@ -8,12 +8,11 @@ import { useEditor, useEditorState } from '../EditorContext';
 import { keyState } from '../keyState';
 import { drawScene, LABEL, labelRect, type BrushPreview } from '../render/drawScene';
 import { readTheme, type Theme } from '../render/theme';
-import { BRUSH_TOOLS } from '../tools';
+import { BRUSH_TOOLS, SHAPE_IDS } from '../tools';
 import { hoverStore, uiStore } from '../uiStore';
 import { viewport } from '../viewport';
 
-const DRAWING_TOOLS: ToolId[] = ['pencil', 'eraser', 'line', 'rect', 'ellipse', 'bucket', 'shade', 'blur'];
-const SHAPE_TOOLS: ToolId[] = ['line', 'rect', 'ellipse'];
+const DRAWING_TOOLS: ToolId[] = ['pencil', 'eraser', ...SHAPE_IDS, 'bucket', 'shade', 'blur'];
 
 interface Pinch {
   distance: number;
@@ -79,7 +78,7 @@ export function CanvasView() {
       const state = editor.getState();
       const tool = state.tool;
       let brush: BrushPreview | null = null;
-      const shapeInProgress = live.stroking !== null && SHAPE_TOOLS.includes(live.stroking);
+      const shapeInProgress = live.stroking !== null && SHAPE_IDS.includes(live.stroking);
       if (hover && !panStart && !pinch && BRUSH_TOOLS.includes(tool) && !shapeInProgress) {
         const paints = tool !== 'eraser' && tool !== 'shade' && tool !== 'blur';
         brush = { at: hover, size: state.options.size, color: paints ? state.primary : null };

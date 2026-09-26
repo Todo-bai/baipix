@@ -25,13 +25,24 @@ import {
   RotateCwSquare,
   SlidersHorizontal,
   Slash,
-  Square,
   SquareDashed,
+  Star,
   Trash2,
+  Triangle,
   Undo2,
   X,
+  createLucideIcon,
   type LucideIcon,
 } from 'lucide-react';
+
+// Lucide's square is slightly rounded: draw a sharp one and a clearly rounded one, so the
+// rectangle and rounded rectangle tools are easy to tell apart.
+const SquareSharp = createLucideIcon('square-sharp', [
+  ['rect', { x: '3', y: '3', width: '18', height: '18', key: 'sharp' }],
+]);
+const SquareRounded = createLucideIcon('square-rounded', [
+  ['rect', { x: '3', y: '3', width: '18', height: '18', rx: '6', key: 'rounded' }],
+]);
 
 /** Interface icons, from Lucide (ISC, https://lucide.dev). */
 export const ICONS = {
@@ -41,8 +52,11 @@ export const ICONS = {
   eraser: Eraser,
   bucket: PaintBucket,
   line: Slash,
-  rect: Square,
+  rect: SquareSharp,
+  roundRect: SquareRounded,
   ellipse: Circle,
+  triangle: Triangle,
+  star: Star,
   shade: Contrast,
   blur: Droplets,
   picker: Pipette,
@@ -55,6 +69,7 @@ export const ICONS = {
   eyeOff: EyeOff,
   up: ChevronUp,
   down: ChevronDown,
+  caret: ChevronDown,
   duplicate: Copy,
   merge: ArrowDownToLine,
   more: Ellipsis,

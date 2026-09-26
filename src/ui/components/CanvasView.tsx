@@ -240,6 +240,8 @@ export function CanvasView() {
       }
       updateHover(hover);
       if (!editor.isStroking) canvas.classList.toggle('on-label', onLabel(local(e)));
+      // Alt picks a color with drawing tools: show the eyedropper while it is held.
+      canvas.classList.toggle('alt-pick', e.altKey && DRAWING_TOOLS.includes(editor.getState().tool));
       request();
     };
 

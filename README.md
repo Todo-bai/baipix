@@ -2,6 +2,8 @@
 
 **A pixel art editor for designers, with the interface of a modern design tool.** Free, open source, runs in the browser, no account needed.
 
+**[Open the editor](https://todo-bai.github.io/baipix/app/)** · [Website](https://todo-bai.github.io/baipix/)
+
 ![Baipix](docs/screenshot.png)
 
 The sky above is [`docs/sunset.baipix`](docs/sunset.baipix): open it in Baipix (Open a .baipix file, or drop it on the canvas) to explore its layers.

@@ -23,15 +23,26 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            site/package-lock.json
+      # Editor
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      # Website, served at the root; the editor goes under /app/.
+      - run: npm ci --prefix site
+      - run: npm run build --prefix site
+        env:
+          SITE_URL: https://todo-bai.github.io
+          BASE_PATH: /baipix/
+      - run: cp -r dist site/dist/app
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site/dist
 
   deploy:
     needs: build

@@ -1,0 +1,8 @@
+[
+  { "file": "starry-night.baipix", "title": "Starry night, after Van Gogh", "style": "Detailed landscape", "author": "Baipix" },
+  { "file": "knight.baipix", "title": "Knight", "style": "16×16 sprite", "author": "Baipix" },
+  { "file": "sunset.baipix", "title": "Sunset", "style": "Detailed sky, 5 layers", "author": "Baipix" },
+  { "file": "items.baipix", "title": "Items", "style": "Game icons", "author": "Baipix" },
+  { "file": "dragon-castle.baipix", "title": "Dragon over the castle", "style": "Night scene", "author": "Baipix" },
+  { "file": "pencil-daisy.baipix", "title": "Pencil and daisy", "style": "Bold outlines, pixel gap", "author": "Baipix" }
+]

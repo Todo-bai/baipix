@@ -24,7 +24,7 @@ function TopBar() {
   const t = useT();
   const editor = useEditor();
   const actions = useActions();
-  const zoom = useSyncExternalStore(viewport.subscribe, () => viewport.effectiveZoom);
+  const zoom = useSyncExternalStore(viewport.subscribe, () => viewport.pixelZoom);
   return (
     <div className="panel-header">
       <button

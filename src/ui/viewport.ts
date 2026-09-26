@@ -19,6 +19,7 @@ class Viewport {
   panY = 0;
   width = 0;
   height = 0;
+  private gapRatio = 0;
   private left = 0;
   private top = 0;
   private windowW = 0;
@@ -39,14 +40,51 @@ class Viewport {
     this.listeners.forEach((l) => l());
   }
 
-  /** Device pixels per art pixel. */
-  get scale(): number {
+  /** Size of one art pixel on screen, in device pixels (the zoom). */
+  get pixel(): number {
     return Math.max(1, Math.round(this.zoom * this.dpr));
   }
 
-  /** Effective zoom after rounding, in CSS pixels per art pixel. */
+  /** Render gap between art pixels on screen, in device pixels (0 when not previewed). */
+  get gap(): number {
+    return this.gapRatio > 0 ? Math.max(1, Math.round(this.pixel * this.gapRatio)) : 0;
+  }
+
+  /**
+   * Distance between two art pixels, in device pixels: pixel + gap. The gap spreads pixels
+   * apart instead of shrinking them, like in the exported file.
+   */
+  get scale(): number {
+    return this.pixel + this.gap;
+  }
+
+  /** Step between art pixels in CSS pixels, for pan and zoom math. */
   get effectiveZoom(): number {
     return this.scale / this.dpr;
+  }
+
+  /** Zoom shown to the user: the size of one art pixel, in CSS pixels. */
+  get pixelZoom(): number {
+    return this.pixel / this.dpr;
+  }
+
+  /** How much the gap stretches the step (1 without gap), for continuous gestures. */
+  get stepFactor(): number {
+    return 1 + this.gapRatio;
+  }
+
+  /**
+   * Gap preview as a fraction of the pixel size (render gap / pixel size, 0 to hide it).
+   * The drawing grows or shrinks around its center.
+   */
+  setGapRatio(ratio: number, docWidth: number, docHeight: number): void {
+    if (ratio === this.gapRatio) return;
+    const before = this.effectiveZoom;
+    this.gapRatio = ratio;
+    const after = this.effectiveZoom;
+    this.panX += (docWidth * (before - after)) / 2;
+    this.panY += (docHeight * (before - after)) / 2;
+    this.emit();
   }
 
   get originX(): number {
@@ -106,7 +144,11 @@ class Viewport {
     const { x, top, bottom } = this.insets();
     let z = 1;
     for (const level of ZOOM_LEVELS)
-      if (doc.width * level <= this.width - x && doc.height * level <= this.height - top - bottom) z = level;
+      if (
+        doc.width * level * this.stepFactor <= this.width - x &&
+        doc.height * level * this.stepFactor <= this.height - top - bottom
+      )
+        z = level;
     this.zoom = z;
     const ez = this.effectiveZoom;
     this.panX = Math.round((this.width - doc.width * ez) / 2);

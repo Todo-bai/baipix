@@ -103,6 +103,7 @@ export function CanvasView() {
     const camera = () => ({
       dpr: viewport.dpr,
       scale: viewport.scale,
+      gap: viewport.gap,
       originX: viewport.originX,
       originY: viewport.originY,
     });
@@ -149,12 +150,23 @@ export function CanvasView() {
       attributeFilter: ['data-theme', 'class', 'style'],
     });
 
+    // The render gap spreads pixels on the canvas when "show the gap" is on.
+    const syncGap = () => {
+      const { doc, view } = editor.getState();
+      const { gap, pixelSize } = doc.render;
+      viewport.setGapRatio(view.showGap && gap > 0 ? gap / pixelSize : 0, doc.width, doc.height);
+    };
+
     const unsubs = [
       editor.onPixels(pixelsChanged),
       viewport.subscribe(request),
-      editor.subscribe(() => viewport.showDocument(editor.getState().doc)),
+      editor.subscribe(() => {
+        viewport.showDocument(editor.getState().doc);
+        syncGap();
+      }),
     ];
     viewport.showDocument(editor.getState().doc);
+    syncGap();
 
     const local = (e: { clientX: number; clientY: number }) => {
       const r = canvas.getBoundingClientRect();
@@ -217,9 +229,10 @@ export function CanvasView() {
       if (pinch) {
         const info = pinchInfo();
         const zoom = Math.min(96, Math.max(1, (pinch.zoom * info.distance) / Math.max(1, pinch.distance)));
-        const px = (pinch.cx - pinch.panX) / pinch.zoom;
-        const py = (pinch.cy - pinch.panY) / pinch.zoom;
-        viewport.set({ zoom, panX: info.cx - px * zoom, panY: info.cy - py * zoom });
+        const k = viewport.stepFactor;
+        const px = (pinch.cx - pinch.panX) / (pinch.zoom * k);
+        const py = (pinch.cy - pinch.panY) / (pinch.zoom * k);
+        viewport.set({ zoom, panX: info.cx - px * zoom * k, panY: info.cy - py * zoom * k });
         pinch = { ...pinch, cx: pinch.cx, cy: pinch.cy };
         return;
       }

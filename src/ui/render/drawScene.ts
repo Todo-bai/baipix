@@ -7,8 +7,10 @@ import { checkerPattern, type Theme } from './theme';
 
 export interface Camera {
   dpr: number;
-  /** Device pixels per art pixel. */
+  /** Device pixels from one art pixel to the next (pixel + gap). */
   scale: number;
+  /** Render gap between art pixels, in device pixels (0 when hidden). */
+  gap: number;
   originX: number;
   originY: number;
 }
@@ -46,14 +48,6 @@ export function labelRect(ctx: CanvasRenderingContext2D, label: string, camera: 
   const pad = Math.round(4 * dpr);
   const h = Math.round((LABEL.size + LABEL.gap) * dpr);
   return { x: X - pad, y: Y - h - pad, w: w + pad * 2, h: h + pad };
-}
-
-/** On-screen width of the render gap, proportional to the export settings. */
-export function gapPixels(doc: PixelDoc, scale: number): number {
-  const { gap, pixelSize } = doc.render;
-  if (gap <= 0) return 0;
-  const g = Math.max(1, Math.round((scale * gap) / (pixelSize + gap)));
-  return g < scale ? g : 0;
 }
 
 export function drawScene(
@@ -109,7 +103,7 @@ export function drawScene(
   ctx.drawImage(scene.composite, X, Y, cw, ch);
 
   // Render gap: paint strips between pixels with the background (or the checkerboard).
-  const gap = view.showGap ? gapPixels(doc, s) : 0;
+  const gap = camera.gap;
   if (gap) {
     ctx.save();
     ctx.translate(X, Y);

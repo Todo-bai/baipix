@@ -48,6 +48,27 @@ export const presetColors = (key: string): Color[] => parseHexList(PALETTE_PRESE
 /** One hex code per line: the Lospec `.hex` format. */
 export const toHexList = (colors: Color[]): string => colors.map((c) => toHex(c).slice(1)).join('\n') + '\n';
 
+/**
+ * How lighten and shade pick the next color:
+ * - `ramp`: the next step in the same color family (close hue), ending on the palette's neutrals;
+ * - `palette`: any palette color close in hue and chroma, even from another family;
+ * - `free`: no palette, the lightness changes directly (see `shiftLightness`).
+ */
+export type ShadeMode = 'ramp' | 'palette' | 'free';
+
+/** Below this OKLCH chroma a color counts as a neutral (grays, near-black, near-white). */
+const NEUTRAL_CHROMA = 0.035;
+/** Widest hue gap between two steps of one ramp. Pixel art ramps shift hue, so it's generous. */
+const RAMP_HUE_GAP = 55;
+
+/** Hue angle in degrees, and the gap between two of them (0..180). */
+const hueOf = (lab: Lab): number => ((Math.atan2(lab[2], lab[1]) * 180) / Math.PI + 360) % 360;
+const hueGap = (a: number, b: number): number => {
+  const d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+};
+const chromaOf = (lab: Lab): number => Math.hypot(lab[1], lab[2]);
+
 /** Palette with precomputed OKLab values, for fast perceptual lookups. */
 export class PaletteIndex {
   private readonly entries: { color: Color; lab: Lab }[];
@@ -77,10 +98,54 @@ export class PaletteIndex {
   }
 
   /**
-   * Next lighter (dir = 1) or darker (dir = -1) palette color that stays close in hue and chroma.
-   * Returns null when there is none.
+   * Next lighter (dir = 1) or darker (dir = -1) palette color, or null when there is none.
+   * `ramp` stays in the color's family; `palette` takes the closest in hue and chroma.
    */
-  shade(c: Color, dir: 1 | -1): Color | null {
+  shade(c: Color, dir: 1 | -1, mode: Exclude<ShadeMode, 'free'> = 'ramp'): Color | null {
+    return mode === 'ramp' ? this.rampStep(c, dir) : this.closestStep(c, dir);
+  }
+
+  /**
+   * Same family: close hue for colors, neutrals for neutrals. The next step is the smallest
+   * real change in lightness. When the family has nothing further, it ends on the nearest neutral
+   * (highlights to white, shadows to black), like most pixel art ramps.
+   */
+  private rampStep(c: Color, dir: 1 | -1): Color | null {
+    const lab = toOklab(c);
+    const C = chromaOf(lab);
+    const h = hueOf(lab);
+    let best: Color | null = null;
+    let bestScore = Infinity;
+    let end: Color | null = null;
+    let endGap = Infinity;
+    for (const e of this.entries) {
+      const dL = e.lab[0] - lab[0];
+      if (dir > 0 ? dL <= 0.04 : dL >= -0.04) continue;
+      const eC = chromaOf(e.lab);
+      const gap = hueGap(h, hueOf(e.lab));
+      const neutral = eC < NEUTRAL_CHROMA;
+      let family: boolean;
+      if (C < 0.02)
+        family = eC < 0.08; // no real hue to compare
+      else if (C < NEUTRAL_CHROMA) family = neutral || (eC < 0.08 && gap <= RAMP_HUE_GAP);
+      else family = !neutral && gap <= RAMP_HUE_GAP;
+      if (family) {
+        const score = Math.abs(dL) + (gap / 180) * 0.4 + Math.abs(eC - C) * 0.4;
+        if (score < bestScore) {
+          bestScore = score;
+          best = e.color;
+        }
+      } else if (neutral && Math.abs(dL) < endGap) {
+        endGap = Math.abs(dL);
+        end = e.color;
+      }
+    }
+    const next = best ?? end;
+    return next === null ? null : withAlpha(next, alpha(c));
+  }
+
+  /** Any palette color close in hue and chroma (the original behavior). */
+  private closestStep(c: Color, dir: 1 | -1): Color | null {
     const [L, a, b] = toOklab(c);
     let best: Color | null = null;
     let bestScore = Infinity;
@@ -103,6 +168,21 @@ const rotateToward = (h: number, target: number, amount: number): number => {
   while (d < -Math.PI) d += 2 * Math.PI;
   return h + Math.sign(d) * Math.min(Math.abs(d), amount);
 };
+
+/**
+ * Lighter (dir = 1) or darker (dir = -1) version of a color, outside any palette. `strength` is
+ * 1 to 3 steps. With `hueShift`, highlights drift toward yellow and shadows toward blue-violet,
+ * like `hueShiftedRamp`.
+ */
+export function shiftLightness(c: Color, dir: 1 | -1, strength: number, hueShift: boolean): Color {
+  const [L, a, b] = toOklab(c);
+  const C = Math.hypot(a, b);
+  let h = Math.atan2(b, a);
+  if (hueShift && C >= 0.02)
+    h = dir > 0 ? rotateToward(h, 1.55, 0.1 * strength) : rotateToward(h, 4.9, 0.12 * strength);
+  const lightness = clamp(L + dir * 0.07 * strength, 0, 1);
+  return withAlpha(oklchToColor(lightness, C, h), alpha(c));
+}
 
 /**
  * Five-step ramp around a base color with hue shifting: highlights drift toward yellow,

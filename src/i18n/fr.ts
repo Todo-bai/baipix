@@ -132,6 +132,11 @@ export const fr: Record<MessageKey, string> = {
   'options.contiguous': 'Zone contiguë uniquement',
   'options.strength': 'Force',
   'options.blurSnap': 'Rester dans la palette',
+  'options.shadeMode': 'Mode',
+  'options.hueShift': 'Décalage de teinte',
+  'shade.ramp': 'Même gamme',
+  'shade.palette': 'Toute la palette',
+  'shade.free': 'Libre',
 
   'hint.pencil':
     'Alt pour prélever une couleur. Le tramage alterne les couleurs du clic gauche et du clic droit.',
@@ -140,8 +145,11 @@ export const fr: Record<MessageKey, string> = {
   'hint.shape': 'Maj pour une forme régulière.',
   'hint.bucketContiguous': 'Remplit la zone de même couleur sous le curseur.',
   'hint.bucketGlobal': 'Remplace cette couleur partout sur le calque.',
-  'hint.shade': 'Assombrit avec la couleur plus foncée suivante de la palette. Clic droit pour éclaircir.',
-  'hint.lighten': 'Éclaircit avec la couleur plus claire suivante de la palette. Clic droit pour assombrir.',
+  'hint.shade': 'Assombrit {how}. Clic droit pour éclaircir.',
+  'hint.lighten': 'Éclaircit {how}. Clic droit pour assombrir.',
+  'hint.shadeRamp': 'avec la couleur suivante de la même gamme de la palette',
+  'hint.shadePalette': 'avec la couleur suivante de la palette, toutes gammes confondues',
+  'hint.shadeFree': 'la couleur elle-même, hors palette',
   'hint.blurSnap':
     'Mélange les pixels voisins puis choisit la couleur la plus proche dans la palette. Repasse pour flouter davantage.',
   'hint.blurFree':

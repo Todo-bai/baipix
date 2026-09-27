@@ -6,8 +6,8 @@ import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL;
 
 /*
- * A two-tone pixel art scene, like an old handheld screen: a bomb falling on a city, a kid pointing
- * at it from the sidewalk, and a shop sign that reads 404. Depth comes from layers: a dark sky that
+ * A two-tone pixel art scene, like an old handheld screen: a bomb falling on a city, and a shop
+ * sign that reads 404. Depth comes from layers: a dark sky that
  * lightens toward the horizon, light clouds, far silhouettes, mid buildings, detailed buildings in
  * front, and a dense ground. It's generated here on a grid (1 = ink, 0 = paper), with a fixed
  * random seed so every build draws the same thing.
@@ -167,34 +167,6 @@ for (let y = SIDEWALK + 5; y < H; y++)
     } else set(x, y, 0);
   }
 
-// 8. The kid on the sidewalk, pointing at the bomb, with a paper outline so he reads on the facade.
-const KID = [
-  '..###...',
-  '.#####..',
-  '.#.#.#.#',
-  '.#####.#',
-  '..###.#.',
-  '.#####..',
-  '#.###...',
-  '..###...',
-  '..#.#...',
-  '.##.##..',
-];
-const kid = { x: 52, y: SIDEWALK - 7 };
-KID.forEach((row, y) =>
-  [...row].forEach((c, x) => {
-    if (c !== '#') return;
-    for (const [dx, dy] of [
-      [-1, 0],
-      [1, 0],
-      [0, -1],
-      [0, 1],
-    ])
-      set(kid.x + x + dx, kid.y + y + dy, 0);
-  }),
-);
-stamp(KID, kid.x, kid.y);
-
 // Two frames for the spark on the fuse, in ink over the light cloud.
 const spark = (rows: string[]) => {
   const g = Array.from({ length: H }, () => new Uint8Array(W));
@@ -208,15 +180,30 @@ const sparkB = spark(['..#..', '..#..', '#####', '..#..', '..#..']);
 // Clear the spark's area so both frames show on paper.
 for (let y = -1; y <= 5; y++) for (let x = -1; x <= 5; x++) set(bomb.x + 8 + x, bomb.y - 16 + y, 0);
 
-// One rectangle per horizontal run of ink keeps the SVG small.
-const path = (g: Uint8Array[]) =>
+// The edges dissolve into the page: toward the sides (and a little at the top and bottom), a dither
+// leaves more and more pixels out. Multiplying both directions rounds the corners off.
+const smooth = (t: number) => {
+  const c = Math.min(1, Math.max(0, t));
+  return c * c * (3 - 2 * c);
+};
+const visible = Array.from({ length: H }, (_, y) =>
+  Uint8Array.from({ length: W }, (_, x) => {
+    const fx = smooth(Math.min(x, W - 1 - x) / 28);
+    const fy = smooth(Math.min(y / 16, (H - 1 - y) / 10));
+    return dithered(x, y, fx * fy) ? 1 : 0;
+  }),
+);
+
+// One rectangle per horizontal run keeps the SVG small. `value` picks ink (1) or paper (0) cells.
+const path = (g: Uint8Array[], value = 1) =>
   g
     .map((row, y) => {
       let d = '';
+      const on = (x: number) => visible[y][x] === 1 && row[x] === value;
       for (let x = 0; x < W; x++) {
-        if (!row[x]) continue;
+        if (!on(x)) continue;
         const start = x;
-        while (x < W && row[x]) x++;
+        while (x < W && on(x)) x++;
         d += `M${start} ${y}h${x - start}v1h-${x - start}z`;
       }
       return d;
@@ -241,7 +228,7 @@ const path = (g: Uint8Array[]) =>
       role="img"
       aria-label="A bomb falling on a pixel city, above a shop sign that reads 404"
     >
-      <rect width={W} height={H} class="paper"></rect>
+      <path class="paper" d={path(ink, 0)}></path>
       <path class="ink" d={path(ink)}></path>
       <path class="ink spark spark-a" d={path(sparkA)}></path>
       <path class="ink spark spark-b" d={path(sparkB)}></path>
@@ -274,13 +261,12 @@ const path = (g: Uint8Array[]) =>
     padding: 24px 0 96px;
     text-align: center;
   }
-  /* Two soft tones, like an old handheld screen, the same in both themes. Whole pixel multiples keep it crisp. */
+  /* Two soft tones, like an old handheld screen, the same in both themes. The edges dissolve into the page. */
   .scene {
     width: 640px;
     height: 384px;
     max-width: 100%;
     height: auto;
-    border: 1px solid var(--line);
   }
   .paper {
     fill: #d7ecd0;

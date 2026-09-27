@@ -32,8 +32,6 @@ export interface ViewSettings {
   tile: boolean;
   mirrorX: boolean;
   mirrorY: boolean;
-  /** Preview the render gap on the canvas. */
-  showGap: boolean;
 }
 
 export interface PaletteState {
@@ -132,7 +130,7 @@ export class Editor {
   private secondary: Color;
   private palette: PaletteState;
   private paletteIndex: PaletteIndex;
-  private view: ViewSettings = { grid: true, tile: false, mirrorX: false, mirrorY: false, showGap: true };
+  private view: ViewSettings = { grid: true, tile: false, mirrorX: false, mirrorY: false };
   private clipboard: PixelBlock | null = null;
   private stroke: Stroke | null = null;
   /** Color adjustment in progress: the original pixels of the layers being adjusted. */
@@ -424,7 +422,6 @@ export class Editor {
       pixelSize: clamp(render.pixelSize ?? this.doc.render.pixelSize, 1, 64),
       gap: clamp(render.gap ?? this.doc.render.gap, 0, 64),
     };
-    if (this.doc.render.gap > 0 && !this.view.showGap) this.view = { ...this.view, showGap: true };
     this.commit();
   }
 
@@ -701,7 +698,10 @@ export class Editor {
     if (p.options) this.options = { ...DEFAULT_TOOL_OPTIONS, ...p.options };
     if (typeof p.primary === 'number') this.primary = p.primary >>> 0;
     if (typeof p.secondary === 'number') this.secondary = p.secondary >>> 0;
-    if (p.view) this.view = { ...this.view, ...p.view };
+    if (p.view) {
+      const { grid, tile, mirrorX, mirrorY } = { ...this.view, ...p.view };
+      this.view = { grid, tile, mirrorX, mirrorY }; // older saves also had showGap
+    }
     if (Array.isArray(p.recent))
       this.recent = p.recent.filter((c) => typeof c === 'number').slice(0, RECENT_COLORS);
     if (p.palette?.colors?.length) {

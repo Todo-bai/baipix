@@ -125,7 +125,8 @@ export const fr: Record<MessageKey, string> = {
   'render.scaleTip': 'Chaque pixel fait {size} × {size} px',
   'render.pixelSizeHint': "Taille d'un pixel dans le fichier exporté",
   'render.gap': 'Espacement',
-  'render.showGap': "Afficher l'espacement sur le canevas",
+  'canvas.gapAt': 'px à {size}×',
+  'export.gap': 'espacement {gap} px',
 
   'options.size': 'Taille',
   'options.pixelPerfect': 'Pixel perfect',

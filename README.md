@@ -66,6 +66,8 @@ More details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 Contributions are welcome, from bug reports to new tools. Read [CONTRIBUTING.md](CONTRIBUTING.md) to get started: adding a tool or a language is a good first contribution.
 
+If you like Baipix, a ⭐ on [GitHub](https://github.com/baipix/baipix) helps other people find it.
+
 ## License
 
 [MIT](LICENSE)

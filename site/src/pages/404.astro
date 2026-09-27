@@ -1,0 +1,173 @@
+---
+import Logo from '../components/Logo.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import Base from '../layouts/Base.astro';
+
+const base = import.meta.env.BASE_URL;
+
+/*
+ * The illustration is drawn on a grid of '#' (filled) and '.' (empty), in the text color, so it
+ * follows the light and dark themes. The spark on the fuse has two frames that alternate.
+ */
+type Grid = string[][];
+const grid = (w: number, h: number): Grid => Array.from({ length: h }, () => Array(w).fill('.'));
+const stamp = (g: Grid, rows: string[], x0: number, y0: number) =>
+  rows.forEach((row, y) => [...row].forEach((c, x) => c === '#' && (g[y0 + y][x0 + x] = '#')));
+const path = (g: Grid) =>
+  g.flatMap((row, y) => row.map((c, x) => (c === '#' ? `M${x} ${y}h1v1h-1z` : ''))).join('');
+
+// "404" in blocky 7 × 11 digits.
+const FOUR = ['##...##', '##...##', '##...##', '##...##', '##...##', '#######', '#######', '.....##', '.....##', '.....##', '.....##'];
+const ZERO = ['.#####.', '##...##', '##...##', '##...##', '##...##', '##...##', '##...##', '##...##', '##...##', '##...##', '.#####.'];
+const digits = grid(25, 11);
+stamp(digits, FOUR, 0, 0);
+stamp(digits, ZERO, 9, 0);
+stamp(digits, FOUR, 18, 0);
+
+// A kid in a cap, next to a bomb about to go off.
+const KID = [
+  '....########....',
+  '...##########...',
+  '...############.',
+  '...#........#...',
+  '...#.#....#.#...',
+  '...#.#....#.#...',
+  '...#........#...',
+  '...#...##...#...',
+  '....#......#....',
+  '.....######.....',
+  '....########....',
+  '..##.######.##..',
+  '.##..######..##.',
+  '.....######.....',
+  '.....##..##.....',
+  '....###..###....',
+];
+const BOMB = [
+  '.......#...',
+  '......#....',
+  '.....##....',
+  '..#######..',
+  '.#########.',
+  '##..#######',
+  '#.#########',
+  '###########',
+  '###########',
+  '###########',
+  '.#########.',
+  '..#######..',
+];
+const W = 36;
+const H = 17;
+const scene = grid(W, H);
+stamp(scene, KID, 4, 0);
+stamp(scene, BOMB, 21, 4);
+// Ground, with a short dash at each end.
+stamp(scene, ['##.' + '#'.repeat(W - 6) + '.##'], 0, H - 1);
+const sparkA = grid(W, H);
+stamp(sparkA, ['#.#', '.#.', '#.#'], 28, 1);
+const sparkB = grid(W, H);
+stamp(sparkB, ['.#.', '###', '.#.'], 28, 1);
+---
+
+<Base title="Page not found · Baipix" description="This page doesn't exist. Head back to the Baipix home page.">
+  <header class="top container">
+    <a class="brand" href={base} aria-label="Baipix home">
+      <Logo size={18} />
+      <span>Baipix</span>
+    </a>
+    <ThemeToggle />
+  </header>
+
+  <main class="lost container">
+    <svg class="digits" viewBox="0 0 25 11" shape-rendering="crispEdges" role="img" aria-label="404">
+      <path fill="currentColor" d={path(digits)}></path>
+    </svg>
+    <svg class="scene" viewBox={`0 0 ${W} ${H}`} shape-rendering="crispEdges" aria-hidden="true">
+      <path fill="currentColor" d={path(scene)}></path>
+      <path class="spark spark-a" fill="currentColor" d={path(sparkA)}></path>
+      <path class="spark spark-b" fill="currentColor" d={path(sparkB)}></path>
+    </svg>
+    <h1>This page blew up.</h1>
+    <p class="muted">It doesn't exist, or it moved. Let's get you back somewhere safe.</p>
+    <a class="btn btn-dark" href={base}>Back to home</a>
+  </main>
+</Base>
+
+<style>
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .lost {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 0 96px;
+    text-align: center;
+  }
+  /* Whole multiples of the grid keep every pixel crisp. */
+  .digits {
+    width: 250px;
+    height: 110px;
+    color: var(--text);
+  }
+  .scene {
+    width: 360px;
+    height: 170px;
+    margin-top: 40px;
+    color: var(--text);
+  }
+  h1 {
+    margin-top: 40px;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.1;
+  }
+  .lost p {
+    max-width: 420px;
+    margin-top: 12px;
+    font-size: 17px;
+  }
+  .lost .btn {
+    margin-top: 32px;
+  }
+  /* The spark flickers between two frames, like an old game. */
+  .spark-b {
+    visibility: hidden;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .spark-a {
+      animation: spark 0.5s steps(1) infinite;
+    }
+    .spark-b {
+      animation: spark 0.5s steps(1) infinite -0.25s;
+    }
+  }
+  @keyframes spark {
+    0% {
+      visibility: visible;
+    }
+    50% {
+      visibility: hidden;
+    }
+  }
+  @media (max-width: 640px) {
+    .digits {
+      width: 175px;
+      height: 77px;
+    }
+    .scene {
+      width: 252px;
+      height: 119px;
+    }
+  }
+</style>

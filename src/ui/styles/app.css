@@ -1067,6 +1067,24 @@ body.is-dragging-layer * {
   opacity: 1;
   transform: translate(-50%, 0);
 }
+/* The toast lets clicks through, except on its action. */
+.toast-action {
+  margin: -4px -6px -4px 10px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.toast-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
 
 /* ---------- Dialogs ---------- */
 .dialog {

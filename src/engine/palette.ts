@@ -36,7 +36,70 @@ export const PALETTE_PRESETS: Record<string, PalettePreset> = {
     colors:
       'be4a2f d77643 ead4aa e4a672 b86f50 733e39 3e2731 a22633 e43b44 f77622 feae34 fee761 63c74d 3e8948 265c42 193c3e 124e89 0099db 2ce8f5 ffffff c0cbdc 8b9bb4 5a6988 3a4466 262b44 181425 ff0044 68386c b55088 f6757a e8b796 c28569',
   },
+  dawnbringer16: {
+    name: 'DawnBringer 16',
+    colors:
+      '140c1c 442434 30346d 4e4a4e 854c30 346524 d04648 757161 597dce d27d2c 8595a1 6daa2c d2aa99 6dc2ca dad45e deeed6',
+  },
+  dawnbringer32: {
+    name: 'DawnBringer 32',
+    colors:
+      '000000 222034 45283c 663931 8f563b df7126 d9a066 eec39a fbf236 99e550 6abe30 37946e 4b692f 524b24 323c39 3f3f74 306082 5b6ee1 639bff 5fcde4 cbdbfc ffffff 9badb7 847e87 696a6a 595652 76428a ac3232 d95763 d77bba 8f974a 8a6f30',
+  },
+  resurrect64: {
+    name: 'Resurrect 64',
+    colors:
+      '2e222f 3e3546 625565 966c6c ab947a 694f62 7f708a 9babb2 c7dcd0 ffffff 6e2727 b33831 ea4f36 f57d4a ae2334 e83b3b fb6b1d f79617 f9c22b 7a3045 9e4539 cd683d e6904e fbb954 4c3e24 676633 a2a947 d5e04b fbff86 165a4c 239063 1ebc73 91db69 cddf6c 313638 374e4a 547e64 92a984 b2ba90 0b5e65 0b8a8f 0eaf9b 30e1b9 8ff8e2 323353 484a77 4d65b4 4d9be6 8fd3ff 45293f 6b3e75 905ea9 a884f3 eaaded 753c54 a24b6f cf657f ed8099 831c5d c32454 f04f78 f68181 fca790 fdcbb0',
+  },
+  aap64: {
+    name: 'AAP-64',
+    colors:
+      '060608 141013 3b1725 73172d b4202a df3e23 fa6a0a f9a31b ffd541 fffc40 d6f264 9cdb43 59c135 14a02e 1a7a3e 24523b 122020 143464 285cc4 249fde 20d6c7 a6fcdb ffffff fef3c0 fad6b8 f5a097 e86a73 bc4a9b 793a80 403353 242234 221c1a 322b28 71413b bb7547 dba463 f4d29c dae0ea b3b9d1 8b93af 6d758d 4a5462 333941 422433 5b3138 8e5252 ba756a e9b5a3 e3e6ff b9bffb 849be4 588dbe 477d85 23674e 328464 5daf8d 92dcba cdf7e2 e4d2aa c7b08b a08662 796755 5a4e44 423934',
+  },
+  slso8: {
+    name: 'SLSO8',
+    colors: '0d2b45 203c56 544e68 8d697a d08159 ffaa5e ffd4a3 ffecd6',
+  },
+  pollen8: {
+    name: 'Pollen8',
+    colors: '73464c ab5675 ee6a7c ffa7a5 ffe07e ffe7d6 72dcbb 34acba',
+  },
+  oil6: {
+    name: 'Oil 6',
+    colors: 'fbf5ef f2d3ab c69fa5 8b6d9c 494d7e 272744',
+  },
+  twilight5: {
+    name: 'Twilight 5',
+    colors: 'fbbbad ee8695 4a7a96 333f58 292831',
+  },
   gameboy: { name: 'Game Boy', colors: '0f380f 306230 8bac0f 9bbc0f' },
+  kirokaze: {
+    name: 'Kirokaze Game Boy',
+    colors: '332c50 46878f 94e344 e2f3e4',
+  },
+  icecreamgb: {
+    name: 'Ice Cream GB',
+    colors: '7c3f58 eb6b6f f9a875 fff6d3',
+  },
+  demichrome: {
+    name: '2-bit Demichrome',
+    colors: '211e20 555568 a0a08b e9efec',
+  },
+  c64: {
+    name: 'Commodore 64',
+    colors:
+      '000000 626262 898989 adadad ffffff 9f4e44 cb7e75 6d5412 a1683c c9d487 9ae29b 5cab5e 6abfc6 887ecb 50459b a057a3',
+  },
+  cga: {
+    name: 'CGA',
+    colors:
+      '000000 555555 aaaaaa ffffff 0000aa 5555ff 00aa00 55ff55 00aaaa 55ffff aa0000 ff5555 aa00aa ff55ff aa5500 ffff55',
+  },
+  zxspectrum: {
+    name: 'ZX Spectrum',
+    colors:
+      '000000 0000d8 0000ff d80000 ff0000 d800d8 ff00ff 00d800 00ff00 00d8d8 00ffff d8d800 ffff00 d8d8d8 ffffff',
+  },
   grayscale: { name: 'Grayscale', colors: '000000 222222 444444 666666 888888 aaaaaa cccccc eeeeee ffffff' },
 };
 

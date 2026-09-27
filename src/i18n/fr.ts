@@ -183,6 +183,13 @@ export const fr: Record<MessageKey, string> = {
   'palette.fromDrawing': 'Construire depuis le dessin',
   'palette.paste': 'Coller des couleurs',
   'palette.openFile': 'Ouvrir un fichier de palette…',
+  'palette.manage': 'Gérer les palettes…',
+  'palette.manageTitle': 'Palettes',
+  'palette.manageHint':
+    'Choisis les palettes affichées dans le menu des palettes. Celle en cours reste toujours.',
+  'palette.inUse': 'Utilisée par le dessin',
+  'palette.deleteCustom': 'Supprimer la palette personnalisée',
+  'palette.showAll': 'Afficher toutes les palettes',
   'palette.exportHex': 'Exporter en .hex (Lospec)',
   'palette.exportGpl': 'Exporter en .gpl (GIMP, Aseprite, Krita)',
   'palette.addShort': 'Ajouter',

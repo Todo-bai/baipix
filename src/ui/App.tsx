@@ -53,6 +53,9 @@ function useRestore(editor: Editor, storage: StorageAdapter): boolean {
             collapsed: Array.isArray(ui.collapsed) ? ui.collapsed.filter((x) => typeof x === 'string') : [],
             rightTab: ui.rightTab === 'export' ? 'export' : 'design',
             exportBackground: ui.exportBackground !== false,
+            hiddenPalettes: Array.isArray(ui.hiddenPalettes)
+              ? ui.hiddenPalettes.filter((x) => typeof x === 'string')
+              : [],
             ...(widths && {
               panelWidths: {
                 left: Math.min(Math.max(widths.left, PANEL_LIMITS.left.min), PANEL_LIMITS.left.max),

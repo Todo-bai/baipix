@@ -600,6 +600,13 @@ export class Editor {
     this.commit();
   }
 
+  /** Forgets the custom palette, unless it's the one in use. */
+  deleteCustomPalette(): void {
+    if (this.palette.key === 'custom' || !this.palette.custom) return;
+    this.palette = { ...this.palette, custom: null };
+    this.commit();
+  }
+
   /** Replaces the palette with custom colors. */
   setPaletteColors(colors: Color[]): void {
     const unique = [...new Set(colors.map(opaque))];

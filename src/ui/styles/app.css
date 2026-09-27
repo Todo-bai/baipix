@@ -1345,6 +1345,45 @@ body.is-dragging-swatch * {
 .textarea:focus {
   border-color: var(--accent);
 }
+/* Palette manager: one row per palette, with a strip of its colors. */
+.palette-list {
+  display: grid;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0 -8px;
+}
+.palette-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+}
+.palette-row:hover {
+  background: var(--hover);
+}
+.palette-row input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+.palette-name {
+  flex: none;
+  width: 128px;
+}
+.palette-strip {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--swatch-edge);
+}
+.palette-strip i {
+  flex: 1;
+  min-width: 3px;
+}
 .radios {
   display: grid;
   gap: 4px;

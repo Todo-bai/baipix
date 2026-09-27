@@ -6,7 +6,7 @@ const SUN = ['...#...', '.#...#.', '..###..', '#.###.#', '..###..', '.#...#.', '
 const MOON = ['..###..', '.##....', '##.....', '##.....', '##.....', '.##....', '..###..'];
 ---
 
-<button class="theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle>
+<button class="btn btn-small btn-icon theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle>
   <span class="sun"><PixelIcon rows={SUN} size={14} /></span>
   <span class="moon"><PixelIcon rows={MOON} size={14} /></span>
 </button>
@@ -34,24 +34,9 @@ const MOON = ['..###..', '.##....', '##.....', '##.....', '##.....', '.##....', 
   /* Needs the script in Base.astro, which sets data-theme. */
   .theme-toggle {
     display: none;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border: 1px solid var(--line);
-    background: var(--bg);
-    color: var(--text);
-    cursor: pointer;
-    transition:
-      background 0.15s,
-      border-color 0.15s;
   }
   :global(:root[data-theme]) .theme-toggle {
-    display: grid;
-  }
-  .theme-toggle:hover {
-    border-color: var(--line-strong);
-    background: var(--surface);
+    display: inline-flex;
   }
   /* Shows the theme it switches to. */
   .theme-toggle span {

@@ -10,13 +10,24 @@ export interface Theme {
   accentInk: string;
   muted: string;
   axis: string;
+  /** Selection corners. */
+  handle: string;
 }
 
-/** Reads the canvas colors from CSS custom properties, so the renderer follows light/dark themes. */
+/**
+ * Reads the canvas colors from the CSS tokens, so the renderer follows light/dark themes.
+ * Tokens are written as light-dark(…), which only CSS understands: each one is resolved to a
+ * plain rgb() color by applying it to a hidden element.
+ */
 export function readTheme(el: Element = document.documentElement): Theme {
-  const cs = getComputedStyle(el);
-  const v = (name: string) => cs.getPropertyValue(name).trim();
-  return {
+  const probe = document.createElement('span');
+  probe.style.display = 'none';
+  el.appendChild(probe);
+  const v = (name: string) => {
+    probe.style.color = `var(${name})`;
+    return getComputedStyle(probe).color;
+  };
+  const theme = {
     canvas: v('--canvas'),
     checkA: v('--check-a'),
     checkB: v('--check-b'),
@@ -27,7 +38,10 @@ export function readTheme(el: Element = document.documentElement): Theme {
     accentInk: v('--accent-ink'),
     muted: v('--muted'),
     axis: v('--axis'),
+    handle: v('--handle'),
   };
+  probe.remove();
+  return theme;
 }
 
 const patternCache = new WeakMap<CanvasRenderingContext2D, Map<string, CanvasPattern>>();

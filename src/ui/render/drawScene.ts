@@ -199,7 +199,7 @@ export function drawScene(
     ]) {
       const hx = Math.round(cx - hs / 2);
       const hy = Math.round(cy - hs / 2);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = theme.handle;
       ctx.fillRect(hx, hy, hs, hs);
       ctx.strokeRect(hx + lw / 2, hy + lw / 2, hs - lw, hs - lw);
     }

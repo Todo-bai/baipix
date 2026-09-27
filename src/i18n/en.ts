@@ -21,6 +21,8 @@ export const en = {
 
   'panel.left': 'Files and layers',
   'panel.right': 'Properties',
+  'panel.design': 'Design',
+  'panel.export': 'Export',
   'panel.resizeLeft': 'Resize the left panel',
   'panel.resizeRight': 'Resize the right panel',
   'panel.resizeHint': 'Drag to resize, double-click to reset',
@@ -52,7 +54,7 @@ export const en = {
   'section.layer': 'Layer',
   'section.canvas': 'Canvas',
   'section.display': 'Display',
-  'section.export': 'Export',
+  'section.exportFile': 'File',
 
   'menu.main': 'Main menu',
   'menu.newFile': 'New file…',

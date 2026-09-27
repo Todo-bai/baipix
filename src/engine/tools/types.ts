@@ -6,6 +6,7 @@ import type { PaletteIndex, ShadeMode } from '../palette';
 export type ToolId =
   | 'move'
   | 'select'
+  | 'hand'
   | 'pencil'
   | 'eraser'
   | 'bucket'

@@ -30,6 +30,7 @@ export const en = {
   'toolbar.shapes': 'Shapes',
 
   'tool.move': 'Move',
+  'tool.hand': 'Hand',
   'tool.select': 'Selection',
   'tool.pencil': 'Pencil',
   'tool.eraser': 'Eraser',

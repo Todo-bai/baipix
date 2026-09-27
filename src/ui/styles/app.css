@@ -746,6 +746,9 @@ body.is-resizing * {
 .canvas-wrap[data-tool='move'] .canvas {
   cursor: move;
 }
+.canvas-wrap[data-tool='hand'] .canvas {
+  cursor: grab;
+}
 /* Eyedropper cursor (Lucide pipette with a white halo), hotspot on the tip. */
 .canvas-wrap[data-tool='picker'] .canvas,
 .canvas.alt-pick {

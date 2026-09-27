@@ -277,7 +277,8 @@ export function CanvasView() {
         return;
       }
       if (pinch) return;
-      if (e.button === 1 || keyState.space) {
+      // Pan: the middle button, Space held, or the hand tool.
+      if (e.button === 1 || keyState.space || (e.button === 0 && editor.getState().tool === 'hand')) {
         panStart = { x: e.clientX, y: e.clientY, panX: viewport.panX, panY: viewport.panY };
         canvas.style.cursor = 'grabbing';
         e.preventDefault();

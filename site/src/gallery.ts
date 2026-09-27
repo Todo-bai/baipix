@@ -8,8 +8,16 @@ import { uniqueColors } from '../../src/engine/region';
 import { deserializeDocument } from '../../src/storage/fileFormat';
 import entries from '../../gallery/gallery.json';
 
-const sources = import.meta.glob<string>('../../gallery/*.baipix', { query: '?raw', import: 'default', eager: true });
-const urls = import.meta.glob<string>('../../gallery/*.baipix', { query: '?url', import: 'default', eager: true });
+const sources = import.meta.glob<string>('../../gallery/*.baipix', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const urls = import.meta.glob<string>('../../gallery/*.baipix', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
 
 export interface GalleryPiece {
   title: string;

@@ -6,3 +6,6 @@ package-lock.json
 site/package-lock.json
 gallery/*.baipix
 docs/*.baipix
+.claude/
+# Issue templates keep their empty lines and list items on purpose.
+.github/ISSUE_TEMPLATE/

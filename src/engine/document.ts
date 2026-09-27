@@ -34,6 +34,12 @@ export interface PixelDoc {
   background: Color;
   backgroundVisible: boolean;
   render: RenderSettings;
+  /**
+   * Symmetry axes, in pixels from the left and top edges, by half pixels: a whole number puts the axis
+   * between two pixels, a .5 through the middle of one. Missing means the center of the canvas.
+   */
+  axisX?: number;
+  axisY?: number;
   /** Used to name new layers ("Layer 3"). */
   layerCounter: number;
 }
@@ -87,10 +93,18 @@ export const activeLayer = (doc: PixelDoc): Layer => doc.layers[doc.activeLayer]
 
 export const hasBackground = (doc: PixelDoc): boolean => doc.backgroundVisible && alpha(doc.background) > 0;
 
-/** Changes the canvas size, keeping the drawing centered. */
+/** Where the symmetry axes are: the center of the canvas unless they were moved. */
+export const mirrorAxes = (doc: PixelDoc): { x: number; y: number } => ({
+  x: doc.axisX ?? doc.width / 2,
+  y: doc.axisY ?? doc.height / 2,
+});
+
+/** Changes the canvas size, keeping the drawing centered (and moved symmetry axes with it). */
 export function resizeDocument(doc: PixelDoc, width: number, height: number): void {
   const offsetX = Math.floor((width - doc.width) / 2);
   const offsetY = Math.floor((height - doc.height) / 2);
+  if (doc.axisX !== undefined) doc.axisX = Math.min(width, Math.max(0, doc.axisX + offsetX));
+  if (doc.axisY !== undefined) doc.axisY = Math.min(height, Math.max(0, doc.axisY + offsetY));
   for (const layer of doc.layers) {
     const next = new Uint32Array(width * height);
     for (let y = 0; y < doc.height; y++) {

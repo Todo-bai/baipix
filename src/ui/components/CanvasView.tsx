@@ -6,7 +6,14 @@ import { t as translate, useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
 import { useEditor, useEditorState } from '../EditorContext';
 import { keyState } from '../keyState';
-import { drawScene, LABEL, labelRect, type BrushPreview } from '../render/drawScene';
+import {
+  AXIS_GRIP,
+  axisPositions,
+  drawScene,
+  LABEL,
+  labelRect,
+  type BrushPreview,
+} from '../render/drawScene';
 import { readTheme, type Theme } from '../render/theme';
 import { BRUSH_TOOLS, SHAPE_IDS } from '../tools';
 import { hoverStore, uiStore } from '../uiStore';
@@ -62,6 +69,34 @@ export function CanvasView() {
     const pointers = new Map<number, { x: number; y: number; touch: boolean }>();
     // Alt held: drawing tools pick colors, so the loupe shows (even before the pointer moves).
     let altHeld = false;
+    // Dragging a symmetry axis by its grip.
+    let axisDrag: 'x' | 'y' | null = null;
+
+    /** The symmetry axis whose grip (the part outside the canvas) is under the pointer, if any. */
+    const axisAt = (l: { x: number; y: number }): 'x' | 'y' | null => {
+      const { doc, view } = editor.getState();
+      const cam = camera();
+      const { x: ax, y: ay } = axisPositions(doc, cam);
+      const px = l.x * cam.dpr;
+      const py = l.y * cam.dpr;
+      const reach = AXIS_GRIP * cam.dpr;
+      const near = 6 * cam.dpr;
+      const right = cam.originX + doc.width * cam.scale - cam.gap;
+      const bottom = cam.originY + doc.height * cam.scale - cam.gap;
+      const outsideY =
+        (py >= cam.originY - reach && py < cam.originY) || (py > bottom && py <= bottom + reach);
+      const outsideX = (px >= cam.originX - reach && px < cam.originX) || (px > right && px <= right + reach);
+      if (view.mirrorX && Math.abs(px - ax) <= near && outsideY) return 'x';
+      if (view.mirrorY && Math.abs(py - ay) <= near && outsideX) return 'y';
+      return null;
+    };
+    const dragAxis = (l: { x: number; y: number }) => {
+      const cam = camera();
+      if (axisDrag === 'x')
+        editor.setMirrorAxis('x', (l.x * cam.dpr - cam.originX + cam.gap / 2) / cam.scale);
+      if (axisDrag === 'y')
+        editor.setMirrorAxis('y', (l.y * cam.dpr - cam.originY + cam.gap / 2) / cam.scale);
+    };
 
     const updateComposite = () => {
       const { doc } = editor.getLive();
@@ -250,6 +285,11 @@ export function CanvasView() {
       }
       if (e.button !== 0 && e.button !== 2) return;
       const l = local(e);
+      const axis = e.button === 0 ? axisAt(l) : null;
+      if (axis) {
+        axisDrag = axis;
+        return;
+      }
       // The frame name is renamed by double-click, so clicking it never draws.
       if (onLabel(l)) return;
       const p = viewport.toPixel(l.x, l.y);
@@ -280,6 +320,13 @@ export function CanvasView() {
         });
         return;
       }
+      if (axisDrag) {
+        dragAxis(local(e));
+        return;
+      }
+      const onAxis = editor.isStroking ? null : axisAt(local(e));
+      canvas.classList.toggle('on-axis-x', onAxis === 'x');
+      canvas.classList.toggle('on-axis-y', onAxis === 'y');
       const events = editor.isStroking && e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       for (const ev of events.length ? events : [e]) {
         const l = local(ev);
@@ -309,6 +356,10 @@ export function CanvasView() {
         canvas.style.cursor = '';
         return;
       }
+      if (axisDrag) {
+        axisDrag = null;
+        return;
+      }
       editor.endStroke();
     };
 
@@ -317,6 +368,7 @@ export function CanvasView() {
       editor.cancelStroke();
       panStart = null;
       pinch = null;
+      axisDrag = null;
     };
 
     const onLeave = (e: PointerEvent) => {
@@ -349,7 +401,13 @@ export function CanvasView() {
     };
 
     const noMenu = (e: Event) => e.preventDefault();
-    const onDoubleClick = (e: MouseEvent) => onLabel(local(e)) && setRenaming(true);
+    // Double-click: on the frame name, rename; on an axis grip, put the axis back in the middle.
+    const onDoubleClick = (e: MouseEvent) => {
+      const l = local(e);
+      const axis = axisAt(l);
+      if (axis) editor.setMirrorAxis(axis, null);
+      else if (onLabel(l)) setRenaming(true);
+    };
     wrap.addEventListener('pointerdown', closeSheets, true);
     canvas.addEventListener('pointerdown', onDown);
     canvas.addEventListener('pointermove', onMove);

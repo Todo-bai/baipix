@@ -73,7 +73,8 @@ describe('floodFill', () => {
 
 describe('mirrored', () => {
   it('mirrors on both axes', () => {
-    expect(mirrored(1, 2, 8, 8, true, true)).toEqual([
+    // An 8 × 8 canvas: both axes in the middle, at 4.
+    expect(mirrored(1, 2, 4, 4, true, true)).toEqual([
       { x: 1, y: 2 },
       { x: 6, y: 2 },
       { x: 1, y: 5 },

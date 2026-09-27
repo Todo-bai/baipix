@@ -1,4 +1,5 @@
 ---
+import Footer from '../components/Footer.astro';
 import Logo from '../components/Logo.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import Base from '../layouts/Base.astro';
@@ -227,11 +228,12 @@ const path = (g: Uint8Array[], value = 1) =>
       <path class="ink spark spark-a" d={path(sparkA)}></path>
       <path class="ink spark spark-b" d={path(sparkB)}></path>
     </svg>
-    <p class="code">Error 404</p>
-    <h1>This page blew up.</h1>
-    <p class="muted">It doesn't exist, or it moved. Let's get you back somewhere safe.</p>
+    <p class="status">404 · Page not found</p>
+    <h1>Boom. Not a pixel left.</h1>
+    <p class="muted">This page doesn't exist, or it moved. Let's get you back somewhere safe.</p>
     <a class="btn btn-dark" href={base}>Back to home</a>
   </main>
+  <Footer />
 </Base>
 
 <style>
@@ -252,7 +254,7 @@ const path = (g: Uint8Array[], value = 1) =>
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 0 96px;
+    padding: 24px 0 0;
     text-align: center;
   }
   /* One soft color, gray on light and light gray on dark, with the page as the sky. */
@@ -265,9 +267,10 @@ const path = (g: Uint8Array[], value = 1) =>
   .ink {
     fill: var(--muted);
   }
-  .code {
+  .status {
     margin-top: 36px;
-    font: 500 13px/1 var(--mono);
+    font-size: 14px;
+    font-weight: 500;
     color: var(--muted);
   }
   h1 {

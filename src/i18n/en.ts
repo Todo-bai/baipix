@@ -4,6 +4,7 @@ export const en = {
   'common.close': 'Close',
   'common.create': 'Create',
   'common.delete': 'Delete',
+  'common.undo': 'Undo',
   'common.ok': 'OK',
   'common.apply': 'Apply',
   'common.reset': 'Reset',
@@ -206,9 +207,6 @@ export const en = {
   'dialog.appendPalette': 'Add to the palette',
   'dialog.useColors': 'Use these colors',
 
-  'confirm.deleteFileTitle': 'Delete the file',
-  'confirm.deleteFileMessage': '“{name}” will be permanently deleted, with its layers and history.',
-
   'output.copySvgTitle': 'Copy the SVG',
   'output.copySvgBlocked':
     'The browser blocked automatic copying. Copy this code (Ctrl+C), then paste it into Figma or Illustrator.',
@@ -239,7 +237,7 @@ export const en = {
   'toast.imageAsLayer': 'Image added on a new layer.',
   'toast.imageAsFile': 'New {w} × {h} file created from the image.',
   'toast.imageShrunk': 'Image reduced to {w} × {h} in a new file (max {max} px).',
-  'toast.fileDeleted': '“{name}” deleted.',
+  'toast.deleted': '“{name}” deleted.',
   'toast.selectionCopied': 'Selection copied.',
   'toast.layerCopied': 'Layer copied.',
   'toast.cut': 'Cut.',

@@ -228,4 +228,60 @@ describe('Editor', () => {
     e.undo();
     expect(names()).toEqual(before);
   });
+
+  it('brings a deleted layer back where it was', () => {
+    const e = new Editor();
+    e.addLayer();
+    e.addLayer();
+    e.setActiveLayer(1);
+    const names = () => e.getState().doc.layers.map((l) => l.name);
+    const before = names();
+    expect(e.deleteLayer()).toBe(true);
+    drag(e, [[0, 0]]);
+    expect(e.restoreDeleted()).toBe(true);
+    expect(names()).toEqual(before);
+    expect(e.getState().doc.activeLayer).toBe(1);
+    expect(e.restoreDeleted()).toBe(false);
+  });
+
+  it("doesn't restore a layer that undo already brought back", () => {
+    const e = new Editor();
+    e.addLayer();
+    e.deleteLayer();
+    e.undo();
+    expect(e.restoreDeleted()).toBe(false);
+    expect(e.getState().doc.layers).toHaveLength(2);
+  });
+
+  it("doesn't restore a layer after the canvas was resized", () => {
+    const e = new Editor();
+    e.addLayer();
+    e.deleteLayer();
+    e.resize(16, 16);
+    expect(e.restoreDeleted()).toBe(false);
+    expect(e.getState().doc.layers).toHaveLength(1);
+  });
+
+  it('brings a deleted file back with its history', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    drag(e, [[0, 0]]);
+    const id = e.getState().activeId;
+    e.newFile(16, 16);
+    e.switchFile(id);
+    expect(e.deleteFile(id)).toBe(true);
+    expect(e.getState().files).toHaveLength(1);
+    expect(e.restoreDeleted()).toBe(true);
+    expect(e.getState().files.map((f) => f.id)[0]).toBe(id);
+    expect(e.getState().activeId).toBe(id);
+    expect(painted(e)).toBe(1);
+    e.undo();
+    expect(painted(e)).toBe(0);
+  });
+
+  it('keeps the last file', () => {
+    const e = new Editor();
+    expect(e.deleteFile(e.getState().activeId)).toBe(false);
+    expect(e.restoreDeleted()).toBe(false);
+  });
 });

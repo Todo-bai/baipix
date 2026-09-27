@@ -17,6 +17,7 @@ export type ExportFormat = 'png' | 'svg';
 /** User-level commands shared by menus, buttons and shortcuts. */
 export function createActions(editor: Editor) {
   const doc = () => editor.getState().doc;
+  const undoDelete = () => ({ label: t('common.undo'), run: () => editor.restoreDeleted() });
   const baseName = () => safeFileName(doc().name);
 
   function renderInput(onlyActiveLayer: boolean) {
@@ -162,17 +163,14 @@ export function createActions(editor: Editor) {
       return false;
     },
 
-    confirmDeleteFile(id: string, name: string) {
-      openDialog({
-        type: 'confirm',
-        title: t('confirm.deleteFileTitle'),
-        message: t('confirm.deleteFileMessage', { name }),
-        confirmLabel: t('common.delete'),
-        onConfirm: () => {
-          editor.deleteFile(id);
-          toast(t('toast.fileDeleted', { name }));
-        },
-      });
+    // No confirmation: deleting is instant, and the toast offers to bring it back.
+    deleteFile(id: string, name: string) {
+      if (editor.deleteFile(id)) toast(t('toast.deleted', { name }), undoDelete());
+    },
+
+    deleteLayer() {
+      const { name } = doc().layers[doc().activeLayer];
+      if (editor.deleteLayer()) toast(t('toast.deleted', { name }), undoDelete());
     },
 
     hasTransparentBackground: () => !alpha(doc().background),

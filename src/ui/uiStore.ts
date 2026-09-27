@@ -52,14 +52,22 @@ export const hoverStore = createStore<
   color: null,
 });
 
+export interface ToastAction {
+  label: string;
+  run: () => void;
+}
 export interface Toast {
   id: number;
   message: string;
+  action?: ToastAction;
 }
 export const toastStore = createStore<{ toasts: Toast[] }>({ toasts: [] });
 let toastId = 0;
-export function toast(message: string): void {
+export const dismissToast = (id: number): void =>
+  toastStore.set((s) => ({ toasts: s.toasts.filter((x) => x.id !== id) }));
+/** Shows a short message. With an action (e.g. Undo), it stays longer so there is time to click. */
+export function toast(message: string, action?: ToastAction): void {
   const id = ++toastId;
-  toastStore.set({ toasts: [{ id, message }] });
-  setTimeout(() => toastStore.set((s) => ({ toasts: s.toasts.filter((x) => x.id !== id) })), 2800);
+  toastStore.set({ toasts: [{ id, message, action }] });
+  setTimeout(() => dismissToast(id), action ? 6000 : 2800);
 }

@@ -142,7 +142,7 @@ function FilesSection() {
                     {
                       label: t('common.delete'),
                       disabled: files.length < 2,
-                      onSelect: () => actions.confirmDeleteFile(f.id, f.name),
+                      onSelect: () => actions.deleteFile(f.id, f.name),
                     },
                   ]);
                 }}
@@ -158,6 +158,7 @@ function FilesSection() {
 function LayersSection() {
   const t = useT();
   const editor = useEditor();
+  const actions = useActions();
   const doc = useEditorState((s) => s.doc);
   const revision = useEditorState((s) => s.revision);
   const layers = doc.layers.map((layer, index) => ({ layer, index })).reverse();
@@ -269,7 +270,7 @@ function LayersSection() {
           icon="trash"
           label={t('layer.delete')}
           disabled={doc.layers.length < 2}
-          onClick={() => editor.deleteLayer()}
+          onClick={() => actions.deleteLayer()}
         />
       </div>
     </Section>

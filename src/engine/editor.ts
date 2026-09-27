@@ -8,6 +8,7 @@ import {
   createLayer,
   MAX_SIZE,
   resizeDocument,
+  type Layer,
   type PixelDoc,
   type RenderSettings,
 } from './document';
@@ -100,6 +101,11 @@ interface Session {
   selection: Rect | null;
 }
 
+/** What the last delete removed, so it can be brought back (the toast's Undo button). */
+type Deleted =
+  | { kind: 'file'; session: Session; index: number }
+  | { kind: 'layer'; session: Session; layer: Layer; index: number };
+
 type Listener = () => void;
 
 const DEFAULT_LABELS: EditorLabels = {
@@ -125,6 +131,7 @@ export class Editor {
   private adjusting: { layers: { id: string; base: Uint32Array }[]; rect: Rect } | null = null;
   private strokeTool: ToolId | null = null;
   private opacityChange = false;
+  private deleted: Deleted | null = null;
   private revision = 0;
   private state!: EditorState;
 
@@ -232,6 +239,7 @@ export class Editor {
     if (this.stroke || this.adjusting) return;
     const prev = this.active.history.undo(takeSnapshot(this.doc, this.active.selection));
     if (prev) {
+      this.forgetDeletedLayer();
       this.restore(prev);
       this.commit();
     }
@@ -241,9 +249,15 @@ export class Editor {
     if (this.stroke || this.adjusting) return;
     const next = this.active.history.redo(takeSnapshot(this.doc, this.active.selection));
     if (next) {
+      this.forgetDeletedLayer();
       this.restore(next);
       this.commit();
     }
+  }
+
+  /** Undo and redo swap whole snapshots, which may bring the deleted layer back on their own. */
+  private forgetDeletedLayer(): void {
+    if (this.deleted?.kind === 'layer' && this.deleted.session === this.active) this.deleted = null;
   }
 
   /** Runs a document mutation as one undoable step. */
@@ -289,6 +303,7 @@ export class Editor {
     if (!docs.length) return;
     this.cancelStroke();
     this.sessions = docs.map((doc) => ({ doc, history: new History(), selection: null }));
+    this.deleted = null;
     this.active = this.sessions.find((s) => s.doc.id === activeId) ?? this.sessions[0];
     this.commit(false);
   }
@@ -326,17 +341,47 @@ export class Editor {
     this.commit();
   }
 
-  deleteFile(id: string): void {
+  /** Returns false when nothing was deleted. The file can be brought back with `restoreDeleted`. */
+  deleteFile(id: string): boolean {
     if (this.sessions.length < 2) {
       this.notice({ type: 'keepOneFile' });
-      return;
+      return false;
     }
     const i = this.sessions.findIndex((x) => x.doc.id === id);
-    if (i < 0) return;
+    if (i < 0) return false;
     this.cancelStroke();
     const [removed] = this.sessions.splice(i, 1);
     if (removed === this.active) this.active = this.sessions[Math.max(0, i - 1)];
+    this.deleted = { kind: 'file', session: removed, index: i };
     this.commit();
+    return true;
+  }
+
+  /**
+   * Brings back the last deleted file (with its history) or layer, and makes it active.
+   * Returns false when it can't anymore: already restored, its file is gone, or the canvas was resized.
+   */
+  restoreDeleted(): boolean {
+    const d = this.deleted;
+    if (!d) return false;
+    this.deleted = null;
+    this.cancelStroke();
+    if (d.kind === 'file') {
+      this.sessions.splice(Math.min(d.index, this.sessions.length), 0, d.session);
+      this.active = d.session;
+      this.commit();
+      return true;
+    }
+    const { width, height } = d.session.doc;
+    if (!this.sessions.includes(d.session) || d.layer.pixels.length !== width * height) return false;
+    this.cancelAdjust();
+    this.active = d.session;
+    this.edit((doc) => {
+      const index = Math.min(d.index, doc.layers.length);
+      doc.layers.splice(index, 0, d.layer);
+      doc.activeLayer = index;
+    });
+    return true;
   }
 
   /* ------------------------------------------------------------------ document */
@@ -406,12 +451,16 @@ export class Editor {
     });
   }
 
-  deleteLayer(): void {
-    if (this.doc.layers.length < 2) return;
+  /** Returns false when nothing was deleted. The layer can be brought back with `restoreDeleted`. */
+  deleteLayer(): boolean {
+    if (this.doc.layers.length < 2) return false;
     this.edit((doc) => {
-      doc.layers.splice(doc.activeLayer, 1);
-      doc.activeLayer = Math.max(0, doc.activeLayer - 1);
+      const index = doc.activeLayer;
+      const [layer] = doc.layers.splice(index, 1);
+      doc.activeLayer = Math.max(0, index - 1);
+      this.deleted = { kind: 'layer', session: this.active, layer, index };
     });
+    return true;
   }
 
   moveLayer(direction: 1 | -1): void {

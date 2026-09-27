@@ -5,6 +5,7 @@ export const fr: Record<MessageKey, string> = {
   'common.close': 'Fermer',
   'common.create': 'Créer',
   'common.delete': 'Supprimer',
+  'common.undo': 'Annuler',
   'common.ok': 'OK',
   'common.apply': 'Appliquer',
   'common.reset': 'Réinitialiser',
@@ -208,9 +209,6 @@ export const fr: Record<MessageKey, string> = {
   'dialog.appendPalette': 'Ajouter à la palette',
   'dialog.useColors': 'Utiliser ces couleurs',
 
-  'confirm.deleteFileTitle': 'Supprimer le fichier',
-  'confirm.deleteFileMessage': '« {name} » sera supprimé définitivement, avec ses calques et son historique.',
-
   'output.copySvgTitle': 'Copier le SVG',
   'output.copySvgBlocked':
     'Le navigateur bloque la copie automatique. Copie ce code (Ctrl+C) puis colle-le dans Figma ou Illustrator.',
@@ -242,7 +240,7 @@ export const fr: Record<MessageKey, string> = {
   'toast.imageAsLayer': 'Image ajoutée sur un nouveau calque.',
   'toast.imageAsFile': "Nouveau fichier de {w} × {h} créé à partir de l'image.",
   'toast.imageShrunk': 'Image réduite à {w} × {h} dans un nouveau fichier (maximum {max} px).',
-  'toast.fileDeleted': '« {name} » supprimé.',
+  'toast.deleted': '« {name} » supprimé.',
   'toast.selectionCopied': 'Sélection copiée.',
   'toast.layerCopied': 'Calque copié.',
   'toast.cut': 'Coupé.',

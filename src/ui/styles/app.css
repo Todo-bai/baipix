@@ -462,7 +462,7 @@ body.is-resizing * {
   position: absolute;
   inset: 0;
   border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px var(--swatch-edge);
 }
 .palette-grid {
   display: grid;
@@ -475,7 +475,7 @@ body.is-resizing * {
   padding: 0;
   border: 0;
   border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px var(--swatch-edge);
   cursor: pointer;
 }
 .swatch.is-primary::after {
@@ -760,7 +760,7 @@ body.is-dragging-layer * {
   margin-right: 5px;
   vertical-align: -1px;
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 1px var(--swatch-edge-strong);
 }
 .resizer {
   position: absolute;
@@ -869,20 +869,21 @@ body.is-dragging-layer * {
 .adjust-slider::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
-  border: 2px solid #fff;
+  border: 2px solid var(--handle);
   border-radius: 50%;
   appearance: none;
   background: transparent;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-thumb);
 }
 .adjust-slider::-moz-range-thumb {
   width: 10px;
   height: 10px;
-  border: 2px solid #fff;
+  border: 2px solid var(--handle);
   border-radius: 50%;
   background: transparent;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-thumb);
 }
+/* The slider tracks show real colors, not interface colors, so they stay out of the tokens. */
 .adjust-hue {
   background: linear-gradient(to right, #0ff, #00f, #f0f, #f00, #ff0, #0f0, #0ff);
 }
@@ -944,11 +945,9 @@ body.is-dragging-layer * {
   width: 14px;
   height: 14px;
   margin: -7px 0 0 -7px;
-  border: 3px solid #fff;
+  border: 3px solid var(--handle);
   border-radius: 50%;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.25),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-handle);
   pointer-events: none;
 }
 .slider .knob {
@@ -971,10 +970,7 @@ body.is-dragging-layer * {
   border-radius: var(--radius-lg);
   background: var(--menu-bg);
   color: var(--menu-text);
-  box-shadow:
-    0 0 0.5px rgba(0, 0, 0, 0.4),
-    0 5px 17px rgba(0, 0, 0, 0.25),
-    0 2px 7px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-menu);
 }
 .menu-item {
   position: relative;
@@ -1029,7 +1025,7 @@ body.is-dragging-layer * {
   padding: 4px 8px;
   border-radius: var(--radius);
   background: var(--tooltip-bg);
-  color: #fff;
+  color: var(--tooltip-text);
   /* Short labels stay on one line; help texts wrap. */
   width: max-content;
   max-width: 240px;
@@ -1043,7 +1039,7 @@ body.is-dragging-layer * {
 }
 .tooltip-shortcut {
   margin-left: 8px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--tooltip-muted);
 }
 .toast {
   position: fixed;
@@ -1054,7 +1050,7 @@ body.is-dragging-layer * {
   padding: 8px 12px;
   border-radius: 6px;
   background: var(--tooltip-bg);
-  color: #fff;
+  color: var(--tooltip-text);
   text-align: center;
   transform: translate(-50%, 6px);
   opacity: 0;
@@ -1083,7 +1079,7 @@ body.is-dragging-layer * {
   pointer-events: auto;
 }
 .toast-action:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--tooltip-hover);
 }
 
 /* ---------- Dialogs ---------- */
@@ -1097,7 +1093,7 @@ body.is-dragging-layer * {
   box-shadow: var(--shadow-pop);
 }
 .dialog::backdrop {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--backdrop);
 }
 .dialog-header {
   display: flex;

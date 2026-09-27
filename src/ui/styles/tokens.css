@@ -8,22 +8,22 @@
   color-scheme: light dark;
 
   /* Surfaces and text */
-  --canvas: light-dark(#f5f5f5, #1e1e1e);
-  --panel: light-dark(#ffffff, #2c2c2c);
-  --line: light-dark(#e6e6e6, #444444);
+  --canvas: light-dark(#f5f5f5, #15161b);
+  --panel: light-dark(#ffffff, #202229);
+  --line: light-dark(#e6e6e6, #353843);
   --text: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
   --muted: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.55));
-  --input: light-dark(#f5f5f5, #383838);
-  --hover: light-dark(#f5f5f5, #383838);
+  --input: light-dark(#f5f5f5, #2b2d36);
+  --hover: light-dark(#f5f5f5, #2b2d36);
   --selected: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.1));
   /* Neutral accent (no brand color yet): the text color, with inverted text on top. */
-  --accent: light-dark(#1a1a1a, #f2f2f2);
-  --accent-ink: light-dark(#ffffff, #1a1a1a);
+  --accent: light-dark(#1a1a1a, #f2f2f5);
+  --accent-ink: light-dark(#ffffff, #15161b);
 
   /* Canvas */
-  --axis: #f24822;
-  --check-a: light-dark(#ffffff, #4a4a4a);
-  --check-b: light-dark(#e3e3e3, #3b3b3b);
+  --axis: #ff4d8d;
+  --check-a: light-dark(#ffffff, #3d404b);
+  --check-b: light-dark(#e3e3e3, #31333d);
   --grid: light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
   --grid-major: light-dark(rgba(0, 0, 0, 0.22), rgba(255, 255, 255, 0.22));
   --frame: light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.12));
@@ -36,14 +36,14 @@
   --swatch-edge-strong: rgba(0, 0, 0, 0.2);
 
   /* Menus */
-  --menu-bg: light-dark(#ffffff, #1e1e1e);
+  --menu-bg: light-dark(#ffffff, #1a1b21);
   --menu-text: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
   --menu-muted: light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.35));
   --menu-shortcut: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.5));
   --menu-line: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.12));
 
   /* Tooltips and toasts stay dark in both themes. */
-  --tooltip-bg: #1e1e1e;
+  --tooltip-bg: #1a1b21;
   --tooltip-text: #ffffff;
   --tooltip-muted: rgba(255, 255, 255, 0.55);
   --tooltip-hover: rgba(255, 255, 255, 0.12);

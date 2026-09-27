@@ -31,8 +31,14 @@ export interface Scene {
   /** Animated selection outline offset, in CSS pixels. */
   selectionDashOffset: number;
   brush: BrushPreview | null;
+  /** Eyedropper loupe around the hovered pixel, with the text shown under it (the hex code). */
+  loupe: { at: Point; color: Color | null; text: string } | null;
   label: string;
 }
+
+/** Pixels shown across the loupe (odd, so the picked pixel is in the middle), and their size. */
+const LOUPE_PIXELS = 9;
+const LOUPE_CELL = 12;
 
 const FONT = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
@@ -220,4 +226,97 @@ export function drawScene(
     ctx.fillText(text, bx + pw / 2, by + ph / 2 + 0.5 * dpr);
     ctx.textAlign = 'start';
   }
+
+  if (scene.loupe) drawLoupe(ctx, width, scene.composite, scene.loupe, camera, theme, checker);
+}
+
+/**
+ * Eyedropper loupe: the pixels around the cursor, magnified in a circle, the picked pixel framed in
+ * the middle, a ring in the picked color and the hex code under it. It floats above the cursor so a
+ * finger doesn't hide it, and goes below near the top edge.
+ */
+function drawLoupe(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  composite: CanvasImageSource,
+  loupe: NonNullable<Scene['loupe']>,
+  camera: Camera,
+  theme: Theme,
+  checker: CanvasPattern,
+): void {
+  const { dpr, scale: s, originX: X, originY: Y } = camera;
+  const cell = Math.round(LOUPE_CELL * dpr);
+  const size = cell * LOUPE_PIXELS;
+  const r = size / 2;
+  const margin = Math.round(8 * dpr);
+  const offset = Math.round(28 * dpr);
+  const cx = X + (loupe.at.x + 0.5) * s;
+  const cy = Y + (loupe.at.y + 0.5) * s;
+  const x = Math.round(Math.min(Math.max(cx, r + margin), width - r - margin) - r);
+  let y = Math.round(cy - offset - size);
+  if (y < margin) y = Math.round(cy + offset);
+  const half = (LOUPE_PIXELS - 1) / 2;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x + r, y + r, r, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.fillStyle = checker;
+  ctx.fillRect(x, y, size, size);
+  ctx.drawImage(
+    composite,
+    loupe.at.x - half,
+    loupe.at.y - half,
+    LOUPE_PIXELS,
+    LOUPE_PIXELS,
+    x,
+    y,
+    size,
+    size,
+  );
+  ctx.fillStyle = theme.grid;
+  for (let i = 1; i < LOUPE_PIXELS; i++) {
+    ctx.fillRect(x + i * cell, y, 1, size);
+    ctx.fillRect(x, y + i * cell, size, 1);
+  }
+  // The picked pixel: a dark and a light frame, readable on any color.
+  const lw = Math.max(1, Math.round(dpr));
+  const px = x + half * cell;
+  const py = y + half * cell;
+  ctx.lineWidth = lw * 2;
+  ctx.strokeStyle = theme.accentInk;
+  ctx.strokeRect(px - lw, py - lw, cell + lw * 2, cell + lw * 2);
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = theme.accent;
+  ctx.strokeRect(px - lw / 2, py - lw / 2, cell + lw, cell + lw);
+  ctx.restore();
+
+  // Ring in the picked color, with a thin edge so light colors stand out.
+  const ring = Math.round(4 * dpr);
+  ctx.beginPath();
+  ctx.arc(x + r, y + r, r - ring / 2, 0, Math.PI * 2);
+  ctx.lineWidth = ring;
+  ctx.strokeStyle = loupe.color !== null && alpha(loupe.color) ? toCss(loupe.color) : theme.checkB;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + r, y + r, r, 0, Math.PI * 2);
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = theme.frame;
+  ctx.stroke();
+
+  ctx.font = `500 ${Math.round(11 * dpr)}px ${FONT}`;
+  const pw = Math.round(ctx.measureText(loupe.text).width + 10 * dpr);
+  const ph = Math.round(16 * dpr);
+  const bx = Math.round(x + r - pw / 2);
+  const by = Math.round(y + size - ph / 2);
+  ctx.fillStyle = theme.accent;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(bx, by, pw, ph, Math.round(2 * dpr));
+  else ctx.rect(bx, by, pw, ph);
+  ctx.fill();
+  ctx.fillStyle = theme.accentInk;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  ctx.fillText(loupe.text, bx + pw / 2, by + ph / 2 + 0.5 * dpr);
+  ctx.textAlign = 'start';
 }

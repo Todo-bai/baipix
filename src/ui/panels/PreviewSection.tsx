@@ -9,9 +9,19 @@ import { checkerPattern, readTheme } from '../render/theme';
 /** Small live preview of the artwork, including the render gap. */
 export function PreviewSection() {
   const t = useT();
+  const [label, setLabel] = useState('');
+  return (
+    <Section id="preview" title={t('section.preview')} aside={<span className="muted">{label}</span>}>
+      <PreviewCanvas onLabel={setLabel} />
+    </Section>
+  );
+}
+
+/** Mounted only while the section is open, so it starts drawing again when reopened. */
+function PreviewCanvas({ onLabel }: { onLabel: (label: string) => void }) {
+  const t = useT();
   const editor = useEditor();
   const ref = useRef<HTMLCanvasElement>(null);
-  const [label, setLabel] = useState('');
 
   useEffect(() => {
     let frame = 0;
@@ -58,7 +68,7 @@ export function PreviewSection() {
             ctx.fillStyle = toCss(c);
             ctx.fillRect(x + px * k, y + py * k, size, size);
           }
-        setLabel(t('preview.gap', { gap }));
+        onLabel(t('preview.gap', { gap }));
       } else {
         const src = document.createElement('canvas');
         src.width = doc.width;
@@ -68,7 +78,7 @@ export function PreviewSection() {
         new Uint32Array(image.data.buffer).set(pixels);
         sctx.putImageData(image, 0, 0);
         ctx.drawImage(src, x, y, w, h);
-        setLabel(k >= 1 ? `${k}×` : t('preview.reduced'));
+        onLabel(k >= 1 ? `${k}×` : t('preview.reduced'));
       }
     };
     const request = () => {
@@ -90,13 +100,11 @@ export function PreviewSection() {
       mo.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [editor, t]);
+  }, [editor, t, onLabel]);
 
   return (
-    <Section title={t('section.preview')} aside={<span className="muted">{label}</span>}>
-      <div className="preview">
-        <canvas ref={ref} />
-      </div>
-    </Section>
+    <div className="preview">
+      <canvas ref={ref} />
+    </div>
   );
 }

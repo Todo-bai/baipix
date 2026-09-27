@@ -22,6 +22,8 @@ export interface UiState {
   uiHidden: boolean;
   exportFormat: 'png' | 'svg';
   exportActiveLayer: boolean;
+  /** Ids of the collapsed panel sections. */
+  collapsed: string[];
 }
 
 export const PANEL_LIMITS = {
@@ -38,6 +40,7 @@ export const uiStore = createStore<UiState>({
   uiHidden: false,
   exportFormat: 'png',
   exportActiveLayer: false,
+  collapsed: [],
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });

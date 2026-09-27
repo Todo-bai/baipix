@@ -184,7 +184,12 @@ export function ToolSection() {
   }
 
   return (
-    <Section title={t(meta.label)} info={info} aside={<span className="muted">{meta.shortcut}</span>}>
+    <Section
+      id="tool"
+      title={t(meta.label)}
+      info={info}
+      aside={<span className="muted">{meta.shortcut}</span>}
+    >
       {body}
     </Section>
   );

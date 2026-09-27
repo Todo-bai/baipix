@@ -22,6 +22,7 @@ export function useAutosave(editor: Editor, storage: StorageAdapter, ready: bool
             panelWidths: ui.panelWidths,
             exportFormat: ui.exportFormat,
             exportActiveLayer: ui.exportActiveLayer,
+            collapsed: ui.collapsed,
             locale: getLocale(),
           },
         })

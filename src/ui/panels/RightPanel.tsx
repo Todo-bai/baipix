@@ -54,7 +54,7 @@ function RenderSection() {
   const render = useEditorState((s) => s.doc.render);
   const showGap = useEditorState((s) => s.view.showGap);
   return (
-    <Section title={t('section.render')}>
+    <Section id="render" title={t('section.render')}>
       <Row label={t('render.pixelSize')}>
         <label className="field" data-tip={t('render.pixelSizeHint')}>
           <select
@@ -101,6 +101,7 @@ function ColorsSection() {
   const secondary = useEditorState((s) => s.secondary);
   return (
     <Section
+      id="colors"
       title={t('section.colors')}
       aside={
         <IconButton icon="swap" label={t('color.swap')} shortcut="X" onClick={() => editor.swapColors()} />
@@ -139,6 +140,7 @@ function PaletteSection() {
   const secondary = useEditorState((s) => s.secondary);
   return (
     <Section
+      id="palette"
       title={t('section.palette')}
       aside={
         <>
@@ -219,7 +221,11 @@ function LayerSection() {
   const index = useEditorState((s) => s.doc.activeLayer);
   useEditorState((s) => s.revision);
   return (
-    <Section title={t('section.layer')} aside={<span className="muted truncate">{layer.name}</span>}>
+    <Section
+      id="layer"
+      title={t('section.layer')}
+      aside={<span className="muted truncate">{layer.name}</span>}
+    >
       <div className="two-columns">
         <NumberField
           value={Math.round(layer.opacity * 100)}
@@ -248,6 +254,7 @@ function CanvasSection() {
   const hasBg = doc.background !== 0;
   return (
     <Section
+      id="canvas"
       title={t('section.canvas')}
       info={t('canvas.resizeHint')}
       aside={<IconButton icon="plus" label={t('file.new')} onClick={() => openDialog({ type: 'newFile' })} />}
@@ -322,7 +329,7 @@ function DisplaySection() {
   const editor = useEditor();
   const view = useEditorState((s) => s.view);
   return (
-    <Section title={t('section.display')}>
+    <Section id="display" title={t('section.display')}>
       <Checkbox checked={view.grid} onChange={(v) => editor.setView('grid', v)} label={t('display.grid')} />
       <Checkbox checked={view.tile} onChange={(v) => editor.setView('tile', v)} label={t('display.tile')} />
       <Checkbox
@@ -349,7 +356,7 @@ function ExportSection() {
   const g = renderGeometry(doc.width, doc.height, doc.render.pixelSize, doc.render.gap);
   const bg = !onlyLayer && hasBackground(doc);
   return (
-    <Section title={t('section.export')}>
+    <Section id="export" title={t('section.export')}>
       <Row label={t('export.format')}>
         <label className="field">
           <select

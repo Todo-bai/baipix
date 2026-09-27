@@ -108,6 +108,9 @@ export const en = {
   'layer.delete': 'Delete layer',
   'layer.hide': 'Hide',
   'layer.show': 'Show',
+  'layer.solo': 'Alt+click: only this one',
+  'layer.lock': 'Lock',
+  'layer.unlock': 'Unlock',
 
   'preview.gap': 'Gap {gap} px',
   'preview.reduced': 'reduced',
@@ -242,6 +245,7 @@ export const en = {
   'toast.layerCopied': 'Layer copied.',
   'toast.cut': 'Cut.',
   'toast.layerHidden': 'This layer is hidden. Show it to draw on it.',
+  'toast.layerLocked': 'This layer is locked. Unlock it to draw on it.',
   'toast.keepOneFile': 'At least one file must remain.',
   'toast.colorInPalette': 'This color is already in the palette.',
   'toast.colorNotInPalette': 'The primary color is not in the palette.',

@@ -13,6 +13,8 @@ export const FILE_EXTENSION = '.baipix';
 export interface BaipixLayer {
   name: string;
   visible: boolean;
+  /** Missing in older files: unlocked. */
+  locked?: boolean;
   opacity: number;
   /** Distinct colors as unsigned 32-bit integers (0xAABBGGRR). */
   colors: number[];
@@ -84,6 +86,7 @@ export function serializeDocument(doc: PixelDoc): BaipixFile {
     layers: doc.layers.map((l) => ({
       name: l.name,
       visible: l.visible,
+      locked: l.locked,
       opacity: l.opacity,
       ...encodePixels(l.pixels),
     })),
@@ -104,6 +107,7 @@ export function deserializeDocument(data: unknown): PixelDoc {
     id: newId('layer'),
     name: typeof l.name === 'string' && l.name ? l.name.slice(0, 120) : `Layer ${i + 1}`,
     visible: l.visible !== false,
+    locked: l.locked === true,
     opacity: typeof l.opacity === 'number' ? clamp(l.opacity, 0, 1) : 1,
     pixels: decodePixels(
       Array.isArray(l.colors) ? l.colors : [],

@@ -284,4 +284,48 @@ describe('Editor', () => {
     expect(e.deleteFile(e.getState().activeId)).toBe(false);
     expect(e.restoreDeleted()).toBe(false);
   });
+
+  it("doesn't paint on a locked layer", () => {
+    const e = new Editor();
+    const notices: string[] = [];
+    e.onNotice((n) => notices.push(n.type));
+    e.setColor('primary', RED);
+    e.setLayerLocked(0, true);
+    drag(e, [[0, 0]]);
+    e.fill();
+    e.flip(true);
+    expect(painted(e)).toBe(0);
+    expect(notices).toEqual(['layerLocked', 'layerLocked', 'layerLocked']);
+    e.setLayerLocked(0, false);
+    drag(e, [[0, 0]]);
+    expect(painted(e)).toBe(1);
+  });
+
+  it("doesn't merge into a locked layer or adjust it", () => {
+    const e = new Editor();
+    e.setLayerLocked(0, true);
+    e.addLayer();
+    e.mergeDown();
+    expect(e.getState().doc.layers).toHaveLength(2);
+    e.beginAdjust(false);
+    expect(e.isAdjusting).toBe(true);
+    e.cancelAdjust();
+    e.setActiveLayer(0);
+    e.beginAdjust(false);
+    expect(e.isAdjusting).toBe(false);
+  });
+
+  it('solos a layer, then shows every layer again', () => {
+    const e = new Editor();
+    e.addLayer();
+    e.addLayer();
+    const visible = () => e.getState().doc.layers.map((l) => l.visible);
+    e.setLayerVisible(0, false);
+    e.soloLayer(1);
+    expect(visible()).toEqual([false, true, false]);
+    e.soloLayer(1);
+    expect(visible()).toEqual([true, true, true]);
+    e.undo();
+    expect(visible()).toEqual([false, true, false]);
+  });
 });

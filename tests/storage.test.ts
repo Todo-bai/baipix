@@ -30,6 +30,14 @@ describe('.baipix format', () => {
     expect([...back.layers[0].pixels]).toEqual([...doc.layers[0].pixels]);
   });
 
+  it('keeps locked layers locked, and older files unlocked', () => {
+    const doc = createDocument('Hero', 2, 2);
+    doc.layers[0].locked = true;
+    const json = documentToJson(doc);
+    expect(documentFromJson(json).layers[0].locked).toBe(true);
+    expect(documentFromJson(json.replace('"locked":true,', '')).layers[0].locked).toBe(false);
+  });
+
   it('rejects other files', () => {
     expect(() => documentFromJson('{"hello":1}')).toThrow(FileFormatError);
     expect(() => documentFromJson('not json')).toThrow(FileFormatError);

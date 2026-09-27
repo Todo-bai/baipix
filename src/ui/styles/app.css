@@ -580,6 +580,7 @@ body.is-resizing * {
 }
 .item:hover .item-action,
 .item.is-hidden .item-action,
+.item.is-locked .item-lock,
 .item-action:focus-visible,
 .item-action[aria-expanded='true'] {
   opacity: 1;

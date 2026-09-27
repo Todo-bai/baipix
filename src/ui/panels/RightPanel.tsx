@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { alpha, pack } from '../../engine/color';
+import { alpha, opaque, pack } from '../../engine/color';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
 import { PALETTE_PRESETS } from '../../engine/palette';
 import { useT } from '../../i18n';
@@ -156,16 +156,18 @@ function PaletteSection() {
             aria-haspopup="menu"
             onClick={(e) =>
               openMenu(e.currentTarget, [
-                { label: t('palette.add'), onSelect: () => editor.addToPalette() },
-                { label: t('palette.remove'), onSelect: () => editor.removeFromPalette() },
+                // Only the action that applies: add the primary color, or remove it if it's there.
+                palette.colors.includes(opaque(primary))
+                  ? { label: t('palette.remove'), onSelect: () => editor.removeFromPalette() }
+                  : { label: t('palette.add'), onSelect: () => editor.addToPalette() },
                 { label: t('palette.ramp'), onSelect: () => editor.addRamp() },
-                '-',
                 { label: t('palette.sort'), onSelect: () => editor.sortPalette() },
-                { label: t('palette.fromDrawing'), onSelect: () => editor.paletteFromDrawing() },
                 '-',
+                { label: t('palette.fromDrawing'), onSelect: () => editor.paletteFromDrawing() },
                 { label: t('palette.openFile'), onSelect: () => void actions.importPalette() },
-                { label: t('palette.manage'), onSelect: () => openDialog({ type: 'paletteManager' }) },
                 { label: t('palette.paste'), onSelect: () => openDialog({ type: 'paletteImport' }) },
+                '-',
+                { label: t('palette.manage'), onSelect: () => openDialog({ type: 'paletteManager' }) },
                 '-',
                 { label: t('palette.exportHex'), onSelect: () => void actions.exportPalette('hex') },
                 { label: t('palette.exportGpl'), onSelect: () => void actions.exportPalette('gpl') },

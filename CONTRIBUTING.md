@@ -36,7 +36,7 @@ Put `Closes #123` in your commit message or pull request description: the issue 
 
 1. Create `src/engine/tools/myTool.ts` exporting a `Tool` (see `pencil.ts` for a freehand tool, `shapes.ts` for a previewed shape).
 2. Add its id to `ToolId` in `src/engine/tools/types.ts` and register it in `src/engine/tools/index.ts`.
-3. Add its icon, label and shortcut in `src/ui/tools.ts`, and its options in `src/ui/panels/ToolSection.tsx` if it has any.
+3. Add its icon, label and shortcut in `src/ui/tools.ts`, and its options in `src/ui/components/ToolOptionsBar.tsx` if it has any (they show in the bar above the toolbar).
 4. Add the label and hint to the dictionaries in `src/i18n/`.
 5. Write a test in `tests/editor.test.ts` that draws with it.
 

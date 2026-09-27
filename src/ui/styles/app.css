@@ -956,6 +956,11 @@ body.is-dragging-swatch * {
   color: var(--text);
   font-weight: 500;
 }
+.coordinates-divider {
+  width: 1px;
+  height: 12px;
+  background: var(--line);
+}
 
 .shortcuts-help-button {
   position: absolute;

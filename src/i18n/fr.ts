@@ -236,6 +236,10 @@ export const fr: Record<MessageKey, string> = {
   'export.shrunk': 'réduit à {size}× (trop grand)',
 
   'coordinates.transparent': 'Transparent',
+  'coordinates.layer': '{count} calque',
+  'coordinates.layers': '{count} calques',
+  'coordinates.color': '{count} couleur',
+  'coordinates.colors': '{count} couleurs',
 
   'dialog.newFile': 'Nouveau fichier',
   'dialog.newFileHint': "Le fichier s'ajoute à la liste, ton dessin actuel reste intact.",

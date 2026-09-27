@@ -35,9 +35,6 @@ jobs:
       # Website, served at the root; the editor goes under /app/.
       - run: npm ci --prefix site
       - run: npm run build --prefix site
-        env:
-          SITE_URL: https://baipix.github.io
-          BASE_PATH: /baipix/
       - run: cp -r dist site/dist/app
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

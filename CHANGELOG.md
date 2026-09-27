@@ -34,6 +34,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Website
 
+- The website and the editor move to [baipix.app](https://baipix.app). The old address redirects there.
 - A pixel art 404 page. (#111)
 - Light and dark mode, with a toggle. (#46)
 - Pixel style buttons. (#48)

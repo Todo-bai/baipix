@@ -2,14 +2,15 @@ import type { ReactNode } from 'react';
 import type { ToolOptions } from '../../engine/tools';
 import { useT } from '../../i18n';
 import { useEditor, useEditorState } from '../EditorContext';
-import { Checkbox } from '../components/Checkbox';
-import { IconButton } from '../components/IconButton';
-import { NumberField } from '../components/NumberField';
-import { Row, Section } from '../components/Section';
 import { toolMeta } from '../tools';
+import { Checkbox } from './Checkbox';
+import { Icon } from './Icon';
+import { IconButton } from './IconButton';
+import { NumberField } from './NumberField';
+import { Row } from './Section';
 
-/** Contextual options of the active tool. */
-export function ToolSection() {
+/** Options of the active tool, in a small bar right above the toolbar. Hidden for tools without any. */
+export function ToolOptionsBar() {
   const t = useT();
   const editor = useEditor();
   const tool = useEditorState((s) => s.tool);
@@ -36,7 +37,7 @@ export function ToolSection() {
       />
     </Row>
   );
-  // Help texts go in the section's info tooltip, not in the panel.
+  // Help texts go in a tooltip on the tool name, to keep the bar short.
   let info: string | undefined;
   const flips = (
     <div className="button-group">
@@ -183,14 +184,14 @@ export function ToolSection() {
       break;
   }
 
+  if (!body) return null;
   return (
-    <Section
-      id="tool"
-      title={t(meta.label)}
-      info={info}
-      aside={<span className="muted">{meta.shortcut}</span>}
-    >
+    <div className="tool-options" role="toolbar" aria-label={t(meta.label)}>
+      <span className="tool-options-name" data-tip={info} data-kbd={meta.shortcut} tabIndex={info ? 0 : -1}>
+        {t(meta.label)}
+        {info && <Icon name="info" size={14} />}
+      </span>
       {body}
-    </Section>
+    </div>
   );
 }

@@ -13,6 +13,7 @@ import { IconButton } from './components/IconButton';
 import { MenuHost } from './components/Menu';
 import { MobileBar } from './components/MobileBar';
 import { PanelResizer } from './components/PanelResizer';
+import { ToolOptionsBar } from './components/ToolOptionsBar';
 import { Toasts } from './components/Toasts';
 import { Toolbar } from './components/Toolbar';
 import { Tooltips } from './components/Tooltips';
@@ -117,6 +118,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
               shortcut="?"
               onClick={() => openDialog({ type: 'shortcuts' })}
             />
+            <ToolOptionsBar />
             <Toolbar />
           </main>
           <RightPanel />

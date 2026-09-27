@@ -16,7 +16,6 @@ import { zoomMenu } from '../menus';
 import { openDialog, uiStore } from '../uiStore';
 import { viewport } from '../viewport';
 import { ColorRow } from './ColorRow';
-import { ToolSection } from './ToolSection';
 
 const PIXEL_SIZES = [1, 2, 4, 8, 16, 32];
 
@@ -423,7 +422,6 @@ export function RightPanel() {
       <TopBar />
       <CanvasSection />
       <RenderSection />
-      <ToolSection />
       <ColorsSection />
       <PaletteSection />
       <LayerSection />

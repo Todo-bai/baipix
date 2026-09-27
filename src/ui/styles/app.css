@@ -78,6 +78,10 @@ body.is-resizing * {
 }
 
 /* ---------- Layout ---------- */
+/* The floating toolbar's distance from the bottom; the tool options, toasts and adjust panel sit above it. */
+:root {
+  --toolbar-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
 .app {
   height: 100%;
   display: grid;
@@ -90,6 +94,7 @@ body.is-resizing * {
 }
 .app.ui-hidden .panel,
 .app.ui-hidden .toolbar,
+.app.ui-hidden .tool-options,
 .app.ui-hidden .coordinates,
 .app.ui-hidden .resizer,
 .app.ui-hidden .shortcuts-help-button {
@@ -687,7 +692,7 @@ body.is-panning .canvas {
 .toolbar {
   position: absolute;
   left: 50%;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  bottom: var(--toolbar-bottom);
   max-width: calc(100% - 24px);
   display: flex;
   align-items: center;
@@ -700,8 +705,63 @@ body.is-panning .canvas {
   box-shadow: var(--shadow);
   scrollbar-width: none;
 }
-.toolbar::-webkit-scrollbar {
+.toolbar::-webkit-scrollbar,
+.tool-options::-webkit-scrollbar {
   display: none;
+}
+/* Options of the active tool, right above the toolbar, in the same style. */
+.tool-options {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--toolbar-bottom) + 48px);
+  max-width: calc(100% - 24px);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px;
+  overflow-x: auto;
+  transform: translateX(-50%);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.tool-options > * {
+  flex: none;
+}
+.tool-options-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.tool-options-name .icon {
+  color: var(--muted);
+}
+.tool-options-name:focus-visible {
+  outline: none;
+  text-decoration: underline;
+}
+.tool-options .row {
+  min-height: 0;
+}
+.tool-options .row-label {
+  width: auto;
+}
+.tool-options .row-control {
+  width: 76px;
+}
+.tool-options .checkbox {
+  min-height: 0;
+}
+.tool-options .button-row,
+.tool-options .button-group {
+  margin-top: 0;
+}
+.tool-options .button-group {
+  padding: 0;
 }
 .tool-btn {
   width: 32px;
@@ -869,7 +929,7 @@ body.is-dragging-layer * {
   padding: 12px 16px 16px;
 }
 .adjust-panel {
-  bottom: 84px;
+  bottom: calc(var(--toolbar-bottom) + 96px);
   width: 260px;
 }
 .adjust-row {
@@ -1088,7 +1148,7 @@ body.is-dragging-layer * {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--toolbar-bottom) + 96px);
   z-index: 80;
   max-width: calc(100vw - 32px);
   padding: 8px 12px;
@@ -1292,8 +1352,15 @@ body.is-dragging-layer * {
     top: 56px;
     right: 12px;
   }
-  .toolbar {
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  :root {
+    --toolbar-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+  /* Tighter tool options: the field's own icon stands in for its label. */
+  .tool-options {
+    gap: 10px;
+  }
+  .tool-options .row-label {
+    display: none;
   }
   .popover.color-picker {
     left: 0 !important;

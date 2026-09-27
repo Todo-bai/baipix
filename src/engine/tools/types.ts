@@ -1,7 +1,7 @@
 import type { Color } from '../color';
 import type { Layer, PixelDoc } from '../document';
 import type { Point, Rect } from '../math';
-import type { PaletteIndex } from '../palette';
+import type { PaletteIndex, ShadeMode } from '../palette';
 
 export type ToolId =
   | 'move'
@@ -30,6 +30,12 @@ export interface ToolOptions {
   contiguous: boolean;
   blurStrength: number;
   blurSnap: boolean;
+  /** How lighten and shade pick the next color. */
+  shadeMode: ShadeMode;
+  /** Steps per stroke in the free mode, 1 to 3. */
+  shadeStrength: number;
+  /** Free mode: highlights toward yellow, shadows toward blue-violet. */
+  shadeHueShift: boolean;
 }
 
 export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
@@ -41,6 +47,9 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   contiguous: true,
   blurStrength: 1,
   blurSnap: true,
+  shadeMode: 'ramp',
+  shadeStrength: 1,
+  shadeHueShift: true,
 };
 
 export interface Modifiers {

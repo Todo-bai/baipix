@@ -133,10 +133,48 @@ export function ToolOptionsBar() {
       );
       break;
     case 'shade':
-    case 'lighten':
-      info = t(tool === 'shade' ? 'hint.shade' : 'hint.lighten');
-      body = <>{size}</>;
+    case 'lighten': {
+      const how = { ramp: 'hint.shadeRamp', palette: 'hint.shadePalette', free: 'hint.shadeFree' } as const;
+      info = t(tool === 'shade' ? 'hint.shade' : 'hint.lighten', { how: t(how[options.shadeMode]) });
+      body = (
+        <>
+          {size}
+          <label className="field" data-tip={t('options.shadeMode')}>
+            <select
+              value={options.shadeMode}
+              onChange={(e) => editor.setOption('shadeMode', e.target.value as ToolOptions['shadeMode'])}
+              aria-label={t('options.shadeMode')}
+            >
+              <option value="ramp">{t('shade.ramp')}</option>
+              <option value="palette">{t('shade.palette')}</option>
+              <option value="free">{t('shade.free')}</option>
+            </select>
+          </label>
+          {options.shadeMode === 'free' && (
+            <>
+              <Row label={t('options.strength')}>
+                <NumberField
+                  value={options.shadeStrength}
+                  min={1}
+                  max={3}
+                  label="⇔"
+                  ariaLabel={t('options.strength')}
+                  scrubHint={t('common.dragToAdjust')}
+                  sensitivity={14}
+                  onChange={(v) => editor.setOption('shadeStrength', v)}
+                />
+              </Row>
+              <Checkbox
+                checked={options.shadeHueShift}
+                onChange={set('shadeHueShift')}
+                label={t('options.hueShift')}
+              />
+            </>
+          )}
+        </>
+      );
       break;
+    }
     case 'blur':
       info = options.blurSnap ? t('hint.blurSnap') : t('hint.blurFree');
       body = (

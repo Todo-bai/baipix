@@ -131,6 +131,11 @@ export const en = {
   'options.contiguous': 'Contiguous area only',
   'options.strength': 'Strength',
   'options.blurSnap': 'Stay within the palette',
+  'options.shadeMode': 'Mode',
+  'options.hueShift': 'Hue shift',
+  'shade.ramp': 'Same ramp',
+  'shade.palette': 'Whole palette',
+  'shade.free': 'Free',
 
   'hint.pencil': 'Alt to pick a color. Dithering alternates the left-click and right-click colors.',
   'hint.eraser': 'Erases to transparency.',
@@ -138,8 +143,11 @@ export const en = {
   'hint.shape': 'Shift for a regular shape.',
   'hint.bucketContiguous': 'Fills the same-color area under the cursor.',
   'hint.bucketGlobal': 'Replaces this color everywhere on the layer.',
-  'hint.shade': 'Darkens with the next darker palette color. Right click to lighten.',
-  'hint.lighten': 'Lightens with the next lighter palette color. Right click to darken.',
+  'hint.shade': 'Darkens {how}. Right click to lighten.',
+  'hint.lighten': 'Lightens {how}. Right click to darken.',
+  'hint.shadeRamp': 'with the next color of the same ramp in the palette',
+  'hint.shadePalette': 'with the next palette color, from any ramp',
+  'hint.shadeFree': 'the color itself, outside the palette',
   'hint.blurSnap':
     'Mixes neighboring pixels, then picks the closest palette color. Paint again to blur more.',
   'hint.blurFree':

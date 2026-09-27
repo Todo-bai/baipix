@@ -371,4 +371,17 @@ describe('Editor', () => {
     drag(e, [[0, 0]]);
     expect(e.getState().recent).toEqual([]);
   });
+
+  it('moves a palette color to another position', () => {
+    const e = new Editor();
+    const before = e.getState().palette.colors;
+    e.movePaletteColor(0, 3);
+    const after = e.getState().palette;
+    expect(after.key).toBe('custom');
+    expect(after.colors[3]).toBe(before[0]);
+    expect(after.colors.slice(0, 3)).toEqual(before.slice(1, 4));
+    expect([...after.colors].sort()).toEqual([...before].sort());
+    e.movePaletteColor(3, 0);
+    expect(e.getState().palette.colors).toEqual(before);
+  });
 });

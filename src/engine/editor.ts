@@ -632,6 +632,15 @@ export class Editor {
     this.notice({ type: 'rampAdded', count: added.length });
   }
 
+  /** Moves a palette color to another position (a preset becomes a custom palette, like any edit). */
+  movePaletteColor(from: number, to: number): void {
+    const colors = [...this.palette.colors];
+    if (from === to || !colors[from] || to < 0 || to >= colors.length) return;
+    const [color] = colors.splice(from, 1);
+    colors.splice(to, 0, color);
+    this.setPaletteColors(colors);
+  }
+
   sortPalette(): void {
     this.setPaletteColors(sortByLightness(this.palette.colors));
   }

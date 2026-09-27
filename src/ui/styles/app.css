@@ -190,6 +190,42 @@ body.is-resizing * {
 .section-name {
   flex: 1;
 }
+.section.is-collapsed {
+  padding-bottom: 0;
+}
+/* A collapsible section's title is a button: the name and a small chevron. */
+.section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  align-self: stretch;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.section-toggle .icon {
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+/* The chevron shows on hover, and stays visible (pointing right) on a collapsed section. */
+.section-toggle:hover .icon,
+.section-toggle:focus-visible .icon,
+.is-collapsed .section-toggle .icon {
+  opacity: 1;
+}
+.is-collapsed .section-toggle .icon {
+  transform: rotate(-90deg);
+}
+.section-toggle:focus-visible {
+  outline: none;
+  text-decoration: underline;
+}
 /* With an info icon, the icon sits right after the title and pushes the aside to the right. */
 .section-name:has(+ .section-info) {
   flex: 0 1 auto;

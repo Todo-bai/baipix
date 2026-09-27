@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
+import { uiStore } from '../uiStore';
 import { Icon } from './Icon';
 
 interface SectionProps {
@@ -7,15 +8,36 @@ interface SectionProps {
   aside?: ReactNode;
   /** Help text, shown in a tooltip on an info icon next to the title (keeps the panel light). */
   info?: string;
+  /** Makes the section collapsible from its title. Open/closed is remembered under this key. */
+  id?: string;
   children?: ReactNode;
   className?: string;
 }
 
-export function Section({ title, aside, info, children, className = '' }: SectionProps) {
+export function Section({ title, aside, info, id, children, className = '' }: SectionProps) {
+  const bodyId = useId();
+  const collapsed = uiStore.use((s) => !!id && s.collapsed.includes(id));
+  const toggle = () =>
+    uiStore.set((s) => ({
+      collapsed: collapsed ? s.collapsed.filter((x) => x !== id) : [...s.collapsed, id!],
+    }));
   return (
-    <section className={`section ${className}`}>
+    <section className={`section ${className}${collapsed ? ' is-collapsed' : ''}`}>
       <h2 className="section-title">
-        <span className="section-name">{title}</span>
+        {id ? (
+          <button
+            type="button"
+            className="section-name section-toggle"
+            aria-expanded={!collapsed}
+            aria-controls={bodyId}
+            onClick={toggle}
+          >
+            {title}
+            <Icon name="caret" size={12} />
+          </button>
+        ) : (
+          <span className="section-name">{title}</span>
+        )}
         {info && (
           <span className="section-info" data-tip={info} aria-label={info} role="img" tabIndex={0}>
             <Icon name="info" size={14} />
@@ -23,7 +45,7 @@ export function Section({ title, aside, info, children, className = '' }: Sectio
         )}
         {aside}
       </h2>
-      {children}
+      {!collapsed && (id ? <div id={bodyId}>{children}</div> : children)}
     </section>
   );
 }

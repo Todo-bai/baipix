@@ -1,0 +1,67 @@
+---
+/** Switches between light and dark, and remembers it. Base.astro applies the theme on load. */
+import PixelIcon from './PixelIcon.astro';
+
+const SUN = ['...#...', '.#...#.', '..###..', '#.###.#', '..###..', '.#...#.', '...#...'];
+const MOON = ['..###..', '.##....', '##.....', '##.....', '##.....', '.##....', '..###..'];
+---
+
+<button class="theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle>
+  <span class="sun"><PixelIcon rows={SUN} size={14} /></span>
+  <span class="moon"><PixelIcon rows={MOON} size={14} /></span>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')!;
+  const label = () =>
+    button.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  label();
+  // The OS setting can change the theme too (see Base.astro).
+  new MutationObserver(label).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  button.addEventListener('click', () => {
+    const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = theme;
+    try {
+      localStorage.setItem('baipix-site-theme', theme);
+    } catch {
+      // Storage blocked: the choice lasts until the page is closed.
+    }
+  });
+</script>
+
+<style>
+  /* Needs the script in Base.astro, which sets data-theme. */
+  .theme-toggle {
+    display: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+  }
+  :global(:root[data-theme]) .theme-toggle {
+    display: grid;
+  }
+  .theme-toggle:hover {
+    border-color: var(--line-strong);
+    background: var(--surface);
+  }
+  /* Shows the theme it switches to. */
+  .theme-toggle span {
+    display: flex;
+  }
+  .theme-toggle .sun,
+  :global(:root[data-theme='dark']) .theme-toggle .moon {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .theme-toggle .sun {
+    display: flex;
+  }
+</style>

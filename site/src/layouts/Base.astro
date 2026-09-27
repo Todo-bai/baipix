@@ -22,6 +22,22 @@ const favicon =
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(`${base}screenshot.png`, Astro.site)} />
     <link rel="icon" href={favicon} />
+    <script is:inline>
+      // Theme before the first paint: the visitor's choice (ThemeToggle), otherwise the OS setting.
+      (() => {
+        const media = matchMedia('(prefers-color-scheme: dark)');
+        const apply = () => {
+          let stored = null;
+          try {
+            stored = localStorage.getItem('baipix-site-theme');
+          } catch {}
+          const theme = stored === 'light' || stored === 'dark' ? stored : media.matches ? 'dark' : 'light';
+          document.documentElement.dataset.theme = theme;
+        };
+        apply();
+        media.addEventListener('change', apply);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

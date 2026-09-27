@@ -28,6 +28,8 @@ export interface Scene {
   composite: CanvasImageSource;
   view: ViewSettings;
   selection: Rect | null;
+  /** Animated selection outline offset, in CSS pixels. */
+  selectionDashOffset: number;
   brush: BrushPreview | null;
   label: string;
 }
@@ -179,7 +181,12 @@ export function drawScene(
     const rh = sel.h * s;
     ctx.strokeStyle = theme.accent;
     ctx.lineWidth = lw;
+    ctx.save();
+    const dash = 4 * dpr;
+    ctx.setLineDash([dash, dash]);
+    ctx.lineDashOffset = -scene.selectionDashOffset * dpr;
     ctx.strokeRect(rx + lw / 2, ry + lw / 2, rw - lw, rh - lw);
+    ctx.restore();
     const hs = Math.round(7 * dpr);
     for (const [cx, cy] of [
       [rx, ry],

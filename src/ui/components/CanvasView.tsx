@@ -71,7 +71,7 @@ export function CanvasView() {
       compositeDirty = false;
     };
 
-    const draw = () => {
+    const draw = (now = performance.now()) => {
       frame = 0;
       if (compositeDirty) updateComposite();
       const live = editor.getLive();
@@ -92,12 +92,14 @@ export function CanvasView() {
           composite,
           view: live.view,
           selection: live.selection,
+          selectionDashOffset: (now / 80) % 8,
           brush,
           label: renamingRef.current ? '' : live.doc.name,
         },
         camera(),
         theme,
       );
+      if (live.selection) frame = requestAnimationFrame(draw);
     };
 
     const camera = () => ({

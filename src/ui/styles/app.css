@@ -533,6 +533,23 @@ body.is-resizing * {
   border: 2px solid var(--accent);
   border-radius: 5px;
 }
+.swatch.is-dragging {
+  opacity: 0.35;
+}
+/* Where a dragged swatch will land: a bar in the gap before (or after) a swatch. */
+.swatch.drop-before {
+  box-shadow:
+    inset 0 0 0 1px var(--swatch-edge),
+    -3px 0 0 0 var(--accent);
+}
+.swatch.drop-after {
+  box-shadow:
+    inset 0 0 0 1px var(--swatch-edge),
+    3px 0 0 0 var(--accent);
+}
+.palette-grid.is-sortable .swatch {
+  touch-action: none;
+}
 .swatch.is-secondary::before {
   content: '';
   position: absolute;
@@ -796,7 +813,9 @@ body.is-panning .canvas {
   box-shadow: inset 0 -2px 0 var(--accent);
 }
 body.is-dragging-layer,
-body.is-dragging-layer * {
+body.is-dragging-layer *,
+body.is-dragging-swatch,
+body.is-dragging-swatch * {
   cursor: grabbing !important;
   user-select: none;
 }

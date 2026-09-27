@@ -193,6 +193,7 @@ function PaletteSection() {
         primary={primary}
         secondary={secondary}
         onPick={(c, second) => editor.setColor(second ? 'secondary' : 'primary', c)}
+        onMove={(from, to) => editor.movePaletteColor(from, to)}
       />
       <div className="button-row">
         <button

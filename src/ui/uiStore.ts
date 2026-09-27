@@ -26,6 +26,8 @@ export interface UiState {
   collapsed: string[];
   /** Tab of the right panel. */
   rightTab: 'design' | 'export';
+  /** Exports include the document's background (when it has one). */
+  exportBackground: boolean;
 }
 
 export const PANEL_LIMITS = {
@@ -44,6 +46,7 @@ export const uiStore = createStore<UiState>({
   exportActiveLayer: false,
   collapsed: [],
   rightTab: 'design',
+  exportBackground: true,
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });

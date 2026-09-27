@@ -10,7 +10,7 @@ import { imageToBlock, loadImage } from '../io/image';
 import { pickFile } from '../io/pickFile';
 import { canvasToBlob, renderToCanvas } from '../io/png';
 import { documentFromJson, documentToJson, FILE_EXTENSION } from '../storage/fileFormat';
-import { openDialog, toast } from './uiStore';
+import { openDialog, toast, uiStore } from './uiStore';
 
 export type ExportFormat = 'png' | 'svg';
 
@@ -26,7 +26,8 @@ export function createActions(editor: Editor) {
       onlyActiveLayer ? { onlyLayer: d.layers[d.activeLayer] } : { includeBackground: false },
     );
     const geometry = renderGeometry(d.width, d.height, d.render.pixelSize, d.render.gap);
-    const background: Color = !onlyActiveLayer && hasBackground(d) ? d.background : 0;
+    const withBackground = uiStore.get().exportBackground && !onlyActiveLayer && hasBackground(d);
+    const background: Color = withBackground ? d.background : 0;
     if (geometry.pixelSize !== d.render.pixelSize)
       toast(t('toast.exportShrunk', { size: geometry.pixelSize }));
     return { d, pixels, geometry, background };

@@ -24,6 +24,7 @@ export function useAutosave(editor: Editor, storage: StorageAdapter, ready: bool
             exportActiveLayer: ui.exportActiveLayer,
             collapsed: ui.collapsed,
             rightTab: ui.rightTab,
+            exportBackground: ui.exportBackground,
             locale: getLocale(),
           },
         })

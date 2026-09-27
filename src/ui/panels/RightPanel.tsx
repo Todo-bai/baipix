@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { alpha, pack } from '../../engine/color';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
-import { renderGeometry } from '../../engine/export/svg';
 import { PALETTE_PRESETS } from '../../engine/palette';
 import { useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
@@ -16,6 +15,7 @@ import { zoomMenu } from '../menus';
 import { openDialog, uiStore } from '../uiStore';
 import { viewport } from '../viewport';
 import { ColorRow } from './ColorRow';
+import { ExportPreview } from './ExportPreview';
 
 const PIXEL_SIZES = [1, 2, 4, 8, 16, 32];
 
@@ -43,23 +43,19 @@ function RenderSection() {
   const render = useEditorState((s) => s.doc.render);
   return (
     <Section id="render" title={t('section.render')}>
-      <Row label={t('render.pixelSize')}>
-        <label className="field" data-tip={t('render.pixelSizeHint')}>
-          <select
-            value={render.pixelSize}
-            onChange={(e) => editor.setRender({ pixelSize: Number(e.target.value) })}
-            aria-label={t('render.pixelSize')}
+      <div className="segmented" role="group" aria-label={t('render.pixelSizeHint')}>
+        {PIXEL_SIZES.map((s) => (
+          <button
+            key={s}
+            type="button"
+            aria-pressed={render.pixelSize === s}
+            data-tip={t('render.scaleTip', { size: s })}
+            onClick={() => editor.setRender({ pixelSize: s })}
           >
-            {[...new Set([...PIXEL_SIZES, render.pixelSize])]
-              .sort((a, b) => a - b)
-              .map((s) => (
-                <option key={s} value={s}>
-                  {s} px
-                </option>
-              ))}
-          </select>
-        </label>
-      </Row>
+            {s}×
+          </button>
+        ))}
+      </div>
       <Row label={t('render.gap')}>
         <NumberField
           value={render.gap}
@@ -353,10 +349,30 @@ function ExportSection() {
   useEditorState((s) => s.revision);
   const format = uiStore.use((s) => s.exportFormat);
   const onlyLayer = uiStore.use((s) => s.exportActiveLayer);
-  const g = renderGeometry(doc.width, doc.height, doc.render.pixelSize, doc.render.gap);
-  const bg = !onlyLayer && hasBackground(doc);
+  const includeBackground = uiStore.use((s) => s.exportBackground);
+  const editor = useEditor();
   return (
     <Section id="export" title={t('section.exportFile')}>
+      <Row label={t('export.name')}>
+        <label className="field">
+          <input
+            key={doc.id}
+            defaultValue={doc.name}
+            aria-label={t('export.name')}
+            spellCheck={false}
+            onBlur={(e) => editor.renameFile(doc.id, e.currentTarget.value)}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === 'Enter') e.currentTarget.blur();
+              if (e.key === 'Escape') {
+                e.currentTarget.value = doc.name;
+                e.currentTarget.blur();
+              }
+            }}
+          />
+          <span className="field-suffix">.{format}</span>
+        </label>
+      </Row>
       <Row label={t('export.format')}>
         <label className="field">
           <select
@@ -374,13 +390,19 @@ function ExportSection() {
         onChange={(v) => uiStore.set({ exportActiveLayer: v })}
         label={t('export.activeLayerOnly')}
       />
+      {hasBackground(doc) && !onlyLayer && (
+        <Checkbox
+          checked={includeBackground}
+          onChange={(v) => uiStore.set({ exportBackground: v })}
+          label={t('export.includeBackground')}
+        />
+      )}
       <button
         type="button"
-        className="btn btn-wide"
-        data-tip={`${t('export.info', { w: g.width, h: g.height })} ${bg ? t('export.withBackground') : t('export.transparent')}`}
+        className="btn btn-primary btn-wide"
         onClick={() => void actions.exportImage(format, onlyLayer)}
       >
-        {t('export.file', { name: `${doc.name}.${format}` })}
+        {t('export.button')}
       </button>
       <div className="two-columns">
         <button
@@ -454,6 +476,7 @@ export function RightPanel() {
           </>
         ) : (
           <>
+            <ExportPreview />
             <RenderSection />
             <ExportSection />
           </>

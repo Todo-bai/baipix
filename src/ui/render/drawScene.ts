@@ -182,6 +182,9 @@ export function drawScene(
     ctx.strokeStyle = theme.accent;
     ctx.lineWidth = lw;
     ctx.save();
+    ctx.strokeStyle = theme.accentInk;
+    ctx.strokeRect(rx + lw / 2, ry + lw / 2, rw - lw, rh - lw);
+    ctx.strokeStyle = theme.accent;
     const dash = 4 * dpr;
     ctx.setLineDash([dash, dash]);
     ctx.lineDashOffset = -scene.selectionDashOffset * dpr;

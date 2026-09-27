@@ -55,6 +55,8 @@ export function CanvasView() {
     let hover: { x: number; y: number } | null = null;
     let compositeDirty = true;
     let frame = 0;
+    const motionMedia = matchMedia('(prefers-reduced-motion: reduce)');
+    let reduceMotion = motionMedia.matches;
     let panStart: { x: number; y: number; panX: number; panY: number } | null = null;
     let pinch: Pinch | null = null;
     const pointers = new Map<number, { x: number; y: number; touch: boolean }>();
@@ -92,14 +94,14 @@ export function CanvasView() {
           composite,
           view: live.view,
           selection: live.selection,
-          selectionDashOffset: (now / 80) % 8,
+          selectionDashOffset: reduceMotion ? 0 : (now / 80) % 8,
           brush,
           label: renamingRef.current ? '' : live.doc.name,
         },
         camera(),
         theme,
       );
-      if (live.selection) frame = requestAnimationFrame(draw);
+      if (live.selection && !reduceMotion) frame = requestAnimationFrame(draw);
     };
 
     const camera = () => ({
@@ -146,6 +148,13 @@ export function CanvasView() {
     };
     const media = matchMedia('(prefers-color-scheme: dark)');
     media.addEventListener('change', onTheme);
+
+    const onMotion = (e: MediaQueryListEvent) => {
+      reduceMotion = e.matches;
+      request();
+    };
+    motionMedia.addEventListener('change', onMotion);
+
     const mo = new MutationObserver(onTheme);
     mo.observe(document.documentElement, {
       attributes: true,
@@ -331,6 +340,7 @@ export function CanvasView() {
       ro.disconnect();
       mo.disconnect();
       media.removeEventListener('change', onTheme);
+      motionMedia.removeEventListener('change', onMotion);
       unsubs.forEach((u) => u());
       wrap.removeEventListener('pointerdown', closeSheets, true);
       canvas.removeEventListener('pointerdown', onDown);

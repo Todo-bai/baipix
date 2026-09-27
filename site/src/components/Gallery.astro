@@ -23,22 +23,25 @@ const ARROW_RIGHT = ARROW.map((r) => [...r].reverse().join(''));
   </div>
   <!-- Full-bleed row: pieces at their own proportions, side by side, edge to edge. -->
   <div class="track" tabindex="0" aria-label="Gallery of pixel art made with Baipix">
-    {
-      gallery.map((piece) => (
-        <figure class="piece" style={`--ratio: ${piece.width / piece.height}`}>
-          <div class={`art${piece.transparent ? ' is-transparent' : ''}`} set:html={piece.svg} role="img" aria-label={piece.title} />
-          <figcaption>
-            <span class="title">{piece.title}</span>
-            <span class="muted meta">
-              {piece.style} · {piece.width}×{piece.height} · {piece.colors} colors
-            </span>
-            <a class="download" href={piece.download} download={piece.file}>
-              .baipix
-            </a>
-          </figcaption>
-        </figure>
-      ))
-    }
+    {gallery.map((piece) => (
+      <figure class="piece" style={`--ratio: ${piece.width / piece.height}`}>
+        <div
+          class={`art${piece.transparent ? ' is-transparent' : ''}`}
+          set:html={piece.svg}
+          role="img"
+          aria-label={piece.title}
+        />
+        <figcaption>
+          <span class="title">{piece.title}</span>
+          <span class="muted meta">
+            {piece.style} · {piece.width}×{piece.height} · {piece.colors} colors
+          </span>
+          <a class="download" href={piece.download} download={piece.file}>
+            .baipix
+          </a>
+        </figcaption>
+      </figure>
+    ))}
   </div>
 </section>
 
@@ -53,7 +56,10 @@ const ARROW_RIGHT = ARROW.map((r) => [...r].reverse().join(''));
         Number(button.dataset.dir) > 0
           ? pieces.find((p) => p.offsetLeft > left + 4)
           : pieces.reverse().find((p) => p.offsetLeft < left - 4);
-      track.scrollTo({ left: target?.offsetLeft ?? (Number(button.dataset.dir) > 0 ? track.scrollWidth : 0), behavior: 'smooth' });
+      track.scrollTo({
+        left: target?.offsetLeft ?? (Number(button.dataset.dir) > 0 ? track.scrollWidth : 0),
+        behavior: 'smooth',
+      });
     });
   }
 </script>

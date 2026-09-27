@@ -66,21 +66,29 @@ const features = [
       <span class="star-count" data-stars hidden></span>
     </a>
     <ThemeToggle />
-    <a class="btn btn-dark btn-small" href={APP_URL}>Open the editor</a>
+    <a class="btn btn-dark btn-small" href={APP_URL}>
+      Open the editor
+    </a>
   </header>
 
   <main>
     <section class="hero">
       <div class="hero-grid" aria-hidden="true"></div>
       <div class="container hero-inner">
-        <h1>Pixel art has never been this easy<span class="pixel-dot" aria-hidden="true"></span></h1>
+        <h1>
+          Pixel art has never been this easy<span class="pixel-dot" aria-hidden="true"></span>
+        </h1>
         <p class="lead">
-          Baipix is a pixel art editor with the interface of a modern design tool. Draw pixel by pixel, then drop
-          clean vector straight into your design files.
+          Baipix is a pixel art editor with the interface of a modern design tool. Draw pixel by pixel, then
+          drop clean vector straight into your design files.
         </p>
         <div class="actions">
-          <a class="btn btn-dark" href={APP_URL}>Open the editor</a>
-          <a class="btn" href={REPO_URL}>View on GitHub</a>
+          <a class="btn btn-dark" href={APP_URL}>
+            Open the editor
+          </a>
+          <a class="btn" href={REPO_URL}>
+            View on GitHub
+          </a>
         </div>
       </div>
       <div class="container">
@@ -102,14 +110,18 @@ const features = [
         <div class="card">
           <h3>Use it in your browser</h3>
           <p class="muted">Nothing to install, no account. Your drawings stay on your device.</p>
-          <a class="btn btn-dark" href={APP_URL}>Open the editor</a>
+          <a class="btn btn-dark" href={APP_URL}>
+            Open the editor
+          </a>
         </div>
         <div class="card">
           <h3>Run it locally</h3>
           <p class="muted">Clone the repository and start the dev server. Requires Node.js.</p>
           <div class="code">
             <pre><code>{clone}</code></pre>
-            <button class="copy" type="button" data-copy={clone}>Copy</button>
+            <button class="copy" type="button" data-copy={clone}>
+              Copy
+            </button>
           </div>
         </div>
       </div>
@@ -118,15 +130,13 @@ const features = [
     <section id="features" class="features container">
       <h2>Everything you need. Nothing you don't.</h2>
       <div class="feature-grid">
-        {
-          features.map((f) => (
-            <article class="feature">
-              <PixelIcon rows={f.icon} size={24} />
-              <h3>{f.title}</h3>
-              <p class="muted">{f.text}</p>
-            </article>
-          ))
-        }
+        {features.map((f) => (
+          <article class="feature">
+            <PixelIcon rows={f.icon} size={24} />
+            <h3>{f.title}</h3>
+            <p class="muted">{f.text}</p>
+          </article>
+        ))}
       </div>
     </section>
 
@@ -134,16 +144,15 @@ const features = [
 
     <section class="cta container">
       <div class="cta-card">
-        <Dither
-          class="cta-dither"
-          cols={28}
-          rows={10}
-          cell={8}
-        />
+        <Dither class="cta-dither" cols={28} rows={10} cell={8} />
         <h2>Draw your first pixel.</h2>
         <div class="actions">
-          <a class="btn btn-light" href={APP_URL}>Open the editor</a>
-          <a class="btn btn-ghost" href="#install">Run it locally</a>
+          <a class="btn btn-light" href={APP_URL}>
+            Open the editor
+          </a>
+          <a class="btn btn-ghost" href="#install">
+            Run it locally
+          </a>
         </div>
       </div>
     </section>

@@ -48,13 +48,32 @@ const SIDEWALK = 82;
 
 // 1. Clouds: outlined puffs with a dithered shadow on their lower half. The sky is the page itself.
 const clouds = [
-  [[96, 34, 13], [110, 28, 12], [122, 36, 11], [84, 42, 10], [104, 44, 12], [134, 44, 9]],
-  [[14, 20, 7], [24, 16, 8], [34, 21, 6]],
-  [[146, 10, 6], [156, 14, 7]],
-  [[44, 44, 7], [56, 40, 8], [66, 46, 7]],
+  [
+    [96, 34, 13],
+    [110, 28, 12],
+    [122, 36, 11],
+    [84, 42, 10],
+    [104, 44, 12],
+    [134, 44, 9],
+  ],
+  [
+    [14, 20, 7],
+    [24, 16, 8],
+    [34, 21, 6],
+  ],
+  [
+    [146, 10, 6],
+    [156, 14, 7],
+  ],
+  [
+    [44, 44, 7],
+    [56, 40, 8],
+    [66, 46, 7],
+  ],
 ];
 for (const discs of clouds) {
-  const reach = (x: number, y: number) => Math.max(...discs.map(([cx, cy, r]) => r - Math.hypot(x - cx, y - cy)));
+  const reach = (x: number, y: number) =>
+    Math.max(...discs.map(([cx, cy, r]) => r - Math.hypot(x - cx, y - cy)));
   const top = Math.min(...discs.map(([, cy, r]) => cy - r));
   const bottom = Math.max(...discs.map(([, cy, r]) => cy + r));
   for (let y = 0; y < SIDEWALK; y++)
@@ -67,7 +86,7 @@ for (const discs of clouds) {
 }
 
 // 2. Far skyline: light dithered silhouettes, the farther the lighter.
-for (let x = 0; x < W; ) {
+for (let x = 0; x < W;) {
   const w = between(6, 13);
   const top = between(50, 62);
   rect(x, top, w, 1);
@@ -111,7 +130,8 @@ const tower = (x: number, top: number, w: number, shadeRight: boolean) => {
   rect(x + w - 7, SIDEWALK - 8, 4, 8);
   // Shaded side, a strip of dither on the side away from the light.
   const sx = shadeRight ? x + w - 4 : x + 1;
-  for (let y = top + 2; y < SIDEWALK; y++) for (let i = sx; i < sx + 3; i++) if (dithered(i, y, 0.35)) set(i, y);
+  for (let y = top + 2; y < SIDEWALK; y++)
+    for (let i = sx; i < sx + 3; i++) if (dithered(i, y, 0.35)) set(i, y);
 };
 tower(-2, 44, 32, true);
 tower(128, 40, 34, false);
@@ -168,9 +188,7 @@ for (let y = SIDEWALK + 5; y < H; y++)
 // Two frames for the spark on the fuse, in ink over the light cloud.
 const spark = (rows: string[]) => {
   const g = Array.from({ length: H }, () => new Uint8Array(W));
-  rows.forEach((row, y) =>
-    [...row].forEach((c, x) => c === '#' && (g[bomb.y - 16 + y][bomb.x + 8 + x] = 1)),
-  );
+  rows.forEach((row, y) => [...row].forEach((c, x) => c === '#' && (g[bomb.y - 16 + y][bomb.x + 8 + x] = 1)));
   return g;
 };
 const sparkA = spark(['#...#', '.#.#.', '..#..', '.#.#.', '#...#']);
@@ -207,7 +225,10 @@ const path = (g: Uint8Array[], value = 1) =>
     .join('');
 ---
 
-<Base title="Page not found · Baipix" description="This page doesn't exist. Head back to the Baipix home page.">
+<Base
+  title="Page not found · Baipix"
+  description="This page doesn't exist. Head back to the Baipix home page."
+>
   <header class="top container">
     <a class="brand" href={base} aria-label="Baipix home">
       <Logo size={18} />
@@ -231,7 +252,9 @@ const path = (g: Uint8Array[], value = 1) =>
     <p class="status">404 · Page not found</p>
     <h1>Boom. Not a pixel left.</h1>
     <p class="muted">This page doesn't exist, or it moved. Let's get you back somewhere safe.</p>
-    <a class="btn btn-dark" href={base}>Back to home</a>
+    <a class="btn btn-dark" href={base}>
+      Back to home
+    </a>
   </main>
   <Footer />
 </Base>

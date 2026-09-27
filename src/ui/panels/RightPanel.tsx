@@ -20,9 +20,7 @@ import { ColorRow } from './ColorRow';
 const PIXEL_SIZES = [1, 2, 4, 8, 16, 32];
 
 function TopBar() {
-  const t = useT();
   const editor = useEditor();
-  const actions = useActions();
   const zoom = useSyncExternalStore(viewport.subscribe, () => viewport.pixelZoom);
   return (
     <div className="panel-header">
@@ -34,14 +32,6 @@ function TopBar() {
         onDoubleClick={() => viewport.fit(editor.getState().doc)}
       >
         {Math.round(zoom * 100)} %<span className="caret">▾</span>
-      </button>
-      <span className="spacer" />
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={() => void actions.exportImage(uiStore.get().exportFormat, uiStore.get().exportActiveLayer)}
-      >
-        {t('export.button')}
       </button>
     </div>
   );

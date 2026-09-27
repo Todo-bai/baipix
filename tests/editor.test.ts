@@ -328,4 +328,22 @@ describe('Editor', () => {
     e.undo();
     expect(visible()).toEqual([false, true, false]);
   });
+
+  it('merges the visible layers into the lowest visible one', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    drag(e, [[0, 0]]);
+    e.addLayer();
+    drag(e, [[1, 0]]);
+    e.addLayer();
+    drag(e, [[2, 0]]);
+    e.setLayerVisible(2, false);
+    e.mergeVisible();
+    const { layers, activeLayer } = e.getState().doc;
+    expect(layers).toHaveLength(2);
+    expect(activeLayer).toBe(0);
+    expect([...layers[0].pixels.slice(0, 3)].map(Boolean)).toEqual([true, true, false]);
+    e.undo();
+    expect(e.getState().doc.layers).toHaveLength(3);
+  });
 });

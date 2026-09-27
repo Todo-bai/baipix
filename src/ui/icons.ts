@@ -21,6 +21,7 @@ import {
   Minus,
   Moon,
   Move,
+  Hand,
   PaintBucket,
   Pencil,
   Pipette,
@@ -52,6 +53,7 @@ const SquareRounded = createLucideIcon('square-rounded', [
 /** Interface icons, from Lucide (ISC, https://lucide.dev). */
 export const ICONS = {
   move: Move,
+  hand: Hand,
   select: SquareDashed,
   pencil: Pencil,
   eraser: Eraser,

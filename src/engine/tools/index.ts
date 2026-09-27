@@ -1,6 +1,7 @@
 import { blur } from './blur';
 import { bucket } from './bucket';
 import { eraser } from './eraser';
+import { hand } from './hand';
 import { move } from './move';
 import { pencil } from './pencil';
 import { picker } from './picker';
@@ -13,6 +14,7 @@ import type { Tool, ToolId } from './types';
 export const TOOLS: Record<ToolId, Tool> = {
   move,
   select,
+  hand,
   pencil,
   eraser,
   bucket,

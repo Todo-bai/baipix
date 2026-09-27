@@ -31,6 +31,7 @@ export const fr: Record<MessageKey, string> = {
   'toolbar.shapes': 'Formes',
 
   'tool.move': 'Déplacer',
+  'tool.hand': 'Main',
   'tool.select': 'Sélection',
   'tool.pencil': 'Crayon',
   'tool.eraser': 'Gomme',

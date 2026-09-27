@@ -26,6 +26,7 @@ export const TOOL_GROUPS: ToolMeta[][] = [
   [
     { id: 'move', icon: 'move', label: 'tool.move', shortcut: 'V' },
     { id: 'select', icon: 'select', label: 'tool.select', shortcut: 'M' },
+    { id: 'hand', icon: 'hand', label: 'tool.hand', shortcut: 'H' },
   ],
   [
     { id: 'pencil', icon: 'pencil', label: 'tool.pencil', shortcut: 'B' },

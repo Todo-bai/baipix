@@ -4,6 +4,8 @@ import type { Actions } from './actions';
 import type { MenuItem } from './components/Menu';
 import { getTheme, setTheme, type ThemePreference } from './theme';
 import { openDialog, uiStore } from './uiStore';
+
+const CHANGELOG_URL = 'https://github.com/baipix/baipix/blob/main/CHANGELOG.md';
 import { viewport } from './viewport';
 
 export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
@@ -73,6 +75,10 @@ export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
     })),
     '-',
     { label: t('menu.shortcuts'), shortcut: '?', onSelect: () => openDialog({ type: 'shortcuts' }) },
+    {
+      label: t('menu.version', { version: __APP_VERSION__ }),
+      onSelect: () => window.open(CHANGELOG_URL, '_blank', 'noopener'),
+    },
   ];
 }
 

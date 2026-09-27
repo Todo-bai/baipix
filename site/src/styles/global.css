@@ -1,18 +1,44 @@
 /* Baipix site: plain and quiet, like a design tool. Pixel art is only hinted at. */
+
+/*
+ * Colors: every one is a token below, written once as light-dark(light, dark). The theme follows
+ * the OS setting, or [data-theme] on <html> once the visitor picks one (see Base.astro).
+ */
 :root {
-  --bg: #ffffff;
-  --surface: #f6f6f5;
-  --line: #e7e7e5;
-  --text: #0d0d0f;
-  --muted: #6b6b70;
-  --ink: #0d0d0f;
-  --ink-text: #ffffff;
+  color-scheme: light dark;
+  --bg: light-dark(#ffffff, #0f0f11);
+  --surface: light-dark(#f6f6f5, #18181b);
+  --line: light-dark(#e7e7e5, #2a2a2e);
+  --line-strong: light-dark(#cfcfcc, #3f3f45);
+  --text: light-dark(#0d0d0f, #f2f2f0);
+  --muted: light-dark(#6b6b70, #9a9aa0);
+  /* Primary buttons and the logo pixel: the text color, with inverted text on top. */
+  --ink: light-dark(#0d0d0f, #f2f2f0);
+  --ink-hover: light-dark(#2a2a2e, #d9d9d6);
+  --ink-text: light-dark(#ffffff, #0d0d0f);
+  /* The faint pixel grid behind the hero. */
+  --dots: light-dark(#d9d9d6, #26262a);
+  /* The call-to-action card stays dark in both themes, raised a little in dark mode. */
+  --cta-bg: light-dark(#0d0d0f, #1a1a1d);
+  --cta-text: #ffffff;
+  --cta-dither: light-dark(#2b2b30, #2e2e33);
+  --cta-button: #ffffff;
+  --cta-button-hover: #e9e9e7;
+  --cta-ghost-line: #3a3a40;
+  --cta-ghost-line-hover: #55555c;
+  --cta-ghost-hover: #1c1c20;
   /* Square everywhere, like pixels. */
   --radius: 0;
   --radius-lg: 0;
   --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --container: 1120px;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 * {
@@ -80,7 +106,7 @@ h2 {
     border-color 0.15s;
 }
 .btn:hover {
-  border-color: #cfcfcc;
+  border-color: var(--line-strong);
   background: var(--surface);
 }
 .btn-dark {
@@ -89,8 +115,8 @@ h2 {
   color: var(--ink-text);
 }
 .btn-dark:hover {
-  border-color: #2a2a2e;
-  background: #2a2a2e;
+  border-color: var(--ink-hover);
+  background: var(--ink-hover);
 }
 .btn-small {
   height: 36px;

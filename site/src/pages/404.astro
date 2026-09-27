@@ -6,9 +6,8 @@ import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL;
 
 /*
- * A two-tone pixel art scene, like an old handheld screen: a bomb falling on a city, and a shop
- * sign that reads 404. Depth comes from layers: a dark sky that
- * lightens toward the horizon, light clouds, far silhouettes, mid buildings, detailed buildings in
+ * A pixel art scene in one soft color: a bomb falling on a city, and a shop sign that reads 404.
+ * Depth comes from layers: clouds, far silhouettes, mid buildings, detailed buildings in
  * front, and a dense ground. It's generated here on a grid (1 = ink, 0 = paper), with a fixed
  * random seed so every build draws the same thing.
  */
@@ -46,11 +45,7 @@ const between = (a: number, b: number) => a + Math.floor(random() * (b - a + 1))
 
 const SIDEWALK = 82;
 
-// 1. Sky: solid ink at the top, lightening to paper toward the horizon.
-for (let y = 0; y < SIDEWALK; y++)
-  for (let x = 0; x < W; x++) if (dithered(x, y, Math.min(1, Math.max(0, (46 - y) / 20)))) set(x, y);
-
-// 2. Clouds: paper puffs with a dithered rim, big ones behind the bomb.
+// 1. Clouds: outlined puffs with a dithered shadow on their lower half. The sky is the page itself.
 const clouds = [
   [[96, 34, 13], [110, 28, 12], [122, 36, 11], [84, 42, 10], [104, 44, 12], [134, 44, 9]],
   [[14, 20, 7], [24, 16, 8], [34, 21, 6]],
@@ -59,26 +54,28 @@ const clouds = [
 ];
 for (const discs of clouds) {
   const reach = (x: number, y: number) => Math.max(...discs.map(([cx, cy, r]) => r - Math.hypot(x - cx, y - cy)));
+  const top = Math.min(...discs.map(([, cy, r]) => cy - r));
+  const bottom = Math.max(...discs.map(([, cy, r]) => cy + r));
   for (let y = 0; y < SIDEWALK; y++)
     for (let x = 0; x < W; x++) {
       const k = reach(x, y);
-      if (k >= 2) set(x, y, 0);
-      else if (k >= 0) set(x, y, dithered(x, y, 0.5) ? 1 : 0);
+      if (k < 0) continue;
+      const shade = Math.max(0, (y - top) / (bottom - top) - 0.55) * 1.2;
+      set(x, y, k < 1 || dithered(x, y, shade) ? 1 : 0);
     }
 }
 
-// 3. Far skyline: solid silhouettes with a few tiny lit windows.
+// 2. Far skyline: light dithered silhouettes, the farther the lighter.
 for (let x = 0; x < W; ) {
   const w = between(6, 13);
   const top = between(50, 62);
-  rect(x, top, w, SIDEWALK - top);
-  for (let y = top + 2; y < SIDEWALK - 3; y += 3)
-    for (let i = x + 1; i < x + w - 1; i += 2) if (random() < 0.12) set(i, y, 0);
+  rect(x, top, w, 1);
+  for (let y = top + 1; y < SIDEWALK; y++) for (let i = x; i < x + w; i++) if (dithered(i, y, 0.3)) set(i, y);
   if (random() < 0.3) rect(x + Math.floor(w / 2), top - 3, 1, 3); // antenna
   x += w;
 }
 
-// 4. Mid buildings: paper facades, ink outlines, rows of dark windows.
+// 3. Mid buildings: paper facades, ink outlines, rows of dark windows.
 const building = (x: number, top: number, w: number, windows: 'small' | 'tall') => {
   rect(x, top, w, SIDEWALK - top, 0);
   frame(x, top, w, SIDEWALK - top + 1);
@@ -95,7 +92,7 @@ for (const [x, top, w] of [
 ])
   building(x, top, w, 'small');
 
-// 5. Front buildings, on the sides: bigger windows with sills, balconies, and a shaded side.
+// 4. Front buildings, on the sides: bigger windows with sills, balconies, and a shaded side.
 const tower = (x: number, top: number, w: number, shadeRight: boolean) => {
   rect(x, top, w, SIDEWALK - top, 0);
   frame(x, top, w, SIDEWALK - top + 1);
@@ -136,7 +133,7 @@ stamp(['#...#...#.', '..#...#...'], shop.x + 5, SIDEWALK - 5);
 rect(shop.x + shop.w - 10, SIDEWALK - 7, 5, 7);
 set(shop.x + shop.w - 7, SIDEWALK - 4, 0); // door handle
 
-// 6. The bomb, falling in front of the big cloud: a highlight, a neck, a fuse, and light trails.
+// 5. The bomb, falling in front of the big cloud: a highlight, a neck, a fuse, and dashed trails.
 const bomb = { x: 104, y: 40, r: 8 };
 for (let y = -bomb.r - 1; y <= bomb.r + 1; y++)
   for (let x = -bomb.r - 1; x <= bomb.r + 1; x++) {
@@ -148,19 +145,19 @@ stamp(['..###', '.#...', '#....', '#....'], bomb.x - 6, bomb.y - 6, 0);
 rect(bomb.x + 3, bomb.y - 10, 4, 3);
 stamp(['...#', '..#.', '.#..'], bomb.x + 5, bomb.y - 13);
 for (const dx of [-5, 0, 5])
-  for (let y = 0; y < bomb.y - bomb.r - 4 - Math.abs(dx) / 2; y++) if (y % 5 < 3) set(bomb.x + dx, y, 0);
+  for (let y = 0; y < bomb.y - bomb.r - 4 - Math.abs(dx) / 2; y++) if (y % 5 < 3) set(bomb.x + dx, y);
 // A small plane far away, and two birds.
-stamp(['#.....#', '#######', '..###..', '...#...'], 30, 30, 0);
-stamp(['#.#', '.#.'], 70, 26, 0);
-stamp(['#.#', '.#.'], 76, 23, 0);
+stamp(['#.....#', '#######', '..###..', '...#...'], 30, 30);
+stamp(['#.#', '.#.'], 70, 26);
+stamp(['#.#', '.#.'], 76, 23);
 
-// 7. Sidewalk and ground: a curb, then dense grass strokes that thicken toward the bottom.
+// 6. Sidewalk and ground: a curb, then grass strokes that thicken toward the bottom.
 rect(0, SIDEWALK, W, 1);
 rect(0, SIDEWALK + 1, W, 3, 0);
 rect(0, SIDEWALK + 4, W, 1);
 for (let y = SIDEWALK + 5; y < H; y++)
   for (let x = 0; x < W; x++) {
-    const density = 0.3 + ((y - SIDEWALK - 5) / (H - SIDEWALK - 5)) * 0.5;
+    const density = 0.12 + ((y - SIDEWALK - 5) / (H - SIDEWALK - 5)) * 0.3;
     if (random() < density) {
       set(x, y);
       if (random() < 0.35) set(x, y + 1);
@@ -180,17 +177,15 @@ const sparkB = spark(['..#..', '..#..', '#####', '..#..', '..#..']);
 // Clear the spark's area so both frames show on paper.
 for (let y = -1; y <= 5; y++) for (let x = -1; x <= 5; x++) set(bomb.x + 8 + x, bomb.y - 16 + y, 0);
 
-// The edges dissolve into the page: toward the sides (and a little at the top and bottom), a dither
-// leaves more and more pixels out. Multiplying both directions rounds the corners off.
+// The city fades out toward the sides, and the ground toward the bottom, with a dither.
 const smooth = (t: number) => {
   const c = Math.min(1, Math.max(0, t));
   return c * c * (3 - 2 * c);
 };
 const visible = Array.from({ length: H }, (_, y) =>
   Uint8Array.from({ length: W }, (_, x) => {
-    const fx = smooth(Math.min(x, W - 1 - x) / 28);
-    const fy = smooth(Math.min(y / 16, (H - 1 - y) / 10));
-    return dithered(x, y, fx * fy) ? 1 : 0;
+    const f = smooth(Math.min(x, W - 1 - x) / 18) * smooth((H - 1 - y) / 8);
+    return dithered(x, y, f) ? 1 : 0;
   }),
 );
 
@@ -228,7 +223,6 @@ const path = (g: Uint8Array[], value = 1) =>
       role="img"
       aria-label="A bomb falling on a pixel city, above a shop sign that reads 404"
     >
-      <path class="paper" d={path(ink, 0)}></path>
       <path class="ink" d={path(ink)}></path>
       <path class="ink spark spark-a" d={path(sparkA)}></path>
       <path class="ink spark spark-b" d={path(sparkB)}></path>
@@ -261,18 +255,15 @@ const path = (g: Uint8Array[], value = 1) =>
     padding: 24px 0 96px;
     text-align: center;
   }
-  /* Two soft tones, like an old handheld screen, the same in both themes. The edges dissolve into the page. */
+  /* One soft color, gray on light and light gray on dark, with the page as the sky. */
   .scene {
     width: 640px;
     height: 384px;
     max-width: 100%;
     height: auto;
   }
-  .paper {
-    fill: #d7ecd0;
-  }
   .ink {
-    fill: #0f1e26;
+    fill: var(--muted);
   }
   .code {
     margin-top: 36px;

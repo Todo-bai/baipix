@@ -160,8 +160,11 @@ function PaletteSection() {
                 { label: t('palette.sort'), onSelect: () => editor.sortPalette() },
                 { label: t('palette.fromDrawing'), onSelect: () => editor.paletteFromDrawing() },
                 '-',
+                { label: t('palette.openFile'), onSelect: () => void actions.importPalette() },
                 { label: t('palette.paste'), onSelect: () => openDialog({ type: 'paletteImport' }) },
-                { label: t('palette.export'), onSelect: () => void actions.exportPalette() },
+                '-',
+                { label: t('palette.exportHex'), onSelect: () => void actions.exportPalette('hex') },
+                { label: t('palette.exportGpl'), onSelect: () => void actions.exportPalette('gpl') },
               ])
             }
           />

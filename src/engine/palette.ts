@@ -1,5 +1,9 @@
 import {
   alpha,
+  blue,
+  green,
+  pack,
+  red,
   fromHex,
   oklchToColor,
   opaque,
@@ -47,6 +51,33 @@ export const presetColors = (key: string): Color[] => parseHexList(PALETTE_PRESE
 
 /** One hex code per line: the Lospec `.hex` format. */
 export const toHexList = (colors: Color[]): string => colors.map((c) => toHex(c).slice(1)).join('\n') + '\n';
+
+/**
+ * GIMP palette (`.gpl`), also read by Aseprite, Krita and Inkscape: a header, then one
+ * "R G B name" line per color. Comments (#), Name: and Columns: lines are skipped.
+ */
+export function parseGpl(text: string): Color[] {
+  const colors: Color[] = [];
+  for (const line of text.split(/\r?\n/)) {
+    const m = /^\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})(?:\s|$)/.exec(line);
+    if (!m) continue;
+    const [r, g, b] = [m[1], m[2], m[3]].map((v) => Math.min(255, Number(v)));
+    colors.push(pack(r, g, b));
+  }
+  return [...new Set(colors)];
+}
+
+export function toGpl(colors: Color[], name: string): string {
+  const lines = colors.map((c) => {
+    const rgb = [red(c), green(c), blue(c)].map((v) => String(v).padStart(3)).join(' ');
+    return `${rgb}\t${toHex(c).slice(1)}`;
+  });
+  return `GIMP Palette\nName: ${name.replace(/[\r\n]/g, ' ')}\nColumns: 8\n#\n${lines.join('\n')}\n`;
+}
+
+/** Colors from a palette file: GIMP `.gpl` when it says so, hex codes otherwise (`.hex`, `.txt`…). */
+export const parsePaletteFile = (text: string): Color[] =>
+  /^\s*GIMP Palette/.test(text) ? parseGpl(text) : parseHexList(text);
 
 /**
  * How lighten and shade pick the next color:

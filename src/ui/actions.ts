@@ -2,7 +2,7 @@ import { alpha, type Color } from '../engine/color';
 import { hasBackground, MAX_SIZE, createDocument } from '../engine/document';
 import type { Editor } from '../engine/editor';
 import { renderGeometry, toSvg } from '../engine/export/svg';
-import { toHexList } from '../engine/palette';
+import { parsePaletteFile, toGpl, toHexList } from '../engine/palette';
 import { t } from '../i18n';
 import { copyPng, copyText } from '../io/clipboard';
 import { saveFile, safeFileName } from '../io/download';
@@ -13,6 +13,8 @@ import { documentFromJson, documentToJson, FILE_EXTENSION } from '../storage/fil
 import { openDialog, toast, uiStore } from './uiStore';
 
 export type ExportFormat = 'png' | 'svg';
+
+const PALETTE_FILES = '.hex,.gpl,.txt,text/plain';
 
 /** User-level commands shared by menus, buttons and shortcuts. */
 export function createActions(editor: Editor) {
@@ -31,6 +33,19 @@ export function createActions(editor: Editor) {
     if (geometry.pixelSize !== d.render.pixelSize)
       toast(t('toast.exportShrunk', { size: geometry.pixelSize }));
     return { d, pixels, geometry, background };
+  }
+
+  /** Replaces the palette with a .hex, .gpl or .txt file (picked, or dropped on the canvas). */
+  async function importPalette(file?: File | null) {
+    const f = file ?? (await pickFile(PALETTE_FILES));
+    if (!f) return;
+    const colors = parsePaletteFile(await f.text());
+    if (!colors.length) {
+      toast(t('toast.noPaletteColors'));
+      return;
+    }
+    editor.setPaletteColors(colors);
+    toast(t('toast.colorsImported', { count: colors.length }));
   }
 
   async function report(filename: string, result: Promise<string>) {
@@ -81,10 +96,15 @@ export function createActions(editor: Editor) {
         });
     },
 
-    async exportPalette() {
-      const filename = `${baseName()}-palette.txt`;
-      await report(filename, saveFile(filename, toHexList(editor.getState().palette.colors), 'text/plain'));
+    /** `.hex` (one hex code per line, Lospec) or `.gpl` (GIMP, Aseprite, Krita). */
+    async exportPalette(format: 'hex' | 'gpl' = 'hex') {
+      const colors = editor.getState().palette.colors;
+      const filename = `${baseName()}-palette.${format}`;
+      const content = format === 'gpl' ? toGpl(colors, `${doc().name} palette`) : toHexList(colors);
+      await report(filename, saveFile(filename, content, 'text/plain'));
     },
+
+    importPalette,
 
     async saveDocument() {
       const filename = `${baseName()}${FILE_EXTENSION}`;
@@ -106,6 +126,10 @@ export function createActions(editor: Editor) {
     async importImage(file?: File | null) {
       const f = file ?? (await pickFile('image/*'));
       if (!f) return;
+      if (/\.(hex|gpl)$/i.test(f.name)) {
+        await importPalette(f);
+        return;
+      }
       if (f.name.endsWith(FILE_EXTENSION)) {
         try {
           editor.addDocument(documentFromJson(await f.text()));

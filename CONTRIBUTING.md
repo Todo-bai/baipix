@@ -30,6 +30,7 @@ Put `Closes #123` in your commit message or pull request description: the issue 
 - **Every visible string is translated.** Add the key to `src/i18n/en.ts`, then to `src/i18n/fr.ts` (TypeScript will fail if a language misses a key).
 - **Test engine changes.** Tests live in `tests/`, next to the feature they cover.
 - Code is formatted with Prettier (`npm run format`).
+- Add a line to `CHANGELOG.md`, under *Unreleased*, for anything people will notice.
 - Interface colors come from the tokens in `src/ui/styles/tokens.css`, written once as `light-dark(light, dark)`. Add a token there rather than a color in a component or in `app.css`. The canvas reads the same tokens through `readTheme()`.
 
 ## Adding a tool

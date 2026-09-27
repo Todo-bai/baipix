@@ -90,6 +90,7 @@ export const fr: Record<MessageKey, string> = {
   'menu.tile': 'Mosaïque',
   'menu.hideUi': "Masquer l'interface",
   'menu.shortcuts': 'Raccourcis clavier',
+  'menu.version': 'Baipix {version} · Nouveautés',
 
   'zoom.in': 'Zoom avant',
   'zoom.out': 'Zoom arrière',

@@ -89,6 +89,7 @@ export const en = {
   'menu.tile': 'Tile preview',
   'menu.hideUi': 'Hide the interface',
   'menu.shortcuts': 'Keyboard shortcuts',
+  'menu.version': 'Baipix {version} · What’s new',
 
   'zoom.in': 'Zoom in',
   'zoom.out': 'Zoom out',

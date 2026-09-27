@@ -500,6 +500,23 @@ export class Editor {
     this.notice({ type: 'merged' });
   }
 
+  /** Merges every visible layer into the lowest visible one, as one undo step. */
+  mergeVisible(): void {
+    const layers = this.doc.layers.filter((l) => l.visible);
+    if (layers.length < 2) return;
+    if (layers.some((l) => l.locked)) {
+      this.notice({ type: 'layerLocked' });
+      return;
+    }
+    this.edit((doc) => {
+      const [bottom, ...rest] = doc.layers.filter((l) => l.visible);
+      for (const layer of rest) mergeLayerInto(layer, bottom);
+      doc.layers = doc.layers.filter((l) => !rest.includes(l));
+      doc.activeLayer = doc.layers.indexOf(bottom);
+    });
+    this.notice({ type: 'merged' });
+  }
+
   setLayerVisible(index: number, visible: boolean): void {
     this.edit((doc) => {
       doc.layers[index].visible = visible;

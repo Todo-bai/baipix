@@ -17,16 +17,26 @@ function EditableName({
   value,
   onRename,
   className = 'item-name',
+  startEditing = false,
+  onEditingStarted,
 }: {
   value: string;
   onRename: (v: string) => void;
   className?: string;
+  /** Starts editing from outside (a menu's Rename); `onEditingStarted` then clears the request. */
+  startEditing?: boolean;
+  onEditingStarted?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (editing) ref.current?.select();
   }, [editing]);
+  useEffect(() => {
+    if (!startEditing) return;
+    setEditing(true);
+    onEditingStarted?.();
+  }, [startEditing, onEditingStarted]);
   if (!editing)
     return (
       <span className={className} onDoubleClick={() => setEditing(true)}>
@@ -167,6 +177,43 @@ function LayersSection() {
   // Drag to reorder: `slot` is the gap (in display order, top first) where the layer would land.
   const [drag, setDrag] = useState<{ from: number; slot: number } | null>(null);
   const dragged = useRef(false);
+  const [renaming, setRenaming] = useState<string | null>(null);
+
+  // Right-click: the layer becomes active, then the menu acts on it.
+  const openLayerMenu = (e: React.MouseEvent<HTMLElement>, index: number) => {
+    e.preventDefault();
+    editor.setActiveLayer(index);
+    const layer = doc.layers[index];
+    openMenu(e.currentTarget, [
+      {
+        label: t('layer.rename'),
+        icon: 'pencil',
+        onSelect: () => setRenaming(layer.id),
+      },
+      { label: t('layer.duplicate'), icon: 'duplicate', onSelect: () => editor.duplicateLayer() },
+      {
+        label: t('layer.mergeDown'),
+        icon: 'merge',
+        disabled: index === 0,
+        onSelect: () => editor.mergeDown(),
+      },
+      {
+        label: t('layer.mergeVisible'),
+        icon: 'layers',
+        disabled: doc.layers.filter((l) => l.visible).length < 2,
+        onSelect: () => editor.mergeVisible(),
+      },
+      '-',
+      {
+        label: layer.locked ? t('layer.unlock') : t('layer.lock'),
+        icon: layer.locked ? 'unlock' : 'lock',
+        onSelect: () => editor.setLayerLocked(index, !layer.locked),
+      },
+      { label: t('layer.soloMenu'), icon: 'eye', onSelect: () => editor.soloLayer(index) },
+      '-',
+      { label: t('layer.delete'), icon: 'trash', disabled: n < 2, onSelect: () => actions.deleteLayer() },
+    ]);
+  };
 
   const startDrag = (e: React.PointerEvent, displayPos: number, index: number) => {
     if (e.button !== 0 || (e.target as HTMLElement).closest('button, input')) return;
@@ -225,13 +272,19 @@ function LayersSection() {
               layer.locked ? ' is-locked' : ''
             }${drag?.from === index ? ' is-dragging' : ''}${dropClass(displayPos)}`}
             onPointerDown={(e) => startDrag(e, displayPos, index)}
+            onContextMenu={(e) => openLayerMenu(e, index)}
             onClick={() => {
               if (dragged.current) dragged.current = false;
               else editor.setActiveLayer(index);
             }}
           >
             <Thumbnail pixels={() => layer.pixels} width={doc.width} height={doc.height} version={revision} />
-            <EditableName value={layer.name} onRename={(v) => editor.renameLayer(index, v)} />
+            <EditableName
+              value={layer.name}
+              onRename={(v) => editor.renameLayer(index, v)}
+              startEditing={renaming === layer.id}
+              onEditingStarted={() => setRenaming(null)}
+            />
             {layer.opacity < 1 && <span className="muted">{Math.round(layer.opacity * 100)} %</span>}
             <IconButton
               icon={layer.locked ? 'lock' : 'unlock'}

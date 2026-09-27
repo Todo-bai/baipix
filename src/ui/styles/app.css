@@ -508,10 +508,6 @@ body.is-resizing * {
 .recent-colors {
   margin-top: 8px;
 }
-/* Always one row: the 8 recent colors share the width. */
-.recent-colors .palette-grid {
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-}
 .palette-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(18px, 1fr));

@@ -25,6 +25,7 @@ import {
   type ToolOptions,
 } from './tools';
 import { applyMove, beginMove } from './tools/move';
+import { strokeColors } from './tools/paint';
 
 export interface ViewSettings {
   grid: boolean;
@@ -61,6 +62,8 @@ export interface EditorState {
   primary: Color;
   secondary: Color;
   palette: PaletteState;
+  /** Last colors painted with, most recent first. */
+  recent: Color[];
   view: ViewSettings;
   canUndo: boolean;
   canRedo: boolean;
@@ -93,6 +96,7 @@ export interface Preferences {
   primary: Color;
   secondary: Color;
   palette: PaletteState;
+  recent: Color[];
   view: ViewSettings;
 }
 
@@ -108,6 +112,9 @@ type Deleted =
   | { kind: 'layer'; session: Session; layer: Layer; index: number };
 
 type Listener = () => void;
+
+/** How many recent colors are kept. */
+export const RECENT_COLORS = 8;
 
 const DEFAULT_LABELS: EditorLabels = {
   layer: (n) => `Layer ${n}`,
@@ -133,6 +140,7 @@ export class Editor {
   private strokeTool: ToolId | null = null;
   private opacityChange = false;
   private deleted: Deleted | null = null;
+  private recent: Color[] = [];
   private revision = 0;
   private state!: EditorState;
 
@@ -202,6 +210,7 @@ export class Editor {
       primary: this.primary,
       secondary: this.secondary,
       palette: this.palette,
+      recent: this.recent,
       view: this.view,
       canUndo: s.history.canUndo,
       canRedo: s.history.canRedo,
@@ -572,6 +581,13 @@ export class Editor {
     this.commit();
   }
 
+  /** Moves colors to the front of the recent colors (transparent ones are skipped). */
+  private remember(...colors: Color[]): void {
+    const fresh = colors.filter((c) => alpha(c) > 0).map((c) => c >>> 0);
+    if (!fresh.length) return;
+    this.recent = [...new Set([...fresh, ...this.recent])].slice(0, RECENT_COLORS);
+  }
+
   swapColors(): void {
     [this.primary, this.secondary] = [this.secondary, this.primary];
     this.commit();
@@ -659,6 +675,7 @@ export class Editor {
       primary: this.primary,
       secondary: this.secondary,
       palette: this.palette,
+      recent: this.recent,
       view: this.view,
     };
   }
@@ -669,6 +686,8 @@ export class Editor {
     if (typeof p.primary === 'number') this.primary = p.primary >>> 0;
     if (typeof p.secondary === 'number') this.secondary = p.secondary >>> 0;
     if (p.view) this.view = { ...this.view, ...p.view };
+    if (Array.isArray(p.recent))
+      this.recent = p.recent.filter((c) => typeof c === 'number').slice(0, RECENT_COLORS);
     if (p.palette?.colors?.length) {
       this.palette = p.palette;
       this.paletteIndex = new PaletteIndex(p.palette.colors);
@@ -705,6 +724,7 @@ export class Editor {
       this.notice({ type: 'layerHidden' });
       return;
     }
+    this.remember(this.primary);
     this.edit((doc) =>
       fillRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect(), this.primary),
     );
@@ -936,6 +956,11 @@ export class Editor {
       this.active.history.discardLast();
       this.commit(false);
       return;
+    }
+    if (tool.paintsColor) {
+      const [c1, c2] = strokeColors(s);
+      if (s.options.dither) this.remember(c1, c2);
+      else this.remember(c1);
     }
     this.commit(tool.editsPixels);
   }

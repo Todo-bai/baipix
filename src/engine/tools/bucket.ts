@@ -6,6 +6,7 @@ import type { Tool } from './types';
 export const bucket: Tool = {
   id: 'bucket',
   editsPixels: true,
+  paintsColor: true,
   onDown(s, p) {
     const { width, height } = s.doc;
     const [c1, c2] = strokeColors(s);

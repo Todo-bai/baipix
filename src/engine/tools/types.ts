@@ -80,6 +80,8 @@ export interface Tool {
   id: ToolId;
   /** Whether the tool writes to the active layer (and therefore needs an undo step). */
   editsPixels: boolean;
+  /** Paints with the stroke colors, which then go to the recent colors. */
+  paintsColor?: boolean;
   onDown(stroke: Stroke, p: Point, mods: Modifiers): void;
   onMove(stroke: Stroke, p: Point, mods: Modifiers): void;
   onUp?(stroke: Stroke): void;

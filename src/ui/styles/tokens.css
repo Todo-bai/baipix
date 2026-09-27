@@ -42,11 +42,16 @@
   --menu-shortcut: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.5));
   --menu-line: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.12));
 
-  /* Tooltips and toasts stay dark in both themes. */
+  /* Tooltips stay dark in both themes. */
   --tooltip-bg: #1a1b21;
   --tooltip-text: #ffffff;
   --tooltip-muted: rgba(255, 255, 255, 0.55);
   --tooltip-hover: rgba(255, 255, 255, 0.12);
+
+  /* Toasts are inverted: dark on a light UI, light on a dark one, so they never blend in. */
+  --toast-bg: light-dark(#1a1b21, #f0f1f4);
+  --toast-text: light-dark(#ffffff, #15161b);
+  --toast-hover: light-dark(rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0.08));
 
   /* Shadows */
   --shadow:

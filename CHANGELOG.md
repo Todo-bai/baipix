@@ -6,7 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
-- A hand tool (H) in the toolbar to move around the canvas, also with one finger on touch screens.
+- A hand tool (H) in the toolbar to move around the canvas, also with one finger on touch screens. (#118)
 - Select several layers at once with Shift+click and Cmd/Ctrl+click, then drag, delete or merge them together. Flatten image in the layer menu. (#115)
 - Drag the symmetry axes anywhere on the canvas, snapped to half pixels. Double-click a grip to recenter. (#116)
 - Open and export palette files in .hex (Lospec) and .gpl (GIMP, Aseprite, Krita), or drop one on the canvas. 14 more preset palettes, and Manage palettes to choose which ones show in the menu. (#112)
@@ -31,6 +31,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 - The pixel gap is set in the Canvas section and always shown on the canvas. (#114)
 - The dark theme has a slight ink tint, and the symmetry axes are pink. (#58)
 - The palette menu shows either Add or Remove the primary color, and its items are grouped more clearly. (#112)
+- Toasts are light in the dark theme, so they stand out from the canvas. (#123)
 
 ### Website
 

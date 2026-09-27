@@ -63,6 +63,8 @@ export interface EditorState {
   /** Last colors painted with, most recent first. */
   recent: Color[];
   view: ViewSettings;
+  /** Ids of the selected layers, bottom to top. Always includes the active layer. */
+  selectedLayers: string[];
   canUndo: boolean;
   canRedo: boolean;
   revision: number;
@@ -102,12 +104,16 @@ interface Session {
   doc: PixelDoc;
   history: History;
   selection: Rect | null;
+  /** Ids of the selected layers (always including the active one), and where a Shift+click range starts. */
+  picked?: string[];
+  anchor?: string;
 }
 
 /** What the last delete removed, so it can be brought back (the toast's Undo button). */
 type Deleted =
   | { kind: 'file'; session: Session; index: number }
-  | { kind: 'layer'; session: Session; layer: Layer; index: number };
+  | { kind: 'layer'; session: Session; layer: Layer; index: number }
+  | { kind: 'layers'; session: Session; entries: { layer: Layer; index: number }[] };
 
 type Listener = () => void;
 
@@ -193,6 +199,11 @@ export class Editor {
   private refresh(): void {
     const s = this.active;
     this.revision++;
+    // Keep the layer selection valid: existing layers only, and always the active one.
+    const active = activeLayer(s.doc).id;
+    const ids = s.doc.layers.map((l) => l.id);
+    const picked = ids.filter((id) => s.picked?.includes(id));
+    s.picked = picked.includes(active) ? picked : [active];
     this.state = {
       files: this.sessions.map(({ doc }) => ({
         id: doc.id,
@@ -210,6 +221,7 @@ export class Editor {
       palette: this.palette,
       recent: this.recent,
       view: this.view,
+      selectedLayers: s.picked,
       canUndo: s.history.canUndo,
       canRedo: s.history.canRedo,
       revision: this.revision,
@@ -265,7 +277,8 @@ export class Editor {
 
   /** Undo and redo swap whole snapshots, which may bring the deleted layer back on their own. */
   private forgetDeletedLayer(): void {
-    if (this.deleted?.kind === 'layer' && this.deleted.session === this.active) this.deleted = null;
+    const d = this.deleted;
+    if (d && d.kind !== 'file' && d.session === this.active) this.deleted = null;
   }
 
   /** Runs a document mutation as one undoable step. */
@@ -381,13 +394,16 @@ export class Editor {
       return true;
     }
     const { width, height } = d.session.doc;
-    if (!this.sessions.includes(d.session) || d.layer.pixels.length !== width * height) return false;
+    const entries = d.kind === 'layer' ? [{ layer: d.layer, index: d.index }] : d.entries;
+    if (!this.sessions.includes(d.session) || entries.some((x) => x.layer.pixels.length !== width * height))
+      return false;
     this.cancelAdjust();
     this.active = d.session;
     this.edit((doc) => {
-      const index = Math.min(d.index, doc.layers.length);
-      doc.layers.splice(index, 0, d.layer);
-      doc.activeLayer = index;
+      // Lowest first, so each layer lands back at its own index.
+      for (const { layer, index } of entries) doc.layers.splice(Math.min(index, doc.layers.length), 0, layer);
+      doc.activeLayer = doc.layers.indexOf(entries[entries.length - 1].layer);
+      this.active.picked = entries.map((x) => x.layer.id);
     });
     return true;
   }
@@ -432,9 +448,52 @@ export class Editor {
   /* ------------------------------------------------------------------ layers */
 
   setActiveLayer(index: number): void {
-    if (index < 0 || index >= this.doc.layers.length || index === this.doc.activeLayer) return;
+    if (index < 0 || index >= this.doc.layers.length) return;
+    const id = this.doc.layers[index].id;
+    if (index === this.doc.activeLayer && this.active.picked?.length === 1) return;
     this.doc.activeLayer = index;
+    this.active.picked = [id];
+    this.active.anchor = id;
     this.commit();
+  }
+
+  /**
+   * Layer list clicks: `single` selects one layer, `toggle` (Cmd/Ctrl+click) adds or removes one,
+   * `range` (Shift+click) selects every layer from the last clicked one. The clicked layer becomes
+   * the active one, except when it's toggled off.
+   */
+  selectLayer(index: number, mode: 'single' | 'toggle' | 'range'): void {
+    const layers = this.doc.layers;
+    if (!layers[index]) return;
+    if (mode === 'single') return this.setActiveLayer(index);
+    const id = layers[index].id;
+    const picked = this.state.selectedLayers;
+    if (mode === 'toggle') {
+      if (picked.includes(id)) {
+        if (picked.length === 1) return;
+        const rest = picked.filter((x) => x !== id);
+        this.active.picked = rest;
+        if (layers[this.doc.activeLayer].id === id)
+          this.doc.activeLayer = layers.findIndex((l) => l.id === rest[rest.length - 1]);
+      } else {
+        this.active.picked = [...picked, id];
+        this.doc.activeLayer = index;
+      }
+      this.active.anchor = id;
+    } else {
+      const from = layers.findIndex((l) => l.id === this.active.anchor);
+      const start = from < 0 ? this.doc.activeLayer : from;
+      const [lo, hi] = start < index ? [start, index] : [index, start];
+      this.active.picked = layers.slice(lo, hi + 1).map((l) => l.id);
+      this.doc.activeLayer = index;
+    }
+    this.commit(false);
+  }
+
+  /** Selected layers, bottom to top. */
+  private pickedLayers(): Layer[] {
+    const picked = this.state.selectedLayers;
+    return this.doc.layers.filter((l) => picked.includes(l.id));
   }
 
   addLayer(): void {
@@ -456,6 +515,23 @@ export class Editor {
       doc.layers.splice(doc.activeLayer + 1, 0, copy);
       doc.activeLayer += 1;
     });
+  }
+
+  /**
+   * Deletes the selected layers (at least one layer stays). Returns how many were deleted; they can be
+   * brought back with `restoreDeleted`.
+   */
+  deleteLayers(): number {
+    const picked = this.pickedLayers();
+    if (picked.length < 2) return this.deleteLayer() ? 1 : 0;
+    if (picked.length >= this.doc.layers.length) return 0;
+    this.edit((doc) => {
+      const entries = picked.map((layer) => ({ layer, index: doc.layers.indexOf(layer) }));
+      doc.layers = doc.layers.filter((l) => !picked.includes(l));
+      doc.activeLayer = Math.min(doc.layers.length - 1, Math.max(0, entries[0].index - 1));
+      this.deleted = { kind: 'layers', session: this.active, entries };
+    });
+    return picked.length;
   }
 
   /** Returns false when nothing was deleted. The layer can be brought back with `restoreDeleted`. */
@@ -506,21 +582,64 @@ export class Editor {
     this.notice({ type: 'merged' });
   }
 
-  /** Merges every visible layer into the lowest visible one, as one undo step. */
-  mergeVisible(): void {
-    const layers = this.doc.layers.filter((l) => l.visible);
+  /** Merges the selected visible layers into the lowest of them, as one undo step. */
+  mergeLayers(): void {
+    this.mergeInto(this.pickedLayers().filter((l) => l.visible));
+  }
+
+  /** Merges every visible layer into one and drops the hidden ones, as one undo step. */
+  flattenImage(): void {
+    const visible = this.doc.layers.filter((l) => l.visible);
+    if (!visible.length || (visible.length === 1 && visible.length === this.doc.layers.length)) return;
+    if (visible.some((l) => l.locked)) {
+      this.notice({ type: 'layerLocked' });
+      return;
+    }
+    this.edit((doc) => {
+      const [bottom, ...rest] = visible;
+      for (const layer of rest) mergeLayerInto(layer, bottom);
+      doc.layers = [bottom];
+      doc.activeLayer = 0;
+    });
+    this.notice({ type: 'merged' });
+  }
+
+  private mergeInto(layers: Layer[]): void {
     if (layers.length < 2) return;
     if (layers.some((l) => l.locked)) {
       this.notice({ type: 'layerLocked' });
       return;
     }
     this.edit((doc) => {
-      const [bottom, ...rest] = doc.layers.filter((l) => l.visible);
+      const [bottom, ...rest] = layers;
       for (const layer of rest) mergeLayerInto(layer, bottom);
       doc.layers = doc.layers.filter((l) => !rest.includes(l));
       doc.activeLayer = doc.layers.indexOf(bottom);
     });
     this.notice({ type: 'merged' });
+  }
+
+  /**
+   * Moves the selected layers together, keeping their order, so they land at `slot` (0 = bottom,
+   * layers.length = top, counted before the move). One undo step.
+   */
+  moveLayersTo(slot: number): void {
+    const picked = this.pickedLayers();
+    const layers = this.doc.layers;
+    const rest = layers.filter((l) => !picked.includes(l));
+    const at = layers.slice(0, Math.max(0, slot)).filter((l) => !picked.includes(l)).length;
+    const next = [...rest.slice(0, at), ...picked, ...rest.slice(at)];
+    if (next.every((l, i) => l === layers[i])) return;
+    this.edit((doc) => {
+      const active = doc.layers[doc.activeLayer];
+      doc.layers = next;
+      doc.activeLayer = next.indexOf(active);
+    });
+  }
+
+  /** Merges every visible layer into the lowest visible one, as one undo step. */
+  mergeVisible(): void {
+    this.mergeInto(this.doc.layers.filter((l) => l.visible));
   }
 
   setLayerVisible(index: number, visible: boolean): void {

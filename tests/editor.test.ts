@@ -395,4 +395,100 @@ describe('Editor', () => {
     expect(e.getState().palette.custom).toBeNull();
     expect(e.getState().palette.key).toBe('pico8');
   });
+
+  describe('several layers', () => {
+    // Four layers named 0..3 (bottom to top), with a pixel each at x = its index.
+    const four = () => {
+      const e = new Editor();
+      e.setColor('primary', RED);
+      drag(e, [[0, 0]]);
+      for (let i = 1; i < 4; i++) {
+        e.addLayer();
+        drag(e, [[i, 0]]);
+      }
+      e.getState().doc.layers.forEach((_, i) => e.renameLayer(i, String(i)));
+      return e;
+    };
+    const names = (e: Editor) =>
+      e
+        .getState()
+        .doc.layers.map((l) => l.name)
+        .join('');
+    const picked = (e: Editor) =>
+      e
+        .getState()
+        .doc.layers.filter((l) => e.getState().selectedLayers.includes(l.id))
+        .map((l) => l.name)
+        .join('');
+
+    it('selects with a click, Cmd/Ctrl+click and Shift+click', () => {
+      const e = four();
+      e.selectLayer(0, 'single');
+      e.selectLayer(2, 'range');
+      expect(picked(e)).toBe('012');
+      expect(e.getState().doc.activeLayer).toBe(2);
+      e.selectLayer(1, 'toggle');
+      expect(picked(e)).toBe('02');
+      e.selectLayer(3, 'toggle');
+      expect(picked(e)).toBe('023');
+      e.selectLayer(1, 'single');
+      expect(picked(e)).toBe('1');
+    });
+
+    it('deletes the selected layers, and brings them back', () => {
+      const e = four();
+      e.selectLayer(1, 'single');
+      e.selectLayer(3, 'toggle');
+      expect(e.deleteLayers()).toBe(2);
+      expect(names(e)).toBe('02');
+      expect(e.restoreDeleted()).toBe(true);
+      expect(names(e)).toBe('0123');
+      expect(picked(e)).toBe('13');
+    });
+
+    it("doesn't delete every layer", () => {
+      const e = four();
+      e.selectLayer(0, 'single');
+      e.selectLayer(3, 'range');
+      expect(e.deleteLayers()).toBe(0);
+      expect(names(e)).toBe('0123');
+    });
+
+    it('merges the selected layers into the lowest one', () => {
+      const e = four();
+      e.selectLayer(1, 'single');
+      e.selectLayer(3, 'toggle');
+      e.mergeLayers();
+      expect(names(e)).toBe('012');
+      expect([...e.getState().doc.layers[1].pixels.slice(0, 4)].map(Boolean)).toEqual([
+        false,
+        true,
+        false,
+        true,
+      ]);
+      e.undo();
+      expect(names(e)).toBe('0123');
+    });
+
+    it('moves the selected layers together', () => {
+      const e = four();
+      e.selectLayer(0, 'single');
+      e.selectLayer(1, 'range');
+      e.moveLayersTo(4);
+      expect(names(e)).toBe('2301');
+      e.moveLayersTo(0);
+      expect(names(e)).toBe('0123');
+    });
+
+    it('flattens the image, dropping hidden layers', () => {
+      const e = four();
+      e.setLayerVisible(2, false);
+      e.flattenImage();
+      const { layers } = e.getState().doc;
+      expect(layers).toHaveLength(1);
+      expect([...layers[0].pixels.slice(0, 4)].map(Boolean)).toEqual([true, true, false, true]);
+      e.undo();
+      expect(names(e)).toBe('0123');
+    });
+  });
 });

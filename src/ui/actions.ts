@@ -193,9 +193,12 @@ export function createActions(editor: Editor) {
       if (editor.deleteFile(id)) toast(t('toast.deleted', { name }), undoDelete());
     },
 
-    deleteLayer() {
+    /** Deletes the selected layers (or the active one), with an Undo toast. */
+    deleteLayers() {
       const { name } = doc().layers[doc().activeLayer];
-      if (editor.deleteLayer()) toast(t('toast.deleted', { name }), undoDelete());
+      const count = editor.deleteLayers();
+      if (count === 1) toast(t('toast.deleted', { name }), undoDelete());
+      else if (count > 1) toast(t('toast.layersDeleted', { count }), undoDelete());
     },
 
     hasTransparentBackground: () => !alpha(doc().background),

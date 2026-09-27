@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { alpha, pack } from '../../engine/color';
+import { alpha, opaque, pack } from '../../engine/color';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
 import { PALETTE_PRESETS } from '../../engine/palette';
 import { useT } from '../../i18n';
@@ -126,6 +126,7 @@ function PaletteSection() {
   const editor = useEditor();
   const actions = useActions();
   const palette = useEditorState((s) => s.palette);
+  const hidden = uiStore.use((s) => s.hiddenPalettes);
   const primary = useEditorState((s) => s.primary);
   const secondary = useEditorState((s) => s.secondary);
   return (
@@ -140,11 +141,13 @@ function PaletteSection() {
             onChange={(e) => editor.setPalettePreset(e.target.value)}
             aria-label={t('palette.preset')}
           >
-            {Object.entries(PALETTE_PRESETS).map(([key, p]) => (
-              <option key={key} value={key}>
-                {p.name}
-              </option>
-            ))}
+            {Object.entries(PALETTE_PRESETS)
+              .filter(([key]) => key === palette.key || !hidden.includes(key))
+              .map(([key, p]) => (
+                <option key={key} value={key}>
+                  {p.name}
+                </option>
+              ))}
             {palette.custom && <option value="custom">{t('palette.custom')}</option>}
           </select>
           <IconButton
@@ -153,15 +156,21 @@ function PaletteSection() {
             aria-haspopup="menu"
             onClick={(e) =>
               openMenu(e.currentTarget, [
-                { label: t('palette.add'), onSelect: () => editor.addToPalette() },
-                { label: t('palette.remove'), onSelect: () => editor.removeFromPalette() },
+                // Only the action that applies: add the primary color, or remove it if it's there.
+                palette.colors.includes(opaque(primary))
+                  ? { label: t('palette.remove'), onSelect: () => editor.removeFromPalette() }
+                  : { label: t('palette.add'), onSelect: () => editor.addToPalette() },
                 { label: t('palette.ramp'), onSelect: () => editor.addRamp() },
-                '-',
                 { label: t('palette.sort'), onSelect: () => editor.sortPalette() },
-                { label: t('palette.fromDrawing'), onSelect: () => editor.paletteFromDrawing() },
                 '-',
+                { label: t('palette.fromDrawing'), onSelect: () => editor.paletteFromDrawing() },
+                { label: t('palette.openFile'), onSelect: () => void actions.importPalette() },
                 { label: t('palette.paste'), onSelect: () => openDialog({ type: 'paletteImport' }) },
-                { label: t('palette.export'), onSelect: () => void actions.exportPalette() },
+                '-',
+                { label: t('palette.manage'), onSelect: () => openDialog({ type: 'paletteManager' }) },
+                '-',
+                { label: t('palette.exportHex'), onSelect: () => void actions.exportPalette('hex') },
+                { label: t('palette.exportGpl'), onSelect: () => void actions.exportPalette('gpl') },
               ])
             }
           />

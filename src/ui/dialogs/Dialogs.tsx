@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { MAX_SIZE } from '../../engine/document';
 import { clamp } from '../../engine/math';
-import { parseHexList } from '../../engine/palette';
+import { toCss, type Color } from '../../engine/color';
+import { PALETTE_PRESETS, parseHexList, presetColors } from '../../engine/palette';
 import { useT } from '../../i18n';
-import { useEditor } from '../EditorContext';
+import { useEditor, useEditorState } from '../EditorContext';
+import { IconButton } from '../components/IconButton';
 import { closeDialog, toast, uiStore } from '../uiStore';
 import { Dialog } from './Dialog';
 import { SHORTCUT_GROUPS } from './shortcuts';
@@ -110,6 +112,70 @@ function PaletteImportDialog() {
   );
 }
 
+/** A strip of the palette's colors, for the palette list. */
+function PaletteStrip({ colors }: { colors: Color[] }) {
+  return (
+    <span className="palette-strip" aria-hidden="true">
+      {colors.slice(0, 32).map((c) => (
+        <i key={c} style={{ background: toCss(c) }} />
+      ))}
+    </span>
+  );
+}
+
+/** Choose which palettes show in the palette menu. The one in use always stays. */
+function PaletteManagerDialog() {
+  const t = useT();
+  const editor = useEditor();
+  const palette = useEditorState((s) => s.palette);
+  const hidden = uiStore.use((s) => s.hiddenPalettes);
+  const toggle = (key: string, shown: boolean) =>
+    uiStore.set((s) => ({
+      hiddenPalettes: shown ? s.hiddenPalettes.filter((k) => k !== key) : [...s.hiddenPalettes, key],
+    }));
+  return (
+    <Dialog title={t('palette.manageTitle')} submitLabel={t('common.close')} onClose={closeDialog} hideCancel>
+      <p className="muted">{t('palette.manageHint')}</p>
+      <div className="palette-list">
+        {Object.entries(PALETTE_PRESETS).map(([key, p]) => {
+          const inUse = key === palette.key;
+          return (
+            <label key={key} className="palette-row" data-tip={inUse ? t('palette.inUse') : undefined}>
+              <input
+                type="checkbox"
+                checked={inUse || !hidden.includes(key)}
+                disabled={inUse}
+                onChange={(e) => toggle(key, e.target.checked)}
+              />
+              <span className="palette-name">{p.name}</span>
+              <PaletteStrip colors={presetColors(key)} />
+            </label>
+          );
+        })}
+        {palette.custom && (
+          <div className="palette-row">
+            <span className="palette-name">{t('palette.custom')}</span>
+            <PaletteStrip colors={palette.custom} />
+            <IconButton
+              icon="trash"
+              label={palette.key === 'custom' ? t('palette.inUse') : t('palette.deleteCustom')}
+              disabled={palette.key === 'custom'}
+              onClick={() => editor.deleteCustomPalette()}
+            />
+          </div>
+        )}
+      </div>
+      {hidden.length > 0 && (
+        <div className="button-row">
+          <button type="button" className="btn" onClick={() => uiStore.set({ hiddenPalettes: [] })}>
+            {t('palette.showAll')}
+          </button>
+        </div>
+      )}
+    </Dialog>
+  );
+}
+
 function ShortcutsDialog() {
   const t = useT();
   return (
@@ -141,6 +207,8 @@ export function Dialogs() {
       return <NewFileDialog />;
     case 'paletteImport':
       return <PaletteImportDialog />;
+    case 'paletteManager':
+      return <PaletteManagerDialog />;
     case 'shortcuts':
       return <ShortcutsDialog />;
     case 'confirm':

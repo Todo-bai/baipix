@@ -6,6 +6,7 @@ export type ColorSlot = 'primary' | 'secondary' | 'background';
 export type DialogState =
   | { type: 'newFile' }
   | { type: 'paletteImport' }
+  | { type: 'paletteManager' }
   | { type: 'shortcuts' }
   | { type: 'confirm'; title: string; message: string; confirmLabel: string; onConfirm: () => void }
   | { type: 'output'; title: string; message: string; image?: string; text?: string };
@@ -28,6 +29,8 @@ export interface UiState {
   rightTab: 'design' | 'export';
   /** Exports include the document's background (when it has one). */
   exportBackground: boolean;
+  /** Preset palettes left out of the palette menu. */
+  hiddenPalettes: string[];
 }
 
 export const PANEL_LIMITS = {
@@ -47,6 +50,7 @@ export const uiStore = createStore<UiState>({
   collapsed: [],
   rightTab: 'design',
   exportBackground: true,
+  hiddenPalettes: [],
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });

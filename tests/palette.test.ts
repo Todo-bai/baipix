@@ -3,9 +3,12 @@ import { alpha, fromHex, pack, toOklab } from '../src/engine/color';
 import {
   hueShiftedRamp,
   PaletteIndex,
+  parseGpl,
   parseHexList,
+  parsePaletteFile,
   presetColors,
   shiftLightness,
+  toGpl,
   toHexList,
 } from '../src/engine/palette';
 
@@ -13,6 +16,28 @@ describe('palette', () => {
   it('parses Lospec-style lists', () => {
     expect(parseHexList('1a1c2c\n#5D275D, b13e53 and junk')).toHaveLength(3);
     expect(toHexList(parseHexList('1a1c2c 5d275d'))).toBe('1a1c2c\n5d275d\n');
+  });
+
+  it('reads and writes GIMP palettes', () => {
+    const gpl = `GIMP Palette
+Name: Test
+Columns: 4
+# a comment
+ 26  28  44	Black
+255 205 117 Sand
+  0   0   0
+`;
+    const colors = parseGpl(gpl);
+    expect(colors).toEqual([pack(26, 28, 44), pack(255, 205, 117), pack(0, 0, 0)]);
+    const written = toGpl(colors, 'Round trip');
+    expect(written.startsWith('GIMP Palette\nName: Round trip\n')).toBe(true);
+    expect(parseGpl(written)).toEqual(colors);
+  });
+
+  it('tells palette files apart', () => {
+    expect(parsePaletteFile('GIMP Palette\n255 0 0 Red\n')).toEqual([pack(255, 0, 0)]);
+    expect(parsePaletteFile('1a1c2c\n5d275d\n')).toHaveLength(2);
+    expect(parsePaletteFile('nothing here')).toEqual([]);
   });
 
   it('finds the nearest color', () => {

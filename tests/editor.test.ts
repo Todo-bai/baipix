@@ -384,4 +384,15 @@ describe('Editor', () => {
     e.movePaletteColor(3, 0);
     expect(e.getState().palette.colors).toEqual(before);
   });
+
+  it('deletes the custom palette only when it is not in use', () => {
+    const e = new Editor();
+    e.setPaletteColors([RED]);
+    e.deleteCustomPalette();
+    expect(e.getState().palette.custom).toEqual([RED]);
+    e.setPalettePreset('pico8');
+    e.deleteCustomPalette();
+    expect(e.getState().palette.custom).toBeNull();
+    expect(e.getState().palette.key).toBe('pico8');
+  });
 });

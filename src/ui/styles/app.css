@@ -653,7 +653,8 @@ body.is-resizing * {
 .item:hover {
   background: var(--hover);
 }
-.item.is-active {
+.item.is-active,
+.item.is-selected {
   background: var(--selected);
 }
 .item.is-active .item-name {
@@ -670,7 +671,12 @@ body.is-resizing * {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Shift+click selects a range of layers, not the names' text (except while renaming). */
+.item-name {
+  user-select: none;
+}
 .item-name input {
+  user-select: text;
   width: 100%;
   height: 22px;
   padding: 0 4px;

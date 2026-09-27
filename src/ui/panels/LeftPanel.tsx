@@ -171,6 +171,8 @@ function LayersSection() {
   const actions = useActions();
   const doc = useEditorState((s) => s.doc);
   const revision = useEditorState((s) => s.revision);
+  const selected = useEditorState((s) => s.selectedLayers);
+  const multi = selected.length > 1;
   const layers = doc.layers.map((layer, index) => ({ layer, index })).reverse();
   const n = layers.length;
   const listRef = useRef<HTMLDivElement>(null);
@@ -179,11 +181,38 @@ function LayersSection() {
   const dragged = useRef(false);
   const [renaming, setRenaming] = useState<string | null>(null);
 
-  // Right-click: the layer becomes active, then the menu acts on it.
+  // Right-click: on a selection of several layers, the menu acts on all of them. Otherwise the layer
+  // becomes active and the menu acts on it.
   const openLayerMenu = (e: React.MouseEvent<HTMLElement>, index: number) => {
     e.preventDefault();
-    editor.setActiveLayer(index);
     const layer = doc.layers[index];
+    const flatten = {
+      label: t('layer.flatten'),
+      icon: 'layers' as const,
+      onSelect: () => editor.flattenImage(),
+    };
+    if (multi && selected.includes(layer.id)) {
+      const count = selected.length;
+      const visible = doc.layers.filter((l) => selected.includes(l.id) && l.visible).length;
+      openMenu(e.currentTarget, [
+        {
+          label: t('layer.mergeCount', { count }),
+          icon: 'merge',
+          disabled: visible < 2,
+          onSelect: () => editor.mergeLayers(),
+        },
+        flatten,
+        '-',
+        {
+          label: t('layer.deleteCount', { count }),
+          icon: 'trash',
+          disabled: count >= n,
+          onSelect: () => actions.deleteLayers(),
+        },
+      ]);
+      return;
+    }
+    editor.setActiveLayer(index);
     openMenu(e.currentTarget, [
       {
         label: t('layer.rename'),
@@ -203,6 +232,7 @@ function LayersSection() {
         disabled: doc.layers.filter((l) => l.visible).length < 2,
         onSelect: () => editor.mergeVisible(),
       },
+      flatten,
       '-',
       {
         label: layer.locked ? t('layer.unlock') : t('layer.lock'),
@@ -211,7 +241,7 @@ function LayersSection() {
       },
       { label: t('layer.soloMenu'), icon: 'eye', onSelect: () => editor.soloLayer(index) },
       '-',
-      { label: t('layer.delete'), icon: 'trash', disabled: n < 2, onSelect: () => actions.deleteLayer() },
+      { label: t('layer.delete'), icon: 'trash', disabled: n < 2, onSelect: () => actions.deleteLayers() },
     ]);
   };
 
@@ -227,6 +257,8 @@ function LayersSection() {
       });
       return k < 0 ? items.length : k;
     };
+    // Dragging one of several selected layers moves the whole selection.
+    const group = multi && selected.includes(doc.layers[index].id);
     const move = (ev: PointerEvent) => {
       if (!started && Math.abs(ev.clientY - y0) < 4) return;
       started = true;
@@ -243,7 +275,9 @@ function LayersSection() {
       dragged.current = true; // swallow the click that follows the drag
       const slot = slotAt(ev.clientY);
       const pos = slot > displayPos ? slot - 1 : slot;
-      if (ev.type === 'pointerup') editor.reorderLayer(index, n - 1 - pos);
+      if (ev.type !== 'pointerup') return;
+      if (group) editor.moveLayersTo(n - slot);
+      else editor.reorderLayer(index, n - 1 - pos);
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', end);
@@ -253,7 +287,7 @@ function LayersSection() {
   const dropClass = (displayPos: number) => {
     if (!drag) return '';
     const from = n - 1 - drag.from;
-    if (drag.slot === from || drag.slot === from + 1) return '';
+    if (!multi && (drag.slot === from || drag.slot === from + 1)) return '';
     if (drag.slot === displayPos) return ' drop-before';
     if (drag.slot === n && displayPos === n - 1) return ' drop-after';
     return '';
@@ -268,14 +302,24 @@ function LayersSection() {
         {layers.map(({ layer, index }, displayPos) => (
           <div
             key={layer.id}
-            className={`item${index === doc.activeLayer ? ' is-active' : ''}${layer.visible ? '' : ' is-hidden'}${
-              layer.locked ? ' is-locked' : ''
-            }${drag?.from === index ? ' is-dragging' : ''}${dropClass(displayPos)}`}
+            className={`item${index === doc.activeLayer ? ' is-active' : ''}${
+              multi && selected.includes(layer.id) ? ' is-selected' : ''
+            }${layer.visible ? '' : ' is-hidden'}${layer.locked ? ' is-locked' : ''}${
+              drag &&
+              (drag.from === index ||
+                (multi && selected.includes(doc.layers[drag.from]?.id) && selected.includes(layer.id)))
+                ? ' is-dragging'
+                : ''
+            }${dropClass(displayPos)}`}
             onPointerDown={(e) => startDrag(e, displayPos, index)}
             onContextMenu={(e) => openLayerMenu(e, index)}
-            onClick={() => {
+            onClick={(e) => {
               if (dragged.current) dragged.current = false;
-              else editor.setActiveLayer(index);
+              else
+                editor.selectLayer(
+                  index,
+                  e.shiftKey ? 'range' : e.metaKey || e.ctrlKey ? 'toggle' : 'single',
+                );
             }}
           >
             <Thumbnail pixels={() => layer.pixels} width={doc.width} height={doc.height} version={revision} />
@@ -326,16 +370,16 @@ function LayersSection() {
         />
         <IconButton
           icon="merge"
-          label={t('layer.mergeDown')}
-          disabled={doc.activeLayer === 0}
-          onClick={() => editor.mergeDown()}
+          label={multi ? t('layer.mergeCount', { count: selected.length }) : t('layer.mergeDown')}
+          disabled={multi ? false : doc.activeLayer === 0}
+          onClick={() => (multi ? editor.mergeLayers() : editor.mergeDown())}
         />
         <span className="spacer" />
         <IconButton
           icon="trash"
-          label={t('layer.delete')}
-          disabled={doc.layers.length < 2}
-          onClick={() => actions.deleteLayer()}
+          label={multi ? t('layer.deleteCount', { count: selected.length }) : t('layer.delete')}
+          disabled={doc.layers.length < 2 || selected.length >= doc.layers.length}
+          onClick={() => actions.deleteLayers()}
         />
       </div>
     </Section>

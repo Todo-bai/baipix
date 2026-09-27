@@ -396,6 +396,7 @@ const features = [
     pointer-events: none;
   }
   .btn-light {
+    --side: var(--cta-button-side);
     border-color: var(--cta-button);
     background: var(--cta-button);
     color: var(--cta-bg);
@@ -404,7 +405,11 @@ const features = [
     border-color: var(--cta-button-hover);
     background: var(--cta-button-hover);
   }
+  .btn-light:focus-visible {
+    outline-color: var(--cta-bg);
+  }
   .btn-ghost {
+    --side: var(--cta-ghost-line);
     border-color: var(--cta-ghost-line);
     background: transparent;
     color: var(--cta-text);
@@ -412,6 +417,9 @@ const features = [
   .btn-ghost:hover {
     border-color: var(--cta-ghost-line-hover);
     background: var(--cta-ghost-hover);
+  }
+  .btn-ghost:focus-visible {
+    outline-color: var(--cta-text);
   }
 
   /* ---- Footer ---- */

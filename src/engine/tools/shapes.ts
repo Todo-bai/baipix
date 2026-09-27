@@ -70,6 +70,7 @@ function drawShape(kind: ShapeKind, s: Stroke, p: Point, mods: Modifiers): void 
 const shapeTool = (kind: ShapeKind): Tool => ({
   id: kind as ToolId,
   editsPixels: true,
+  paintsColor: true,
   onDown: (s, p, mods) => drawShape(kind, s, p, mods),
   onMove: (s, p, mods) => drawShape(kind, s, p, mods),
 });

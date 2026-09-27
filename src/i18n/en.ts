@@ -157,6 +157,7 @@ export const en = {
   'color.leftClick': 'Left click',
   'color.rightClick': 'Right click',
   'color.swap': 'Swap colors',
+  'color.recent': 'Recent colors',
   'color.choose': 'Choose a color',
 
   'palette.preset': 'Preset palette',

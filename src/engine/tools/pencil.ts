@@ -25,6 +25,7 @@ function paint(s: Stroke, p: Point): void {
 export const pencil: Tool = {
   id: 'pencil',
   editsPixels: true,
+  paintsColor: true,
   onDown: (s, p) => paint(s, p),
   onMove: (s, p) => followPointer(s, p, (q) => paint(s, q)),
 };

@@ -346,4 +346,29 @@ describe('Editor', () => {
     e.undo();
     expect(e.getState().doc.layers).toHaveLength(3);
   });
+
+  it('remembers the last colors painted with', () => {
+    const e = new Editor();
+    const colors = Array.from({ length: 10 }, (_, i) => pack(i * 20, 0, 0));
+    for (const c of colors) {
+      e.setColor('primary', c);
+      drag(e, [[0, 0]]);
+      e.undo();
+    }
+    e.setColor('primary', colors[5]);
+    drag(e, [[1, 1]]);
+    const recent = e.getState().recent;
+    expect(recent).toHaveLength(8);
+    expect(recent[0]).toBe(colors[5] >>> 0);
+    expect(recent.filter((c) => c === colors[5] >>> 0)).toHaveLength(1);
+    expect(e.getPreferences().recent).toEqual(recent);
+  });
+
+  it("doesn't count colors that were only picked, or the eraser", () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    e.setTool('eraser');
+    drag(e, [[0, 0]]);
+    expect(e.getState().recent).toEqual([]);
+  });
 });

@@ -99,6 +99,7 @@ function ColorsSection() {
   const editor = useEditor();
   const primary = useEditorState((s) => s.primary);
   const secondary = useEditorState((s) => s.secondary);
+  const recent = useEditorState((s) => s.recent);
   return (
     <Section
       id="colors"
@@ -127,6 +128,16 @@ function ColorsSection() {
           </span>
         }
       />
+      {recent.length > 0 && (
+        <div className="recent-colors" role="group" aria-label={t('color.recent')}>
+          <PaletteGrid
+            colors={recent}
+            primary={primary}
+            secondary={secondary}
+            onPick={(c, isSecondary) => editor.setColor(isSecondary ? 'secondary' : 'primary', c)}
+          />
+        </div>
+      )}
     </Section>
   );
 }

@@ -159,6 +159,7 @@ export const fr: Record<MessageKey, string> = {
   'color.leftClick': 'Clic gauche',
   'color.rightClick': 'Clic droit',
   'color.swap': 'Permuter les couleurs',
+  'color.recent': 'Couleurs récentes',
   'color.choose': 'Choisir une couleur',
 
   'palette.preset': 'Palette prédéfinie',

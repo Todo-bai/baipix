@@ -51,7 +51,6 @@ function RenderSection() {
   const t = useT();
   const editor = useEditor();
   const render = useEditorState((s) => s.doc.render);
-  const showGap = useEditorState((s) => s.view.showGap);
   return (
     <Section id="render" title={t('section.render')}>
       <Row label={t('render.pixelSize')}>
@@ -84,11 +83,6 @@ function RenderSection() {
           onChange={(v) => editor.setRender({ gap: v })}
         />
       </Row>
-      <Checkbox
-        checked={showGap}
-        onChange={(v) => editor.setView('showGap', v)}
-        label={t('render.showGap')}
-      />
     </Section>
   );
 }
@@ -342,6 +336,11 @@ function DisplaySection() {
   return (
     <Section id="display" title={t('section.display')}>
       <Checkbox checked={view.grid} onChange={(v) => editor.setView('grid', v)} label={t('display.grid')} />
+      <Checkbox
+        checked={view.showGap}
+        onChange={(v) => editor.setView('showGap', v)}
+        label={t('render.showGap')}
+      />
       <Checkbox checked={view.tile} onChange={(v) => editor.setView('tile', v)} label={t('display.tile')} />
       <Checkbox
         checked={view.mirrorX}
@@ -367,7 +366,7 @@ function ExportSection() {
   const g = renderGeometry(doc.width, doc.height, doc.render.pixelSize, doc.render.gap);
   const bg = !onlyLayer && hasBackground(doc);
   return (
-    <Section id="export" title={t('section.export')}>
+    <Section id="export" title={t('section.exportFile')}>
       <Row label={t('export.format')}>
         <label className="field">
           <select
@@ -416,18 +415,60 @@ function ExportSection() {
   );
 }
 
+const TABS = ['design', 'export'] as const;
+
+/** Design (what you touch while drawing) and Export (the output file) tabs. The choice is remembered. */
+function PanelTabs() {
+  const t = useT();
+  const tab = uiStore.use((s) => s.rightTab);
+  return (
+    <div className="panel-tabs" role="tablist" aria-label={t('panel.right')}>
+      {TABS.map((id) => (
+        <button
+          key={id}
+          type="button"
+          role="tab"
+          id={`panel-tab-${id}`}
+          aria-selected={tab === id}
+          aria-controls="panel-tab-body"
+          className="panel-tab"
+          onClick={() => uiStore.set({ rightTab: id })}
+        >
+          {t(id === 'design' ? 'panel.design' : 'panel.export')}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function RightPanel() {
   const t = useT();
+  const tab = uiStore.use((s) => s.rightTab);
   return (
     <aside className="panel panel-right" aria-label={t('panel.right')}>
       <TopBar />
-      <CanvasSection />
-      <RenderSection />
-      <ColorsSection />
-      <PaletteSection />
-      <LayerSection />
-      <DisplaySection />
-      <ExportSection />
+      <PanelTabs />
+      <div
+        id="panel-tab-body"
+        role="tabpanel"
+        aria-labelledby={`panel-tab-${tab}`}
+        className="panel-tab-body"
+      >
+        {tab === 'design' ? (
+          <>
+            <CanvasSection />
+            <ColorsSection />
+            <PaletteSection />
+            <LayerSection />
+            <DisplaySection />
+          </>
+        ) : (
+          <>
+            <RenderSection />
+            <ExportSection />
+          </>
+        )}
+      </div>
     </aside>
   );
 }

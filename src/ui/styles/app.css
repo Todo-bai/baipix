@@ -116,6 +116,42 @@ body.is-resizing * {
 .panel-right {
   border-left: 1px solid var(--line);
 }
+/* Design / Export tabs, right under the header. */
+.panel-tabs {
+  display: flex;
+  gap: 16px;
+  flex: none;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+.panel-tab {
+  height: 36px;
+  margin-bottom: -1px;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.panel-tab:hover {
+  color: var(--text);
+}
+.panel-tab[aria-selected='true'] {
+  border-bottom-color: var(--text);
+  color: var(--text);
+}
+.panel-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.panel-tab-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
 .panel-header {
   display: flex;
   align-items: center;

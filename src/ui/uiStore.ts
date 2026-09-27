@@ -24,6 +24,8 @@ export interface UiState {
   exportActiveLayer: boolean;
   /** Ids of the collapsed panel sections. */
   collapsed: string[];
+  /** Tab of the right panel. */
+  rightTab: 'design' | 'export';
 }
 
 export const PANEL_LIMITS = {
@@ -41,6 +43,7 @@ export const uiStore = createStore<UiState>({
   exportFormat: 'png',
   exportActiveLayer: false,
   collapsed: [],
+  rightTab: 'design',
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });

@@ -22,6 +22,8 @@ export const fr: Record<MessageKey, string> = {
 
   'panel.left': 'Fichiers et calques',
   'panel.right': 'Propriétés',
+  'panel.design': 'Design',
+  'panel.export': 'Export',
   'panel.resizeLeft': 'Redimensionner le panneau gauche',
   'panel.resizeRight': 'Redimensionner le panneau droit',
   'panel.resizeHint': 'Glisse pour redimensionner, double-clic pour réinitialiser',
@@ -53,7 +55,7 @@ export const fr: Record<MessageKey, string> = {
   'section.layer': 'Calque',
   'section.canvas': 'Canevas',
   'section.display': 'Affichage',
-  'section.export': 'Exporter',
+  'section.exportFile': 'Fichier',
 
   'menu.main': 'Menu principal',
   'menu.newFile': 'Nouveau fichier…',

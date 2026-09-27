@@ -1,8 +1,8 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { pack } from '../../engine/color';
+import { pack, toHex } from '../../engine/color';
 import { flatten } from '../../engine/composite';
 import type { ToolId } from '../../engine/tools';
-import { useT } from '../../i18n';
+import { t as translate, useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
 import { useEditor, useEditorState } from '../EditorContext';
 import { keyState } from '../keyState';
@@ -60,6 +60,8 @@ export function CanvasView() {
     let panStart: { x: number; y: number; panX: number; panY: number } | null = null;
     let pinch: Pinch | null = null;
     const pointers = new Map<number, { x: number; y: number; touch: boolean }>();
+    // Alt held: drawing tools pick colors, so the loupe shows (even before the pointer moves).
+    let altHeld = false;
 
     const updateComposite = () => {
       const { doc } = editor.getLive();
@@ -79,11 +81,33 @@ export function CanvasView() {
       const live = editor.getLive();
       const state = editor.getState();
       const tool = state.tool;
+      // Picking a color: the eyedropper, or Alt held with a drawing tool. Shows the loupe, not the brush.
+      const picking =
+        tool === 'picker' || live.stroking === 'picker' || (altHeld && DRAWING_TOOLS.includes(tool));
       let brush: BrushPreview | null = null;
       const shapeInProgress = live.stroking !== null && SHAPE_IDS.includes(live.stroking);
-      if (hover && !panStart && !pinch && BRUSH_TOOLS.includes(tool) && !shapeInProgress) {
+      if (hover && !panStart && !pinch && BRUSH_TOOLS.includes(tool) && !shapeInProgress && !picking) {
         const paints = !['eraser', 'shade', 'lighten', 'blur'].includes(tool);
         brush = { at: hover, size: state.options.size, color: paints ? state.primary : null };
+      }
+      const { doc } = live;
+      let loupe = null;
+      if (
+        picking &&
+        hover &&
+        !panStart &&
+        !pinch &&
+        hover.x >= 0 &&
+        hover.y >= 0 &&
+        hover.x < doc.width &&
+        hover.y < doc.height
+      ) {
+        const color = hoverStore.get().color;
+        loupe = {
+          at: hover,
+          color,
+          text: color ? toHex(color).slice(1).toUpperCase() : translate('coordinates.transparent'),
+        };
       }
       drawScene(
         ctx,
@@ -96,6 +120,7 @@ export function CanvasView() {
           selection: live.selection,
           selectionDashOffset: reduceMotion ? 0 : (now / 80) % 8,
           brush,
+          loupe,
           label: renamingRef.current ? '' : live.doc.name,
         },
         camera(),
@@ -334,8 +359,23 @@ export function CanvasView() {
     canvas.addEventListener('wheel', onWheel, { passive: false });
     canvas.addEventListener('contextmenu', noMenu);
     canvas.addEventListener('dblclick', onDoubleClick);
+    const onAlt = (e: KeyboardEvent) => {
+      if (e.key !== 'Alt' || altHeld === (e.type === 'keydown')) return;
+      altHeld = e.type === 'keydown';
+      request();
+    };
+    const onBlur = () => {
+      altHeld = false;
+      request();
+    };
+    window.addEventListener('keydown', onAlt);
+    window.addEventListener('keyup', onAlt);
+    window.addEventListener('blur', onBlur);
 
     return () => {
+      window.removeEventListener('keydown', onAlt);
+      window.removeEventListener('keyup', onAlt);
+      window.removeEventListener('blur', onBlur);
       cancelAnimationFrame(frame);
       ro.disconnect();
       mo.disconnect();

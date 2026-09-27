@@ -233,6 +233,10 @@ export const en = {
   'export.shrunk': 'reduced to {size}× (too large)',
 
   'coordinates.transparent': 'Transparent',
+  'coordinates.layer': '{count} layer',
+  'coordinates.layers': '{count} layers',
+  'coordinates.color': '{count} color',
+  'coordinates.colors': '{count} colors',
 
   'dialog.newFile': 'New file',
   'dialog.newFileHint': 'The file is added to the list; your current drawing stays untouched.',

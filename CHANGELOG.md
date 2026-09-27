@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- The drawing's size, number of layers and number of colors next to the cursor coordinates. (#125)
 - A hand tool (H) in the toolbar to move around the canvas, also with one finger on touch screens. (#118)
 - Select several layers at once with Shift+click and Cmd/Ctrl+click, then drag, delete or merge them together. Flatten image in the layer menu. (#115)
 - Drag the symmetry axes anywhere on the canvas, snapped to half pixels. Double-click a grip to recenter. (#116)

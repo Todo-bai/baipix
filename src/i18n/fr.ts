@@ -109,6 +109,9 @@ export const fr: Record<MessageKey, string> = {
   'layer.delete': 'Supprimer le calque',
   'layer.hide': 'Masquer',
   'layer.show': 'Afficher',
+  'layer.solo': 'Alt+clic : lui seul',
+  'layer.lock': 'Verrouiller',
+  'layer.unlock': 'Déverrouiller',
 
   'preview.gap': 'Espacement {gap} px',
   'preview.reduced': 'réduit',
@@ -245,6 +248,7 @@ export const fr: Record<MessageKey, string> = {
   'toast.layerCopied': 'Calque copié.',
   'toast.cut': 'Coupé.',
   'toast.layerHidden': 'Ce calque est masqué. Affiche-le pour dessiner dessus.',
+  'toast.layerLocked': 'Ce calque est verrouillé. Déverrouille-le pour dessiner dessus.',
   'toast.keepOneFile': 'Il faut garder au moins un fichier.',
   'toast.colorInPalette': 'Cette couleur est déjà dans la palette.',
   'toast.colorNotInPalette': 'La couleur principale ne fait pas partie de la palette.',

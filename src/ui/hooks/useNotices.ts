@@ -7,6 +7,8 @@ const message = (n: Notice): string => {
   switch (n.type) {
     case 'layerHidden':
       return t('toast.layerHidden');
+    case 'layerLocked':
+      return t('toast.layerLocked');
     case 'keepOneFile':
       return t('toast.keepOneFile');
     case 'colorInPalette':

@@ -77,6 +77,7 @@ export interface EditorLabels {
 
 export type Notice =
   | { type: 'layerHidden' }
+  | { type: 'layerLocked' }
   | { type: 'keepOneFile' }
   | { type: 'colorInPalette' }
   | { type: 'colorNotInPalette' }
@@ -487,6 +488,10 @@ export class Editor {
   mergeDown(): void {
     const i = this.doc.activeLayer;
     if (i <= 0) return;
+    if (this.doc.layers[i].locked || this.doc.layers[i - 1].locked) {
+      this.notice({ type: 'layerLocked' });
+      return;
+    }
     this.edit((doc) => {
       mergeLayerInto(doc.layers[i], doc.layers[i - 1]);
       doc.layers.splice(i, 1);
@@ -499,6 +504,27 @@ export class Editor {
     this.edit((doc) => {
       doc.layers[index].visible = visible;
     });
+  }
+
+  /** Shows only this layer. If it already was the only visible one, shows every layer again. */
+  soloLayer(index: number): void {
+    if (!this.doc.layers[index]) return;
+    const alone = this.doc.layers.every((l, i) => l.visible === (i === index));
+    this.edit((doc) => doc.layers.forEach((l, i) => (l.visible = alone || i === index)));
+  }
+
+  setLayerLocked(index: number, locked: boolean): void {
+    if (!this.doc.layers[index]) return;
+    this.edit((doc) => {
+      doc.layers[index].locked = locked;
+    });
+  }
+
+  /** Paint on a locked layer: tells the user why nothing happens. */
+  private activeLocked(): boolean {
+    if (!activeLayer(this.doc).locked) return false;
+    this.notice({ type: 'layerLocked' });
+    return true;
   }
 
   renameLayer(index: number, name: string): void {
@@ -651,12 +677,13 @@ export class Editor {
   }
 
   clearSelection(): void {
-    if (!this.active.selection) return;
+    if (!this.active.selection || this.activeLocked()) return;
     this.edit((doc) => fillRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect(), 0));
   }
 
   /** Fills the selection, or the whole layer, with the primary color. */
   fill(): void {
+    if (this.activeLocked()) return;
     if (!activeLayer(this.doc).visible) {
       this.notice({ type: 'layerHidden' });
       return;
@@ -667,6 +694,7 @@ export class Editor {
   }
 
   flip(horizontal: boolean): void {
+    if (this.activeLocked()) return;
     this.edit((doc) =>
       flipRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect(), horizontal),
     );
@@ -674,6 +702,7 @@ export class Editor {
 
   /** Rotates the selection (or the layer) by 90° clockwise; the selection follows the new shape. */
   rotate(): void {
+    if (this.activeLocked()) return;
     const hadSelection = this.active.selection !== null;
     this.edit((doc) => {
       const rotated = rotateRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect());
@@ -695,7 +724,12 @@ export class Editor {
     this.cancelStroke();
     this.cancelAdjust();
     const doc = this.doc;
-    const layers = allLayers ? doc.layers : [activeLayer(doc)];
+    const layers = (allLayers ? doc.layers : [activeLayer(doc)]).filter((l) => !l.locked);
+    if (!layers.length) {
+      this.notice({ type: 'layerLocked' });
+      this.commit(false); // Lets the adjustment panel notice that nothing is being adjusted.
+      return;
+    }
     this.adjusting = {
       layers: layers.map((l) => ({ id: l.id, base: l.pixels.slice() })),
       rect: clipRect(this.targetRect(), doc.width, doc.height),
@@ -747,7 +781,7 @@ export class Editor {
 
   /** Moves the selection (or the layer) by a few pixels, as one undo step. */
   nudge(dx: number, dy: number): void {
-    if (this.stroke || !activeLayer(this.doc).visible) return;
+    if (this.stroke || !activeLayer(this.doc).visible || this.activeLocked()) return;
     this.checkpoint();
     const s = this.createStroke({ x: 0, y: 0 }, false);
     beginMove(s);
@@ -763,7 +797,7 @@ export class Editor {
   }
 
   cut(): boolean {
-    if (!this.copy()) return false;
+    if (this.activeLocked() || !this.copy()) return false;
     if (!this.active.selection) this.selectAll();
     this.clearSelection();
     return true;
@@ -854,6 +888,7 @@ export class Editor {
     if (this.adjusting) return false;
     const id = toolOverride ?? this.tool;
     const tool = TOOLS[id];
+    if (tool.editsPixels && this.activeLocked()) return false;
     if (tool.editsPixels && !activeLayer(this.doc).visible) {
       this.notice({ type: 'layerHidden' });
       return false;

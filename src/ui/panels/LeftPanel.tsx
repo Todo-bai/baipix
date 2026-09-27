@@ -222,8 +222,8 @@ function LayersSection() {
           <div
             key={layer.id}
             className={`item${index === doc.activeLayer ? ' is-active' : ''}${layer.visible ? '' : ' is-hidden'}${
-              drag?.from === index ? ' is-dragging' : ''
-            }${dropClass(displayPos)}`}
+              layer.locked ? ' is-locked' : ''
+            }${drag?.from === index ? ' is-dragging' : ''}${dropClass(displayPos)}`}
             onPointerDown={(e) => startDrag(e, displayPos, index)}
             onClick={() => {
               if (dragged.current) dragged.current = false;
@@ -234,12 +234,24 @@ function LayersSection() {
             <EditableName value={layer.name} onRename={(v) => editor.renameLayer(index, v)} />
             {layer.opacity < 1 && <span className="muted">{Math.round(layer.opacity * 100)} %</span>}
             <IconButton
+              icon={layer.locked ? 'lock' : 'unlock'}
+              className="icon-btn item-action item-lock"
+              label={layer.locked ? t('layer.unlock') : t('layer.lock')}
+              pressed={layer.locked}
+              onClick={(e) => {
+                e.stopPropagation();
+                editor.setLayerLocked(index, !layer.locked);
+              }}
+            />
+            <IconButton
               icon={layer.visible ? 'eye' : 'eyeOff'}
               className="icon-btn item-action"
               label={layer.visible ? t('layer.hide') : t('layer.show')}
+              shortcut={t('layer.solo')}
               onClick={(e) => {
                 e.stopPropagation();
-                editor.setLayerVisible(index, !layer.visible);
+                if (e.altKey) editor.soloLayer(index);
+                else editor.setLayerVisible(index, !layer.visible);
               }}
             />
           </div>

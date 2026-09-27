@@ -6,6 +6,8 @@ export interface Layer {
   id: string;
   name: string;
   visible: boolean;
+  /** Locked layers can't be painted on (they can still be moved, renamed or deleted). */
+  locked: boolean;
   /** 0..1 */
   opacity: number;
   /** width × height packed colors, row-major. */
@@ -41,7 +43,14 @@ export const newId = (prefix: string): string =>
   `${prefix}_${Date.now().toString(36)}${(seq++).toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 export function createLayer(name: string, width: number, height: number): Layer {
-  return { id: newId('layer'), name, visible: true, opacity: 1, pixels: new Uint32Array(width * height) };
+  return {
+    id: newId('layer'),
+    name,
+    visible: true,
+    locked: false,
+    opacity: 1,
+    pixels: new Uint32Array(width * height),
+  };
 }
 
 export function createDocument(name: string, width: number, height: number, layerName = 'Layer 1'): PixelDoc {

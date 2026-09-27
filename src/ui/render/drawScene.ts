@@ -1,5 +1,5 @@
 import { alpha, toCss, type Color } from '../../engine/color';
-import type { PixelDoc } from '../../engine/document';
+import { mirrorAxes, type PixelDoc } from '../../engine/document';
 import type { ViewSettings } from '../../engine/editor';
 import type { Point, Rect } from '../../engine/math';
 import { brush, mirrored } from '../../engine/raster';
@@ -39,6 +39,20 @@ export interface Scene {
 /** Pixels shown across the loupe (odd, so the picked pixel is in the middle), and their size. */
 const LOUPE_PIXELS = 9;
 const LOUPE_CELL = 12;
+
+/** How far the symmetry axes (and their grips) reach outside the canvas, in CSS pixels. */
+export const AXIS_GRIP = 14;
+
+/**
+ * Where the symmetry axes are on screen, in device pixels. An axis between two pixels sits in the
+ * middle of the gap between them, when there is one.
+ */
+export function axisPositions(doc: PixelDoc, camera: Camera): { x: number; y: number } {
+  const { scale: s, gap, originX: X, originY: Y } = camera;
+  const axes = mirrorAxes(doc);
+  const at = (a: number, origin: number) => origin + a * s - (a > 0 ? gap / 2 : 0);
+  return { x: at(axes.x, X), y: at(axes.y, Y) };
+}
 
 const FONT = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
@@ -147,7 +161,8 @@ export function drawScene(
     const { at, size, color } = scene.brush;
     const cell = gap ? s - gap : s;
     const o = Math.floor((size - 1) / 2);
-    for (const m of mirrored(at.x - o, at.y - o, W, H, view.mirrorX, view.mirrorY, size)) {
+    const axes = mirrorAxes(doc);
+    for (const m of mirrored(at.x - o, at.y - o, axes.x, axes.y, view.mirrorX, view.mirrorY, size)) {
       brush(m.x + o, m.y + o, size, (x, y) => {
         const rx = X + x * s;
         const ry = Y + y * s;
@@ -172,11 +187,23 @@ export function drawScene(
     }
   }
 
-  // Symmetry axes.
+  // Symmetry axes, with a grip at each end (outside the canvas) to drag them.
   ctx.fillStyle = theme.axis;
-  const ext = Math.round(12 * dpr);
-  if (view.mirrorX) ctx.fillRect(Math.round(X + cw / 2 - lw / 2), Y - ext, lw, ch + ext * 2);
-  if (view.mirrorY) ctx.fillRect(X - ext, Math.round(Y + ch / 2 - lw / 2), cw + ext * 2, lw);
+  const ext = Math.round(AXIS_GRIP * dpr);
+  const grip = Math.max(3, Math.round(5 * dpr));
+  const { x: ax, y: ay } = axisPositions(doc, camera);
+  if (view.mirrorX) {
+    const x = Math.round(ax - lw / 2);
+    ctx.fillRect(x, Y - ext, lw, ch + ext * 2);
+    ctx.fillRect(Math.round(ax - grip / 2), Y - ext, grip, ext - Math.round(3 * dpr));
+    ctx.fillRect(Math.round(ax - grip / 2), Y + ch + Math.round(3 * dpr), grip, ext - Math.round(3 * dpr));
+  }
+  if (view.mirrorY) {
+    const y = Math.round(ay - lw / 2);
+    ctx.fillRect(X - ext, y, cw + ext * 2, lw);
+    ctx.fillRect(X - ext, Math.round(ay - grip / 2), ext - Math.round(3 * dpr), grip);
+    ctx.fillRect(X + cw + Math.round(3 * dpr), Math.round(ay - grip / 2), ext - Math.round(3 * dpr), grip);
+  }
 
   // Selection: blue outline, corner handles and a size badge.
   const sel = scene.selection;

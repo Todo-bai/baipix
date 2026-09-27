@@ -433,6 +433,21 @@ export class Editor {
     this.commit();
   }
 
+  /**
+   * Moves a symmetry axis, snapped to half pixels and kept on the canvas. `null`, or the center,
+   * puts it back in the middle.
+   */
+  setMirrorAxis(axis: 'x' | 'y', value: number | null): void {
+    const doc = this.doc;
+    const size = axis === 'x' ? doc.width : doc.height;
+    const key = axis === 'x' ? 'axisX' : 'axisY';
+    const next = value === null ? size / 2 : Math.min(size, Math.max(0, Math.round(value * 2) / 2));
+    if (next === (doc[key] ?? size / 2)) return;
+    if (next === size / 2) delete doc[key];
+    else doc[key] = next;
+    this.commit();
+  }
+
   setRender(render: Partial<RenderSettings>): void {
     this.doc.render = {
       pixelSize: clamp(render.pixelSize ?? this.doc.render.pixelSize, 1, 64),

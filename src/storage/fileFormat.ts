@@ -34,6 +34,9 @@ export interface BaipixFile {
   background: number;
   backgroundVisible: boolean;
   render: { pixelSize: number; gap: number };
+  /** Moved symmetry axes, in pixels (missing: the center). */
+  axisX?: number;
+  axisY?: number;
   layers: BaipixLayer[];
 }
 
@@ -83,6 +86,8 @@ export function serializeDocument(doc: PixelDoc): BaipixFile {
     background: doc.background >>> 0,
     backgroundVisible: doc.backgroundVisible,
     render: { ...doc.render },
+    ...(doc.axisX !== undefined && { axisX: doc.axisX }),
+    ...(doc.axisY !== undefined && { axisY: doc.axisY }),
     layers: doc.layers.map((l) => ({
       name: l.name,
       visible: l.visible,
@@ -130,6 +135,8 @@ export function deserializeDocument(data: unknown): PixelDoc {
       pixelSize: clamp(Number(f.render?.pixelSize) || 8, 1, 64),
       gap: clamp(Number(f.render?.gap) || 0, 0, 64),
     },
+    ...(typeof f.axisX === 'number' && { axisX: clamp(Math.round(f.axisX * 2) / 2, 0, width) }),
+    ...(typeof f.axisY === 'number' && { axisY: clamp(Math.round(f.axisY * 2) / 2, 0, height) }),
   };
 }
 

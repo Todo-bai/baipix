@@ -754,6 +754,12 @@ body.is-resizing * {
       2 22,
     crosshair;
 }
+.canvas.on-axis-x {
+  cursor: ew-resize;
+}
+.canvas.on-axis-y {
+  cursor: ns-resize;
+}
 .canvas.on-label {
   cursor: default;
 }

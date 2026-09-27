@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { pack } from '../src/engine/color';
 import { Editor } from '../src/engine/editor';
+import { documentFromJson, documentToJson } from '../src/storage/fileFormat';
 
 const RED = pack(255, 0, 0);
 const drag = (e: Editor, pts: [number, number][], secondary = false) => {
@@ -489,6 +490,45 @@ describe('Editor', () => {
       expect([...layers[0].pixels.slice(0, 4)].map(Boolean)).toEqual([true, true, false, true]);
       e.undo();
       expect(names(e)).toBe('0123');
+    });
+  });
+
+  describe('symmetry axes', () => {
+    const at = (e: Editor, x: number, y = 0) =>
+      e.getState().doc.layers[0].pixels[y * e.getState().doc.width + x];
+
+    it('mirrors around a moved axis, between pixels or through one', () => {
+      const e = new Editor();
+      e.setColor('primary', RED);
+      e.setView('mirrorX', true);
+      e.setMirrorAxis('x', 10); // between pixels 9 and 10
+      drag(e, [[7, 0]]);
+      expect(at(e, 12)).toBe(RED);
+      e.setMirrorAxis('x', 20.5); // through the middle of pixel 20
+      drag(e, [[18, 1]]);
+      expect(at(e, 22, 1)).toBe(RED);
+    });
+
+    it('snaps to half pixels, stays on the canvas, and goes back to the center', () => {
+      const e = new Editor();
+      e.setMirrorAxis('x', 7.3);
+      expect(e.getState().doc.axisX).toBe(7.5);
+      e.setMirrorAxis('y', -4);
+      expect(e.getState().doc.axisY).toBe(0);
+      e.setMirrorAxis('x', null);
+      expect(e.getState().doc.axisX).toBeUndefined();
+      e.setMirrorAxis('y', 16); // the center of a 32 px canvas
+      expect(e.getState().doc.axisY).toBeUndefined();
+    });
+
+    it('keeps moved axes in files and when resizing', () => {
+      const e = new Editor();
+      e.setMirrorAxis('x', 10);
+      const back = documentFromJson(documentToJson(e.getState().doc));
+      expect(back.axisX).toBe(10);
+      expect(back.axisY).toBeUndefined();
+      e.resize(40, 32);
+      expect(e.getState().doc.axisX).toBe(14);
     });
   });
 });

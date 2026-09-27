@@ -1,5 +1,6 @@
 import type { Color } from '../color';
 import { rectContains, type Point } from '../math';
+import { mirrorAxes } from '../document';
 import { brush, line, mirrored } from '../raster';
 import type { Stroke } from './types';
 
@@ -13,8 +14,10 @@ export function setPixel(s: Stroke, x: number, y: number, color: Color): void {
 }
 
 /** Every mirrored copy of a single pixel. */
-export const mirrorsOf = (s: Stroke, x: number, y: number): Point[] =>
-  mirrored(x, y, s.doc.width, s.doc.height, s.mirrorX, s.mirrorY);
+export const mirrorsOf = (s: Stroke, x: number, y: number): Point[] => {
+  const axes = mirrorAxes(s.doc);
+  return mirrored(x, y, axes.x, axes.y, s.mirrorX, s.mirrorY);
+};
 
 /**
  * Paints the brush footprint at (cx, cy), with symmetry. With `dither`, pixels alternate

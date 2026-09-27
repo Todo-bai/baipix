@@ -240,20 +240,25 @@ export function brush(cx: number, cy: number, size: number, plot: PlotFn): void 
   for (let dy = 0; dy < size; dy++) for (let dx = 0; dx < size; dx++) plot(cx - o + dx, cy - o + dy);
 }
 
-/** A point and its mirrored counterparts, for symmetric drawing. */
+/**
+ * A point (or the top-left corner of a `size` square) and its mirrored counterparts around the axes,
+ * given in pixels from the edges (see `mirrorAxes`), for symmetric drawing.
+ */
 export function mirrored(
   x: number,
   y: number,
-  width: number,
-  height: number,
+  axisX: number,
+  axisY: number,
   mirrorX: boolean,
   mirrorY: boolean,
   size = 1,
 ): Point[] {
+  const mx = 2 * axisX - x - size;
+  const my = 2 * axisY - y - size;
   const out: Point[] = [{ x, y }];
-  if (mirrorX) out.push({ x: width - x - size, y });
-  if (mirrorY) out.push({ x, y: height - y - size });
-  if (mirrorX && mirrorY) out.push({ x: width - x - size, y: height - y - size });
+  if (mirrorX) out.push({ x: mx, y });
+  if (mirrorY) out.push({ x, y: my });
+  if (mirrorX && mirrorY) out.push({ x: mx, y: my });
   return out;
 }
 

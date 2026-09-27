@@ -119,6 +119,7 @@ export function ExportPreview() {
       <p className="export-size">
         {t('export.info', { w: g.width, h: g.height })}{' '}
         {withBackground ? t('export.withBackground') : t('export.transparent')}
+        {doc.render.gap > 0 && <> · {t('export.gap', { gap: doc.render.gap })}</>}
         {g.pixelSize !== doc.render.pixelSize && <> · {t('export.shrunk', { size: g.pixelSize })}</>}
       </p>
     </div>

@@ -56,19 +56,6 @@ function RenderSection() {
           </button>
         ))}
       </div>
-      <Row label={t('render.gap')}>
-        <NumberField
-          value={render.gap}
-          min={0}
-          max={64}
-          label="⇔"
-          suffix="px"
-          ariaLabel={t('render.gap')}
-          scrubHint={t('common.dragToAdjust')}
-          sensitivity={6}
-          onChange={(v) => editor.setRender({ gap: v })}
-        />
-      </Row>
     </Section>
   );
 }
@@ -279,6 +266,20 @@ function CanvasSection() {
           onChange={(v, final) => final && editor.resize(doc.width, v)}
         />
       </div>
+      {/* The gap is part of the drawing's look: shown on the canvas, used by exports. In px at the export size. */}
+      <Row label={t('render.gap')}>
+        <NumberField
+          value={doc.render.gap}
+          min={0}
+          max={64}
+          label="⇔"
+          suffix={t('canvas.gapAt', { size: doc.render.pixelSize })}
+          ariaLabel={t('render.gap')}
+          scrubHint={t('common.dragToAdjust')}
+          sensitivity={6}
+          onChange={(v) => editor.setRender({ gap: v })}
+        />
+      </Row>
       <div className="subsection-title">
         <span>{t('canvas.background')}</span>
         {!hasBg && (
@@ -331,11 +332,6 @@ function DisplaySection() {
   return (
     <Section id="display" title={t('section.display')}>
       <Checkbox checked={view.grid} onChange={(v) => editor.setView('grid', v)} label={t('display.grid')} />
-      <Checkbox
-        checked={view.showGap}
-        onChange={(v) => editor.setView('showGap', v)}
-        label={t('render.showGap')}
-      />
       <Checkbox checked={view.tile} onChange={(v) => editor.setView('tile', v)} label={t('display.tile')} />
       <Checkbox
         checked={view.mirrorX}

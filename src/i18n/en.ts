@@ -124,7 +124,8 @@ export const en = {
   'render.pixelSizeHint': 'Size of one pixel in the exported file',
   'render.scaleTip': 'Each pixel becomes {size} × {size} px',
   'render.gap': 'Gap',
-  'render.showGap': 'Show the gap on the canvas',
+  'canvas.gapAt': 'px at {size}×',
+  'export.gap': '{gap} px gap',
 
   'options.size': 'Size',
   'options.pixelPerfect': 'Pixel perfect',

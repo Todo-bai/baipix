@@ -186,11 +186,11 @@ export function CanvasView() {
       attributeFilter: ['data-theme', 'class', 'style'],
     });
 
-    // The render gap spreads pixels on the canvas when "show the gap" is on.
+    // The render gap spreads pixels on the canvas, as in the exported file.
     const syncGap = () => {
-      const { doc, view } = editor.getState();
+      const { doc } = editor.getState();
       const { gap, pixelSize } = doc.render;
-      viewport.setGapRatio(view.showGap && gap > 0 ? gap / pixelSize : 0, doc.width, doc.height);
+      viewport.setGapRatio(gap > 0 ? gap / pixelSize : 0, doc.width, doc.height);
     };
 
     const unsubs = [

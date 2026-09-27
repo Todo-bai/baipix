@@ -116,6 +116,49 @@ body.is-resizing * {
 .panel-right {
   border-left: 1px solid var(--line);
 }
+/* Export tab: live preview of the file, and its final size. */
+.export-preview-wrap {
+  flex: none;
+  padding: 12px 16px 4px;
+}
+.preview.export-preview {
+  height: 160px;
+}
+.export-size {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+/* Row of small toggle buttons, like 1× 2× 4× 8×. */
+.segmented {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  margin-bottom: 4px;
+  padding: 2px;
+  border-radius: var(--radius);
+  background: var(--input);
+}
+.segmented button {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--radius) - 1px);
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.segmented button:hover {
+  color: var(--text);
+}
+.segmented button[aria-pressed='true'] {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
 /* Design / Export tabs, right under the header. */
 .panel-tabs {
   display: flex;

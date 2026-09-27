@@ -122,6 +122,7 @@ export const fr: Record<MessageKey, string> = {
   'preview.reduced': 'réduit',
 
   'render.pixelSize': 'Taille',
+  'render.scaleTip': 'Chaque pixel fait {size} × {size} px',
   'render.pixelSizeHint': "Taille d'un pixel dans le fichier exporté",
   'render.gap': 'Espacement',
   'render.showGap': "Afficher l'espacement sur le canevas",
@@ -207,7 +208,6 @@ export const fr: Record<MessageKey, string> = {
   'export.button': 'Exporter',
   'export.format': 'Format',
   'export.activeLayerOnly': 'Calque actif uniquement',
-  'export.file': 'Exporter {name}',
   'export.copySvg': 'Copier en SVG',
   'export.copyPng': 'Copier en PNG',
   'export.copySvgHint': 'Colle directement dans Figma ou Illustrator',
@@ -215,6 +215,10 @@ export const fr: Record<MessageKey, string> = {
   'export.info': '{w} × {h} px,',
   'export.withBackground': 'avec fond',
   'export.transparent': 'fond transparent',
+  'export.name': 'Nom',
+  'export.includeBackground': 'Inclure le fond',
+  'export.previewLabel': "Aperçu de l'image exportée",
+  'export.shrunk': 'réduit à {size}× (trop grand)',
 
   'coordinates.transparent': 'Transparent',
 

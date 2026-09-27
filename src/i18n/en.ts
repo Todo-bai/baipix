@@ -122,6 +122,7 @@ export const en = {
 
   'render.pixelSize': 'Size',
   'render.pixelSizeHint': 'Size of one pixel in the exported file',
+  'render.scaleTip': 'Each pixel becomes {size} × {size} px',
   'render.gap': 'Gap',
   'render.showGap': 'Show the gap on the canvas',
 
@@ -205,7 +206,6 @@ export const en = {
   'export.button': 'Export',
   'export.format': 'Format',
   'export.activeLayerOnly': 'Active layer only',
-  'export.file': 'Export {name}',
   'export.copySvg': 'Copy as SVG',
   'export.copyPng': 'Copy as PNG',
   'export.copySvgHint': 'Paste straight into Figma or Illustrator',
@@ -213,6 +213,10 @@ export const en = {
   'export.info': '{w} × {h} px,',
   'export.withBackground': 'with background',
   'export.transparent': 'transparent background',
+  'export.name': 'Name',
+  'export.includeBackground': 'Include the background',
+  'export.previewLabel': 'Preview of the exported image',
+  'export.shrunk': 'reduced to {size}× (too large)',
 
   'coordinates.transparent': 'Transparent',
 

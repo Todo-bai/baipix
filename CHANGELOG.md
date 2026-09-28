@@ -10,6 +10,8 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Website
 
+- The screenshot on the home page and in the README shows the new pixel look. (#132)
+
 - Page view counts with Cloudflare Web Analytics, without cookies, on the site and the editor. Drawings and what you do in the editor are never sent. (#130)
 - A new screenshot of the editor on the home page, in light or dark to match the site theme. (#128)
 - Nine features on the home page instead of six, and three new gallery pieces: a starfighter sprite, Mount Fuji at dawn and an isometric ramen shop. (#126)

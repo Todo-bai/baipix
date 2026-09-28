@@ -4,6 +4,10 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-28
+
+Everyday comfort: small things that make daily use smoother.
+
 ### Added
 
 - The drawing's size, number of layers and number of colors next to the cursor coordinates. (#125)
@@ -57,4 +61,5 @@ The first public version.
 - Everything saved in the browser, English and French, light and dark themes.
 - The website, with a gallery of drawings rendered by the editor itself.
 
-[Unreleased]: https://github.com/baipix/baipix/commits/main
+[Unreleased]: https://github.com/baipix/baipix/compare/v0.2.0...main
+[0.2.0]: https://github.com/baipix/baipix/releases/tag/v0.2.0

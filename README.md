@@ -62,6 +62,10 @@ src/
 
 More details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Privacy
+
+Drawings are saved in your browser and never uploaded. baipix.app counts page views with [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/), which uses no cookies and doesn't track you across sites. Nothing about your drawings or what you do in the editor is sent. A local copy (`npm run dev` or `npm run build:single`) sends nothing at all.
+
 ## Contributing
 
 Contributions are welcome, from bug reports to new tools. Read [CONTRIBUTING.md](CONTRIBUTING.md) to get started: adding a tool or a language is a good first contribution.

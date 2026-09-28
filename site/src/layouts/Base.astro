@@ -7,6 +7,7 @@ interface Props {
 }
 const { title, description } = Astro.props;
 const base = import.meta.env.BASE_URL;
+const analytics = import.meta.env.PROD;
 const favicon =
   "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'><style>path{fill:%23000}@media (prefers-color-scheme:dark){path{fill:%23fff}}</style><path d='M0 2h3v6H0zM3 5h3v3H3zM5 0h3v3H5z'/></svg>";
 ---
@@ -22,6 +23,17 @@ const favicon =
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(`${base}screenshot-dark.png`, Astro.site)} />
     <link rel="icon" href={favicon} />
+    {
+      /* Cloudflare Web Analytics: page views only, no cookies. */
+      analytics && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "c751710cc6a54b69a0442aec83131356"}'
+        ></script>
+      )
+    }
     <script is:inline>
       // Theme before the first paint: the visitor's choice (ThemeToggle), otherwise the OS setting.
       (() => {

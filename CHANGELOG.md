@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Website
 
+- A new screenshot of the editor on the home page, in light or dark to match the site theme. (#128)
 - Nine features on the home page instead of six, and three new gallery pieces: a starfighter sprite, Mount Fuji at dawn and an isometric ramen shop. (#126)
 
 ## [0.2.0] - 2026-09-28

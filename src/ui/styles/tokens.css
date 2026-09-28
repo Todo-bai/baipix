@@ -8,22 +8,22 @@
   color-scheme: light dark;
 
   /* Surfaces and text */
-  --canvas: light-dark(#f5f5f5, #15161b);
-  --panel: light-dark(#ffffff, #202229);
-  --line: light-dark(#e6e6e6, #353843);
+  --canvas: light-dark(#f5f5f5, #141414);
+  --panel: light-dark(#ffffff, #1f1f1f);
+  --line: light-dark(#e6e6e6, #333333);
   --text: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
   --muted: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.55));
-  --input: light-dark(#f5f5f5, #2b2d36);
-  --hover: light-dark(#f5f5f5, #2b2d36);
+  --input: light-dark(#f5f5f5, #2a2a2a);
+  --hover: light-dark(#f5f5f5, #2a2a2a);
   --selected: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.1));
   /* Neutral accent (no brand color yet): the text color, with inverted text on top. */
-  --accent: light-dark(#1a1a1a, #f2f2f5);
-  --accent-ink: light-dark(#ffffff, #15161b);
+  --accent: light-dark(#1a1a1a, #f2f2f2);
+  --accent-ink: light-dark(#ffffff, #141414);
 
   /* Canvas */
   --axis: #ff4d8d;
-  --check-a: light-dark(#ffffff, #3d404b);
-  --check-b: light-dark(#e3e3e3, #31333d);
+  --check-a: light-dark(#ffffff, #3a3a3a);
+  --check-b: light-dark(#e3e3e3, #2e2e2e);
   --grid: light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
   --grid-major: light-dark(rgba(0, 0, 0, 0.22), rgba(255, 255, 255, 0.22));
   --frame: light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.12));
@@ -36,21 +36,21 @@
   --swatch-edge-strong: rgba(0, 0, 0, 0.2);
 
   /* Menus */
-  --menu-bg: light-dark(#ffffff, #1a1b21);
+  --menu-bg: light-dark(#ffffff, #191919);
   --menu-text: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
   --menu-muted: light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.35));
   --menu-shortcut: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.5));
   --menu-line: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.12));
 
   /* Tooltips stay dark in both themes. */
-  --tooltip-bg: #1a1b21;
+  --tooltip-bg: #191919;
   --tooltip-text: #ffffff;
   --tooltip-muted: rgba(255, 255, 255, 0.55);
   --tooltip-hover: rgba(255, 255, 255, 0.12);
 
   /* Toasts are inverted: dark on a light UI, light on a dark one, so they never blend in. */
-  --toast-bg: light-dark(#1a1b21, #f0f1f4);
-  --toast-text: light-dark(#ffffff, #15161b);
+  --toast-bg: light-dark(#191919, #f0f0f0);
+  --toast-text: light-dark(#ffffff, #141414);
   --toast-hover: light-dark(rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0.08));
 
   /* Shadows */

@@ -1536,3 +1536,280 @@ body.is-dragging-swatch * {
     transition: none !important;
   }
 }
+
+/* ---------- Pixel look ----------
+   Square corners with the corner pixel removed on controls, and floating surfaces drawn as a
+   notched block with a hard, unblurred shadow. */
+:root {
+  --radius: 0;
+  --radius-lg: 0;
+  --notch: polygon(
+    0 1px,
+    1px 1px,
+    1px 0,
+    calc(100% - 1px) 0,
+    calc(100% - 1px) 1px,
+    100% 1px,
+    100% calc(100% - 1px),
+    calc(100% - 1px) calc(100% - 1px),
+    calc(100% - 1px) 100%,
+    1px 100%,
+    1px calc(100% - 1px),
+    0 calc(100% - 1px)
+  );
+  --hard-shadow: rgba(0, 0, 0, 0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --hard-shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+:root[data-theme='dark'] {
+  --hard-shadow: rgba(0, 0, 0, 0.5);
+}
+
+.btn,
+.icon-btn,
+.tool-btn,
+.tool-caret,
+.field,
+.select-plain,
+.zoom-button,
+.item,
+.chip,
+.menu-item,
+.swatch,
+.color-chip,
+.color-chip i,
+.thumb,
+.preview,
+.textarea,
+.adjust-value input {
+  border-radius: 0;
+  clip-path: var(--notch);
+}
+
+/* A 2px ring in the surface color, minus its corners, then a hard shadow. */
+.toolbar,
+.tool-options,
+.popover,
+.dialog,
+.coordinates,
+.shortcuts-help-button,
+.toast,
+.menu,
+.mobile-bar {
+  --surface: var(--panel);
+  border-radius: 0;
+  box-shadow:
+    0 -2px 0 0 var(--surface),
+    0 2px 0 0 var(--surface),
+    -2px 0 0 0 var(--surface),
+    2px 0 0 0 var(--surface),
+    4px 6px 0 0 var(--hard-shadow);
+}
+.menu {
+  --surface: var(--menu-bg);
+}
+.toast {
+  --surface: var(--toast-bg);
+}
+.shortcuts-help-button {
+  clip-path: none;
+}
+.shortcuts-help-button:hover {
+  --surface: var(--glow);
+}
+
+/* Floating side panels: the workspace fills the window, the panels sit over it with a margin. */
+@media (min-width: 821px) {
+  .workspace {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .panel {
+    position: relative;
+    z-index: 10;
+    grid-row: 1;
+    border: 0;
+    box-shadow:
+      0 -2px 0 0 var(--panel),
+      0 2px 0 0 var(--panel),
+      -2px 0 0 0 var(--panel),
+      2px 0 0 0 var(--panel),
+      4px 6px 0 0 var(--hard-shadow);
+  }
+  .panel-left {
+    grid-column: 1;
+    margin: 12px 0 14px 12px;
+  }
+  .panel-right {
+    grid-column: 3;
+    margin: 12px 12px 14px 0;
+  }
+  /* The handle lines up with the panel's inner edge (its 2px ring included), between the notched
+     corners, so the highlight covers exactly the edge that stretches. */
+  .resizer {
+    z-index: 11;
+    top: 12px;
+    bottom: 14px;
+    width: 8px;
+  }
+  .resizer-left {
+    left: calc(var(--left-width) - 2px);
+  }
+  .resizer-right {
+    right: calc(var(--right-width) - 2px);
+  }
+  .resizer-left::after {
+    left: 2px;
+  }
+  .resizer-right::after {
+    right: 2px;
+  }
+  .coordinates,
+  .shortcuts-help-button {
+    right: calc(var(--right-width) + 16px);
+  }
+}
+
+/* Key buttons, like the website: a solid side under the button, pushed halfway down on hover and
+   all the way on press, with no easing. --depth is the side's height. */
+.btn {
+  --side: color-mix(in srgb, var(--line) 70%, var(--text));
+  --depth: 2px;
+  margin-bottom: 2px;
+  box-shadow: 0 var(--depth) 0 var(--side);
+  clip-path: polygon(
+    1px 0,
+    calc(100% - 1px) 0,
+    calc(100% - 1px) 1px,
+    100% 1px,
+    100% calc(100% + var(--depth) - 1px),
+    calc(100% - 1px) calc(100% + var(--depth) - 1px),
+    calc(100% - 1px) calc(100% + var(--depth)),
+    1px calc(100% + var(--depth)),
+    1px calc(100% + var(--depth) - 1px),
+    0 calc(100% + var(--depth) - 1px),
+    0 1px,
+    1px 1px
+  );
+}
+.btn-primary {
+  --side: color-mix(in srgb, var(--accent) 55%, var(--panel));
+}
+.btn:hover:not(:disabled) {
+  --depth: 1px;
+  transform: translateY(1px);
+}
+.btn:active:not(:disabled) {
+  --depth: 0px;
+  transform: translateY(2px);
+}
+.btn:focus-visible {
+  outline-offset: -4px;
+}
+
+/* One accent, for moments of interaction only (hover, resize, drop, focus, the main button): the
+   interface stays neutral at rest. A sky blue with dark ink on top; thin lines use a deeper one in
+   light mode, so they hold up on white. */
+:root {
+  --glow: #66c4ff;
+  --glow-ink: #1a1a1a;
+  --glow-line: light-dark(#2ea8f5, #66c4ff);
+  /* The side of a blue key. */
+  --glow-side: light-dark(#3a93d6, #3b86bd);
+}
+:focus-visible,
+.panel-tab:focus-visible {
+  outline-color: var(--glow-line);
+}
+.resizer::after {
+  background: var(--glow-line);
+}
+.resizer:hover::after,
+.resizer.is-dragging::after {
+  opacity: 1;
+}
+.item.drop-before {
+  box-shadow: inset 0 2px 0 var(--glow-line);
+}
+.item.drop-after {
+  box-shadow: inset 0 -2px 0 var(--glow-line);
+}
+.canvas-wrap.is-dropping::after {
+  border-color: var(--glow-line);
+  background: color-mix(in srgb, var(--glow) 16%, transparent);
+}
+/* Hovers are solid blue with dark ink; the muted text follows along. */
+.icon-btn:hover:not(:disabled),
+.tool-btn:hover:not(:disabled):not([aria-pressed='true']),
+.tool-caret:hover,
+.item:hover:not(.is-active):not(.is-selected) {
+  --text: var(--glow-ink);
+  --muted: rgba(0, 0, 0, 0.55);
+  background: var(--glow);
+  color: var(--glow-ink);
+}
+/* Text buttons stay neutral on hover (they only sink), so the blue main button stands alone. */
+.btn:hover:not(:disabled) {
+  background: var(--hover);
+}
+/* The main button is blue at rest. */
+.btn-primary,
+.btn-primary:hover:not(:disabled) {
+  --side: var(--glow-side);
+  border-color: var(--glow);
+  background: var(--glow);
+  color: var(--glow-ink);
+  filter: none;
+}
+.panel-tab[aria-selected='true'] {
+  border-bottom-color: var(--glow-line);
+}
+.menu-item:hover:not(:disabled),
+.menu-item:focus-visible {
+  background: var(--glow);
+  color: var(--glow-ink);
+}
+
+/* The active tool is a key held down: sunk by a pixel, with the key's side showing at the top. */
+.tool-btn[aria-pressed='true'] {
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--accent) 55%, var(--panel));
+  transform: translateY(1px);
+}
+
+/* Pixel checkboxes: a notched square, solid blue with a dark pixel tick when checked. */
+.checkbox input,
+.palette-row input {
+  appearance: none;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  border: 1px solid var(--muted);
+  background: transparent;
+  clip-path: var(--notch);
+  cursor: pointer;
+}
+.checkbox input:hover,
+.palette-row input:hover:not(:disabled) {
+  border-color: var(--text);
+}
+.checkbox input:checked,
+.palette-row input:checked {
+  border-color: var(--glow);
+  background: var(--glow)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' shape-rendering='crispEdges'%3E%3Cpath fill='%231a1a1a' d='M1 4h2v2H1zM2 5h2v2H2zM3 6h2v2H3zM5 5h2v2H5zM6 4h2v2H6zM7 3h2v2H7zM8 2h1v2H8z'/%3E%3C/svg%3E")
+    center / 10px 10px no-repeat;
+}
+.palette-row input:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.checkbox input:focus-visible,
+.palette-row input:focus-visible {
+  outline: 2px solid var(--glow-line);
+  outline-offset: 1px;
+  clip-path: none;
+}

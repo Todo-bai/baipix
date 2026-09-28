@@ -201,6 +201,18 @@ export function CanvasView() {
     };
     const ro = new ResizeObserver(resize);
     ro.observe(wrap);
+    // The side panels float over the workspace: fitting centers the drawing in the space between.
+    viewport.covered = () => {
+      const r = wrap.getBoundingClientRect();
+      const edge = (selector: string, side: 'left' | 'right') => {
+        const panel = document.querySelector(selector);
+        if (!panel || getComputedStyle(panel).position === 'fixed') return 0;
+        const p = panel.getBoundingClientRect();
+        if (!p.width) return 0;
+        return side === 'left' ? Math.max(0, p.right - r.left) : Math.max(0, r.right - p.left);
+      };
+      return { left: edge('.panel-left', 'left'), right: edge('.panel-right', 'right') };
+    };
 
     const onTheme = () => {
       theme = readTheme();

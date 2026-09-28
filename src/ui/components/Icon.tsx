@@ -22,6 +22,9 @@ export function Icon({ name, size = 16 }: IconProps) {
       </svg>
     );
   }
+  // Icons are 12×12 pixel grids: only multiples of 6 px keep each pixel on whole device pixels
+  // (1.5 px per pixel is 3 device pixels on a 2× screen), so round to the nearest one.
+  const px = Math.max(12, Math.round(size / 6) * 6);
   const Glyph = ICONS[name];
-  return <Glyph className="icon" size={size} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />;
+  return <Glyph className="icon" width={px} height={px} shapeRendering="crispEdges" aria-hidden="true" />;
 }

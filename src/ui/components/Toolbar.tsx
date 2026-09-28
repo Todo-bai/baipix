@@ -21,7 +21,7 @@ function ShapesButton() {
       <IconButton
         className="tool-btn"
         icon={meta.icon}
-        iconSize={20}
+        iconSize={24}
         label={t(meta.label)}
         shortcut={meta.shortcut || undefined}
         pressed={SHAPE_IDS.includes(tool)}
@@ -70,7 +70,7 @@ export function Toolbar() {
                 key={meta.id}
                 className="tool-btn"
                 icon={meta.icon}
-                iconSize={20}
+                iconSize={24}
                 label={t(meta.label)}
                 shortcut={meta.shortcut}
                 pressed={tool === meta.id}
@@ -84,7 +84,7 @@ export function Toolbar() {
       <IconButton
         className="tool-btn"
         icon="undo"
-        iconSize={20}
+        iconSize={24}
         label={t('menu.undo')}
         shortcut="Ctrl+Z"
         disabled={!canUndo}
@@ -93,7 +93,7 @@ export function Toolbar() {
       <IconButton
         className="tool-btn"
         icon="redo"
-        iconSize={20}
+        iconSize={24}
         label={t('menu.redo')}
         shortcut="Ctrl+Shift+Z"
         disabled={!canRedo}

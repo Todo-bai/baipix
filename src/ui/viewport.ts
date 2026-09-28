@@ -27,6 +27,8 @@ class Viewport {
   dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   private docId: string | null = null;
   private saved = new Map<string, View>();
+  /** Width hidden by the floating side panels at each edge, measured by the canvas view. */
+  covered: () => { left: number; right: number } = () => ({ left: 0, right: 0 });
   /** Document waiting for the first layout to be fitted. */
   private pendingFit: PixelDoc | null = null;
   private listeners = new Set<() => void>();
@@ -142,16 +144,18 @@ class Viewport {
       return;
     }
     const { x, top, bottom } = this.insets();
+    const covered = this.covered();
+    const free = this.width - covered.left - covered.right;
     let z = 1;
     for (const level of ZOOM_LEVELS)
       if (
-        doc.width * level * this.stepFactor <= this.width - x &&
+        doc.width * level * this.stepFactor <= free - x &&
         doc.height * level * this.stepFactor <= this.height - top - bottom
       )
         z = level;
     this.zoom = z;
     const ez = this.effectiveZoom;
-    this.panX = Math.round((this.width - doc.width * ez) / 2);
+    this.panX = Math.round(covered.left + (free - doc.width * ez) / 2);
     this.panY = Math.round(top + (this.height - top - bottom - doc.height * ez) / 2);
     this.emit();
   }

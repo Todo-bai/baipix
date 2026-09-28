@@ -293,13 +293,25 @@ const features = [
     gap: 12px;
     margin-top: 36px;
   }
+  /*
+   * A pixel frame, like the buttons: a 2px edge minus its corners (drawn with offset shadows, so the
+   * escaping pixel outside isn't clipped), and a solid side underneath.
+   */
   .shot {
+    --edge: var(--line-strong);
     position: relative;
-    margin: 64px 0 0;
+    /* Room below for the side: the hero clips whatever overflows it. */
+    margin: 64px 0 12px;
     padding: 10px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
+    border: 0;
+    border-radius: 0;
     background: var(--surface);
+    box-shadow:
+      0 -2px 0 0 var(--edge),
+      -2px 0 0 0 var(--edge),
+      2px 0 0 0 var(--edge),
+      0 2px 0 0 var(--edge),
+      0 10px 0 0 var(--edge);
   }
   .shot img {
     width: 100%;
@@ -331,7 +343,8 @@ const features = [
     right: -22px;
     width: 14px;
     height: 14px;
-    background: var(--ink);
+    /* Same tint as the frame it escaped from. */
+    background: var(--line-strong);
   }
 
   /* ---- Sections ---- */

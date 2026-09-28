@@ -1,11 +1,25 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import pkg from './package.json';
 
+/**
+ * Cloudflare Web Analytics on baipix.app/app/: page views only, no cookies. Nothing about the drawings or what
+ * people do in the editor is sent. Left out of dev and of the single-file build.
+ */
+const analytics = (): Plugin => ({
+  name: 'baipix-analytics',
+  apply: 'build',
+  transformIndexHtml: (html) =>
+    html.replace(
+      '</body>',
+      `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "c751710cc6a54b69a0442aec83131356"}'></script></body>`,
+    ),
+});
+
 // `npm run build:single` produces one self-contained index.html (handy for sharing or embedding).
 export default defineConfig(({ mode }) => ({
-  plugins: mode === 'single' ? [react(), viteSingleFile()] : [react()],
+  plugins: mode === 'single' ? [react(), viteSingleFile()] : [react(), analytics()],
   base: './',
   // Shown in the main menu, next to the link to the changelog.
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },

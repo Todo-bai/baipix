@@ -109,10 +109,19 @@ const features = [
       <div class="container">
         <figure class="shot">
           <img
-            src={`${base}screenshot.png`}
+            class="for-light"
+            src={`${base}screenshot-light.png`}
             width="1440"
             height="900"
-            alt="The Baipix editor with a pixel art sunset: layers on the left, tools at the bottom, properties on the right."
+            alt="The Baipix editor with a pixel art Mount Fuji at dawn: files and layers on the left, tools at the bottom, properties on the right."
+          />
+          <img
+            class="for-dark"
+            src={`${base}screenshot-dark.png`}
+            width="1440"
+            height="900"
+            alt="The Baipix editor with a pixel art Mount Fuji at dawn: files and layers on the left, tools at the bottom, properties on the right."
+            loading="lazy"
           />
           <span class="shot-pixel" aria-hidden="true"></span>
         </figure>
@@ -296,6 +305,24 @@ const features = [
     width: 100%;
     height: auto;
     border-radius: 0;
+  }
+  /* The screenshot follows the site theme: the OS setting, or the visitor's pick. */
+  .shot .for-dark {
+    display: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .shot .for-light {
+      display: none;
+    }
+    :global(:root:not([data-theme='light'])) .shot .for-dark {
+      display: block;
+    }
+  }
+  :global(:root[data-theme='dark']) .shot .for-light {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .shot .for-dark {
+    display: block;
   }
   /* The logo's escaping pixel, leaving the screenshot's corner. */
   .shot-pixel {

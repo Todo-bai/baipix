@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { pack, toHex } from '../../engine/color';
 import { flatten } from '../../engine/composite';
+import { gridInk } from '../render/grid';
 import type { ToolId } from '../../engine/tools';
 import { t as translate, useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
@@ -58,6 +59,9 @@ export function CanvasView() {
     const ctx = canvas.getContext('2d')!;
     const composite = document.createElement('canvas');
     const cctx = composite.getContext('2d')!;
+    // Grid line colors, one per art pixel (see render/grid.ts).
+    const ink = document.createElement('canvas');
+    const ictx = ink.getContext('2d')!;
     let theme: Theme = readTheme();
     let hover: { x: number; y: number } | null = null;
     let compositeDirty = true;
@@ -101,12 +105,16 @@ export function CanvasView() {
     const updateComposite = () => {
       const { doc } = editor.getLive();
       if (composite.width !== doc.width || composite.height !== doc.height) {
-        composite.width = doc.width;
-        composite.height = doc.height;
+        composite.width = ink.width = doc.width;
+        composite.height = ink.height = doc.height;
       }
+      const pixels = flatten(doc);
       const image = cctx.createImageData(doc.width, doc.height);
-      new Uint32Array(image.data.buffer).set(flatten(doc));
+      new Uint32Array(image.data.buffer).set(pixels);
       cctx.putImageData(image, 0, 0);
+      const lines = ictx.createImageData(doc.width, doc.height);
+      new Uint32Array(lines.data.buffer).set(gridInk(pixels, theme.checkA));
+      ictx.putImageData(lines, 0, 0);
       compositeDirty = false;
     };
 
@@ -151,6 +159,7 @@ export function CanvasView() {
         {
           doc: live.doc,
           composite,
+          gridInk: ink,
           view: live.view,
           selection: live.selection,
           selectionDashOffset: reduceMotion ? 0 : (now / 80) % 8,
@@ -216,6 +225,7 @@ export function CanvasView() {
 
     const onTheme = () => {
       theme = readTheme();
+      compositeDirty = true;
       request();
     };
     const media = matchMedia('(prefers-color-scheme: dark)');

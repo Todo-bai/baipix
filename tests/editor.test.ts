@@ -108,11 +108,6 @@ describe('Editor', () => {
     move([5, 5], [6, 5], true);
     expect(e.getState().doc.activeLayer).toBe(0);
     expect(e.getState().doc.layers[1].pixels[5 * 32 + 5]).toBe(RED);
-    // Moving pixels off the canvas says so.
-    const notices: string[] = [];
-    e.onNotice((n) => notices.push(n.type));
-    move([2, 2], [40, 2]);
-    expect(notices).toContain('pixelsCut');
     // Locked layers are skipped.
     e.setActiveLayer(1);
     e.setLayerLocked(1, true);
@@ -153,6 +148,32 @@ describe('Editor', () => {
     // Drawing goes back to the active layer.
     expect(e.getState().referenceSelected).toBe(false);
     expect(painted(e)).toBe(1);
+  });
+
+  it('keeps the pixels a layer move pushes off the canvas', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    drag(e, [[30, 5]]);
+    e.setTool('move');
+    const move = (dx: number) => {
+      e.beginStroke({ x: 30, y: 5 }, false, { shift: false, keepLayer: true });
+      e.moveStroke({ x: 30 + dx, y: 5 }, { shift: false });
+      e.endStroke();
+    };
+    move(5); // off the right edge
+    expect(painted(e)).toBe(0);
+    move(-5); // and back
+    expect(layer(e)[5 * 32 + 30]).toBe(RED);
+    // A smaller canvas keeps what it cuts off, a bigger one brings it back.
+    e.resize(16, 32);
+    expect(painted(e)).toBe(0);
+    e.resize(32, 32);
+    expect(layer(e)[5 * 32 + 30]).toBe(RED);
+    // Flipping the layer flips what's outside too: x 35 becomes -4, then 1 once moved back in.
+    move(5);
+    e.flip(true);
+    move(5);
+    expect(layer(e)[5 * 32 + 1]).toBe(RED);
   });
 
   it('moves a selection', () => {

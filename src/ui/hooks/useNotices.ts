@@ -23,21 +23,10 @@ const message = (n: Notice): string => {
       return t('toast.pasted');
     case 'merged':
       return t('toast.merged');
-    case 'pixelsCut':
-      return t('toast.pixelsCut', { count: n.count });
   }
 };
 
 /** Turns engine notices into translated toasts. */
 export function useNotices(editor: Editor) {
-  useEffect(
-    () =>
-      editor.onNotice((n) =>
-        // Pixels pushed off the canvas are lost: offer to bring them back right away.
-        n.type === 'pixelsCut'
-          ? toast(message(n), { label: t('common.undo'), run: () => editor.undo() })
-          : toast(message(n)),
-      ),
-    [editor],
-  );
+  useEffect(() => editor.onNotice((n) => toast(message(n))), [editor]);
 }

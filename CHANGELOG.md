@@ -12,7 +12,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
-- Moving a layer partly off the canvas now says how many pixels were cut, with an Undo to bring them back. (#151)
+- Moving a layer off the canvas keeps its pixels: move it back, or make the canvas bigger, and they come back. Making the canvas smaller keeps what it cuts off too. The part outside is saved with the drawing in the browser, not in .baipix files, and is never exported. (#154)
 - The Move tool takes the layer under the pointer: drag any pixel to move its layer, with its outline shown on hover. Cmd/Ctrl keeps the active layer. The tool has a pixel arrow as icon and cursor. (#148)
 - The pixel grid stays visible on any drawing: its lines are dark on light pixels and light on dark ones, instead of following the app theme. (#145)
 - The eyedropper cursor is the pixel pipette of the toolbar, with a white edge so it shows on any color. (#144)

@@ -325,6 +325,5 @@ export const fr: Record<MessageKey, string> = {
   'home.recent': 'Récents',
   'home.drop': 'Dépose pour ouvrir',
   'home.justNow': "À l'instant",
-  'toast.pixelsCut': '{count} pixels sont sortis du canevas et ont été coupés.',
   'toast.saveFailed': 'Impossible de sauvegarder dans ce navigateur : pense à télécharger tes fichiers.',
 };

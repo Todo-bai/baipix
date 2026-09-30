@@ -64,6 +64,17 @@ describe('IndexedDbStorage', () => {
     expect(loaded?.ui).toEqual({ lang: 'fr' });
   });
 
+  it('keeps pixels outside the canvas in the workspace, not in .baipix files', async () => {
+    const storage = new IndexedDbStorage();
+    const doc = createDocument('A', 4, 4);
+    doc.layers[0].outside = { x: 5, y: -2, w: 2, h: 1, pixels: Uint32Array.from([pack(1, 2, 3), 0]) };
+    await storage.save({ documents: [doc], activeId: doc.id, preferences: {}, ui: {} });
+    const back = (await storage.load())?.documents[0].layers[0].outside;
+    expect(back).toMatchObject({ x: 5, y: -2, w: 2, h: 1 });
+    expect([...back!.pixels]).toEqual([pack(1, 2, 3), 0]);
+    expect(documentFromJson(documentToJson(doc)).layers[0].outside).toBeUndefined();
+  });
+
   it('keeps the reference image in the workspace, never in .baipix files', async () => {
     const storage = new IndexedDbStorage();
     const doc = createDocument('A', 4, 4);

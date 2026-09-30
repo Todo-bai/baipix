@@ -1,5 +1,6 @@
 import type { Color } from '../color';
 import type { Layer, PixelDoc } from '../document';
+import type { Outside } from '../outside';
 import type { Point, Rect } from '../math';
 import type { PaletteIndex, ShadeMode } from '../palette';
 
@@ -65,6 +66,8 @@ export interface Stroke {
   layer: Layer;
   /** Layer pixels as they were when the stroke started. */
   base: Uint32Array;
+  /** The layer's part outside the canvas when the stroke started. */
+  baseOutside: Outside | undefined;
   start: Point;
   last: Point;
   /** Right button / secondary color. */

@@ -321,7 +321,6 @@ export const en = {
   'home.recent': 'Recent',
   'home.drop': 'Drop to open',
   'home.justNow': 'Just now',
-  'toast.pixelsCut': '{count} pixels went off the canvas and were cut.',
   'toast.saveFailed': 'Unable to save in this browser: remember to download your files.',
 } as const;
 

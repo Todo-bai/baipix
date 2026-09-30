@@ -58,6 +58,7 @@ export const en = {
   'section.exportFile': 'File',
 
   'menu.main': 'Main menu',
+  'menu.home': 'Home',
   'menu.newFile': 'New file…',
   'menu.open': 'Open a .baipix file…',
   'menu.saveAs': 'Download as .baipix',
@@ -283,7 +284,6 @@ export const en = {
   'toast.cut': 'Cut.',
   'toast.layerHidden': 'This layer is hidden. Show it to draw on it.',
   'toast.layerLocked': 'This layer is locked. Unlock it to draw on it.',
-  'toast.keepOneFile': 'At least one file must remain.',
   'toast.colorInPalette': 'This color is already in the palette.',
   'toast.colorNotInPalette': 'The primary color is not in the palette.',
   'toast.emptyDrawing': 'The drawing is empty: no colors to extract.',
@@ -298,6 +298,14 @@ export const en = {
   'toast.restored': 'Your previous drawing was restored.',
   'toast.filesRestored': '{count} files restored.',
   'toast.legacyImported': '{count} drawings recovered from the previous version.',
+  'home.title': 'Welcome to Baipix',
+  'home.tagline': 'Insert coin, drop your first pixel.',
+  'home.taglineBack': 'Your pixels missed you.',
+  'home.formats': 'Opens .baipix, PNG, JPG and GIF files',
+  'home.import': 'Import',
+  'home.recent': 'Recent',
+  'home.drop': 'Drop to open',
+  'home.justNow': 'Just now',
   'toast.saveFailed': 'Unable to save in this browser: remember to download your files.',
 } as const;
 

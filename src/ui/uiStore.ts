@@ -31,6 +31,8 @@ export interface UiState {
   exportBackground: boolean;
   /** Preset palettes left out of the palette menu. */
   hiddenPalettes: string[];
+  /** The home screen covers the editor. */
+  home: boolean;
 }
 
 export const PANEL_LIMITS = {
@@ -51,6 +53,7 @@ export const uiStore = createStore<UiState>({
   rightTab: 'design',
   exportBackground: true,
   hiddenPalettes: [],
+  home: false,
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });

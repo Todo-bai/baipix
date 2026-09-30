@@ -42,6 +42,8 @@ export interface PixelDoc {
   axisY?: number;
   /** Used to name new layers ("Layer 3"). */
   layerCounter: number;
+  /** Last change, in ms since the epoch (for the home screen). Missing in older files. */
+  updatedAt?: number;
 }
 
 let seq = 0;
@@ -71,6 +73,7 @@ export function createDocument(name: string, width: number, height: number, laye
     backgroundVisible: true,
     render: { pixelSize: 8, gap: 0 },
     layerCounter: 1,
+    updatedAt: Date.now(),
   };
 }
 

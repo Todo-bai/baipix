@@ -8,7 +8,7 @@ import { IconButton } from '../components/IconButton';
 import { openMenu } from '../components/Menu';
 import { Section } from '../components/Section';
 import { Thumbnail } from '../components/Thumbnail';
-import { mainMenu } from '../menus';
+import { fileMenu, mainMenu } from '../menus';
 import { openDialog } from '../uiStore';
 import { PreviewSection } from './PreviewSection';
 
@@ -142,19 +142,7 @@ function FilesSection() {
                 aria-haspopup="menu"
                 onClick={(e) => {
                   e.stopPropagation();
-                  openMenu(e.currentTarget, [
-                    { label: t('file.duplicate'), onSelect: () => editor.duplicateFile(f.id) },
-                    {
-                      label: t('file.download'),
-                      onSelect: () => (editor.switchFile(f.id), void actions.saveDocument()),
-                    },
-                    '-',
-                    {
-                      label: t('common.delete'),
-                      disabled: files.length < 2,
-                      onSelect: () => actions.deleteFile(f.id, f.name),
-                    },
-                  ]);
+                  openMenu(e.currentTarget, fileMenu(editor, actions, f));
                 }}
               />
             </div>

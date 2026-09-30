@@ -9,8 +9,6 @@ const message = (n: Notice): string => {
       return t('toast.layerHidden');
     case 'layerLocked':
       return t('toast.layerLocked');
-    case 'keepOneFile':
-      return t('toast.keepOneFile');
     case 'colorInPalette':
       return t('toast.colorInPalette');
     case 'colorNotInPalette':

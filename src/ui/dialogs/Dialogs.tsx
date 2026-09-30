@@ -6,6 +6,7 @@ import { PALETTE_PRESETS, parseHexList, presetColors } from '../../engine/palett
 import { useT } from '../../i18n';
 import { useEditor, useEditorState } from '../EditorContext';
 import { IconButton } from '../components/IconButton';
+import { hasUntouchedStarter, leaveHome } from '../home';
 import { closeDialog, toast, uiStore } from '../uiStore';
 import { Dialog } from './Dialog';
 import { SHORTCUT_GROUPS } from './shortcuts';
@@ -23,9 +24,12 @@ function NewFileDialog() {
       title={t('dialog.newFile')}
       submitLabel={t('common.create')}
       onClose={closeDialog}
-      onSubmit={() =>
-        editor.newFile(clamp(Number(w) || 32, 1, MAX_SIZE), clamp(Number(h) || 32, 1, MAX_SIZE))
-      }
+      onSubmit={() => {
+        // The file replacing the blank starter takes its plain "Untitled" name.
+        const name = hasUntouchedStarter(editor) ? t('default.untitled') : undefined;
+        editor.newFile(clamp(Number(w) || 32, 1, MAX_SIZE), clamp(Number(h) || 32, 1, MAX_SIZE), name);
+        leaveHome(editor);
+      }}
     >
       <div className="chips">
         {SIZE_PRESETS.map((s) => (

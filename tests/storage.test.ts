@@ -19,6 +19,14 @@ describe('.baipix format', () => {
     expect([...decodePixels(colors, runs, px.length)]).toEqual([...px]);
   });
 
+  it('keeps the last modified date, and reads files without one', () => {
+    const doc = createDocument('Hero', 4, 4);
+    doc.updatedAt = 1_700_000_000_000;
+    expect(documentFromJson(documentToJson(doc)).updatedAt).toBe(1_700_000_000_000);
+    delete doc.updatedAt;
+    expect(documentFromJson(documentToJson(doc)).updatedAt).toBeUndefined();
+  });
+
   it('round-trips a document', () => {
     const doc = createDocument('Hero', 8, 4);
     doc.layers[0].pixels[3] = pack(1, 2, 3);

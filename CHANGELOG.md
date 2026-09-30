@@ -20,6 +20,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Fixed
 
+- Long file and layer names no longer make the left panel scroll sideways: they're cut with an ellipsis, with the full name on hover. Names and sizes now use the whole row, and the action icons show over the end of it on hover. (#PR)
 - On iPhone, editing a file name or any field no longer zooms the whole interface. (#149)
 
 ### Website

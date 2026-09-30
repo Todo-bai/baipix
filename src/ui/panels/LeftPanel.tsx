@@ -39,7 +39,16 @@ function EditableName({
   }, [startEditing, onEditingStarted]);
   if (!editing)
     return (
-      <span className={className} onDoubleClick={() => setEditing(true)}>
+      <span
+        className={className}
+        // The full name as a tooltip, only when it's cut with an ellipsis.
+        data-tip=""
+        onPointerEnter={(e) => {
+          const el = e.currentTarget;
+          el.dataset.tip = el.scrollWidth > el.clientWidth ? value : '';
+        }}
+        onDoubleClick={() => setEditing(true)}
+      >
         {value}
       </span>
     );
@@ -92,7 +101,12 @@ function FileHeader() {
           aria-label={t('file.name')}
           spellCheck={false}
           onChange={(e) => setName(e.target.value)}
-          onBlur={() => (name.trim() ? editor.renameFile(doc.id, name) : setName(docName))}
+          onBlur={(e) => {
+            // Back to the start of a long name, which stays scrolled to its end after typing.
+            e.currentTarget.scrollLeft = 0;
+            if (name.trim()) editor.renameFile(doc.id, name);
+            else setName(docName);
+          }}
           onKeyDown={(e) =>
             (e.key === 'Enter' || e.key === 'Escape') && (e.target as HTMLInputElement).blur()
           }
@@ -135,16 +149,18 @@ function FilesSection() {
               <span className="muted">
                 {f.width}×{f.height}
               </span>
-              <IconButton
-                icon="more"
-                className="icon-btn item-action"
-                label={t('file.actions')}
-                aria-haspopup="menu"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openMenu(e.currentTarget, fileMenu(editor, actions, f));
-                }}
-              />
+              <span className="item-actions">
+                <IconButton
+                  icon="more"
+                  className="icon-btn item-action"
+                  label={t('file.actions')}
+                  aria-haspopup="menu"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openMenu(e.currentTarget, fileMenu(editor, actions, f));
+                  }}
+                />
+              </span>
             </div>
           );
         })}
@@ -327,27 +343,29 @@ function LayersSection() {
               onEditingStarted={() => setRenaming(null)}
             />
             {layer.opacity < 1 && <span className="muted">{Math.round(layer.opacity * 100)} %</span>}
-            <IconButton
-              icon={layer.locked ? 'lock' : 'unlock'}
-              className="icon-btn item-action item-lock"
-              label={layer.locked ? t('layer.unlock') : t('layer.lock')}
-              pressed={layer.locked}
-              onClick={(e) => {
-                e.stopPropagation();
-                editor.setLayerLocked(index, !layer.locked);
-              }}
-            />
-            <IconButton
-              icon={layer.visible ? 'eye' : 'eyeOff'}
-              className="icon-btn item-action"
-              label={layer.visible ? t('layer.hide') : t('layer.show')}
-              shortcut={t('layer.solo')}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (e.altKey) editor.soloLayer(index);
-                else editor.setLayerVisible(index, !layer.visible);
-              }}
-            />
+            <span className="item-actions">
+              <IconButton
+                icon={layer.locked ? 'lock' : 'unlock'}
+                className="icon-btn item-action item-lock"
+                label={layer.locked ? t('layer.unlock') : t('layer.lock')}
+                pressed={layer.locked}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  editor.setLayerLocked(index, !layer.locked);
+                }}
+              />
+              <IconButton
+                icon={layer.visible ? 'eye' : 'eyeOff'}
+                className="icon-btn item-action"
+                label={layer.visible ? t('layer.hide') : t('layer.show')}
+                shortcut={t('layer.solo')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (e.altKey) editor.soloLayer(index);
+                  else editor.setLayerVisible(index, !layer.visible);
+                }}
+              />
+            </span>
           </div>
         ))}
         {reference && (
@@ -361,25 +379,27 @@ function LayersSection() {
             <img className="thumb reference-thumb" src={reference.src} alt="" />
             <span className="item-name">{t('reference.title')}</span>
             {reference.opacity < 1 && <span className="muted">{Math.round(reference.opacity * 100)} %</span>}
-            <IconButton
-              icon={reference.locked ? 'lock' : 'unlock'}
-              className="icon-btn item-action item-lock"
-              label={reference.locked ? t('layer.unlock') : t('layer.lock')}
-              pressed={reference.locked}
-              onClick={(e) => {
-                e.stopPropagation();
-                editor.updateReference({ locked: !reference.locked });
-              }}
-            />
-            <IconButton
-              icon={reference.visible ? 'eye' : 'eyeOff'}
-              className="icon-btn item-action"
-              label={reference.visible ? t('reference.hide') : t('reference.show')}
-              onClick={(e) => {
-                e.stopPropagation();
-                editor.updateReference({ visible: !reference.visible });
-              }}
-            />
+            <span className="item-actions">
+              <IconButton
+                icon={reference.locked ? 'lock' : 'unlock'}
+                className="icon-btn item-action item-lock"
+                label={reference.locked ? t('layer.unlock') : t('layer.lock')}
+                pressed={reference.locked}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  editor.updateReference({ locked: !reference.locked });
+                }}
+              />
+              <IconButton
+                icon={reference.visible ? 'eye' : 'eyeOff'}
+                className="icon-btn item-action"
+                label={reference.visible ? t('reference.hide') : t('reference.show')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  editor.updateReference({ visible: !reference.visible });
+                }}
+              />
+            </span>
           </div>
         )}
       </div>

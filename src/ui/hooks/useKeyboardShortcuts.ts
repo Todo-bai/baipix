@@ -16,6 +16,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isMenuOpen() || document.querySelector('dialog[open]') || isTyping(e.target)) return;
+      if (uiStore.get().home) return;
       const key = e.key.toLowerCase();
       const mod = e.ctrlKey || e.metaKey;
 
@@ -99,7 +100,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
     };
     const onKeyUp = (e: KeyboardEvent) => e.code === 'Space' && release();
     const onPaste = (e: ClipboardEvent) => {
-      if (isTyping(e.target)) return;
+      if (isTyping(e.target) || uiStore.get().home) return;
       const files = [...(e.clipboardData?.files ?? [])];
       void actions.pasteFromClipboard(files).then((pasted) => pasted && e.preventDefault());
       if (files.length || editor.hasClipboard()) e.preventDefault();

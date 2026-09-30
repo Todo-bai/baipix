@@ -22,6 +22,8 @@ import { EditorContext } from './EditorContext';
 import { useAutosave } from './hooks/useAutosave';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useNotices } from './hooks/useNotices';
+import { showEmptyHome } from './home';
+import { HomeScreen } from './panels/HomeScreen';
 import { LeftPanel } from './panels/LeftPanel';
 import { RightPanel } from './panels/RightPanel';
 import { openDialog, PANEL_LIMITS, toast, uiStore, type UiState } from './uiStore';
@@ -39,10 +41,12 @@ function useRestore(editor: Editor, storage: StorageAdapter): boolean {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      let firstRun = true;
       try {
         const saved = await storage.load();
         if (cancelled) return;
         if (saved) {
+          firstRun = false;
           const ui = saved.ui as Partial<UiState> & { locale?: Locale };
           if (ui.locale) setLocale(ui.locale);
           editor.setLabels(editorLabels());
@@ -73,6 +77,7 @@ function useRestore(editor: Editor, storage: StorageAdapter): boolean {
         } else {
           const legacy = await importLegacyWorkspace();
           if (legacy.length && !cancelled) {
+            firstRun = false;
             editor.loadDocuments(legacy);
             toast(t('toast.legacyImported', { count: legacy.length }));
           }
@@ -80,7 +85,9 @@ function useRestore(editor: Editor, storage: StorageAdapter): boolean {
       } catch {
         /* first run or storage unavailable: start fresh */
       }
-      if (!cancelled) setReady(true);
+      if (cancelled) return;
+      if (firstRun) showEmptyHome(editor);
+      setReady(true);
     })();
     return () => {
       cancelled = true;
@@ -93,7 +100,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
   useT();
   const actions = useMemo(() => createActions(editor), [editor]);
   const ready = useRestore(editor, storage);
-  const { uiHidden, sheet, panelWidths } = uiStore.use((s) => s);
+  const { uiHidden, sheet, panelWidths, home } = uiStore.use((s) => s);
   useKeyboardShortcuts(editor, actions);
   useNotices(editor);
   useAutosave(editor, storage, ready);
@@ -128,6 +135,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
           </main>
           <RightPanel />
         </div>
+        {home && <HomeScreen />}
         <ColorPicker />
         <ColorAdjustPanel />
         <MenuHost />

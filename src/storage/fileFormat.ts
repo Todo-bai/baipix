@@ -37,6 +37,8 @@ export interface BaipixFile {
   /** Moved symmetry axes, in pixels (missing: the center). */
   axisX?: number;
   axisY?: number;
+  /** Last change, in ms since the epoch. */
+  updatedAt?: number;
   layers: BaipixLayer[];
 }
 
@@ -88,6 +90,7 @@ export function serializeDocument(doc: PixelDoc): BaipixFile {
     render: { ...doc.render },
     ...(doc.axisX !== undefined && { axisX: doc.axisX }),
     ...(doc.axisY !== undefined && { axisY: doc.axisY }),
+    ...(doc.updatedAt !== undefined && { updatedAt: doc.updatedAt }),
     layers: doc.layers.map((l) => ({
       name: l.name,
       visible: l.visible,
@@ -137,6 +140,7 @@ export function deserializeDocument(data: unknown): PixelDoc {
     },
     ...(typeof f.axisX === 'number' && { axisX: clamp(Math.round(f.axisX * 2) / 2, 0, width) }),
     ...(typeof f.axisY === 'number' && { axisY: clamp(Math.round(f.axisY * 2) / 2, 0, height) }),
+    ...(typeof f.updatedAt === 'number' && Number.isFinite(f.updatedAt) && { updatedAt: f.updatedAt }),
   };
 }
 

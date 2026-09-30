@@ -46,6 +46,8 @@ export interface FileInfo {
   name: string;
   width: number;
   height: number;
+  /** Last change, in ms since the epoch. */
+  updatedAt: number;
 }
 
 /** Immutable snapshot consumed by the UI. A new object is created on every change. */
@@ -81,7 +83,6 @@ export interface EditorLabels {
 export type Notice =
   | { type: 'layerHidden' }
   | { type: 'layerLocked' }
-  | { type: 'keepOneFile' }
   | { type: 'colorInPalette' }
   | { type: 'colorNotInPalette' }
   | { type: 'emptyDrawing' }
@@ -210,6 +211,7 @@ export class Editor {
         name: doc.name,
         width: doc.width,
         height: doc.height,
+        updatedAt: doc.updatedAt ?? 0,
       })),
       activeId: s.doc.id,
       doc: s.doc,
@@ -248,6 +250,12 @@ export class Editor {
 
   private checkpoint(): void {
     this.active.history.push(takeSnapshot(this.doc, this.active.selection));
+    this.touch();
+  }
+
+  /** Dates the active file's last change. */
+  private touch(): void {
+    this.doc.updatedAt = Date.now();
   }
 
   private restore(snapshot: Snapshot): void {
@@ -261,6 +269,7 @@ export class Editor {
     if (prev) {
       this.forgetDeletedLayer();
       this.restore(prev);
+      this.touch();
       this.commit();
     }
   }
@@ -271,6 +280,7 @@ export class Editor {
     if (next) {
       this.forgetDeletedLayer();
       this.restore(next);
+      this.touch();
       this.commit();
     }
   }
@@ -315,6 +325,7 @@ export class Editor {
   /** Adds an existing document (import, open file). */
   addDocument(doc: PixelDoc): void {
     this.cancelStroke();
+    doc.updatedAt = Date.now();
     this.addSession(doc);
     this.commit();
   }
@@ -323,6 +334,8 @@ export class Editor {
   loadDocuments(docs: PixelDoc[], activeId?: string): void {
     if (!docs.length) return;
     this.cancelStroke();
+    const now = Date.now();
+    docs.forEach((doc) => (doc.updatedAt ??= now));
     this.sessions = docs.map((doc) => ({ doc, history: new History(), selection: null }));
     this.deleted = null;
     this.active = this.sessions.find((s) => s.doc.id === activeId) ?? this.sessions[0];
@@ -347,6 +360,7 @@ export class Editor {
     const clean = name.trim().slice(0, 120);
     if (!s || !clean || clean === s.doc.name) return;
     s.doc.name = clean;
+    s.doc.updatedAt = Date.now();
     this.commit();
   }
 
@@ -356,26 +370,44 @@ export class Editor {
     this.cancelStroke();
     const copy = cloneDocument(this.sessions[i].doc, false);
     copy.name = this.labels.copyOf(copy.name);
+    copy.updatedAt = Date.now();
     const session: Session = { doc: copy, history: new History(), selection: null };
     this.sessions.splice(i + 1, 0, session);
     this.active = session;
     this.commit();
   }
 
-  /** Returns false when nothing was deleted. The file can be brought back with `restoreDeleted`. */
+  /**
+   * Returns false when nothing was deleted. The file can be brought back with `restoreDeleted`.
+   * The editor always holds a file: deleting the last one leaves a blank one in its place.
+   */
   deleteFile(id: string): boolean {
-    if (this.sessions.length < 2) {
-      this.notice({ type: 'keepOneFile' });
-      return false;
-    }
     const i = this.sessions.findIndex((x) => x.doc.id === id);
     if (i < 0) return false;
     this.cancelStroke();
+    if (this.sessions.length === 1) {
+      const { width, height } = this.sessions[0].doc;
+      this.sessions.push({
+        doc: createDocument(this.labels.untitled(1), width, height, this.labels.layer(1)),
+        history: new History(),
+        selection: null,
+      });
+    }
     const [removed] = this.sessions.splice(i, 1);
     if (removed === this.active) this.active = this.sessions[Math.max(0, i - 1)];
     this.deleted = { kind: 'file', session: removed, index: i };
     this.commit();
     return true;
+  }
+
+  /** Removes a file for good, without offering to bring it back (the home screen's blank file). */
+  discardFile(id: string): void {
+    const i = this.sessions.findIndex((x) => x.doc.id === id);
+    if (i < 0 || this.sessions.length < 2) return;
+    this.cancelStroke();
+    const [removed] = this.sessions.splice(i, 1);
+    if (removed === this.active) this.active = this.sessions[Math.max(0, i - 1)];
+    this.commit();
   }
 
   /**

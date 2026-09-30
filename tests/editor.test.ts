@@ -99,6 +99,19 @@ describe('Editor', () => {
     expect(e.getState().selection).toEqual({ x: 2, y: 0, w: 2, h: 2 });
   });
 
+  it('dates each file by its last change', () => {
+    const e = new Editor();
+    const first = e.getState().activeId;
+    const old = { ...e.getDocuments()[0], id: 'old', updatedAt: 1000 };
+    e.loadDocuments([e.getDocuments()[0], old], first);
+    expect(e.getState().files[1].updatedAt).toBe(1000);
+    e.switchFile('old');
+    expect(e.getState().files[1].updatedAt).toBe(1000);
+    e.setColor('primary', RED);
+    drag(e, [[1, 1]]);
+    expect(e.getState().files[1].updatedAt).toBeGreaterThan(1000);
+  });
+
   it('keeps separate histories per file', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);
@@ -280,10 +293,16 @@ describe('Editor', () => {
     expect(painted(e)).toBe(0);
   });
 
-  it('keeps the last file', () => {
+  it('leaves a blank file when the last one is deleted, and can bring it back', () => {
     const e = new Editor();
-    expect(e.deleteFile(e.getState().activeId)).toBe(false);
-    expect(e.restoreDeleted()).toBe(false);
+    const id = e.getState().activeId;
+    expect(e.deleteFile(id)).toBe(true);
+    expect(e.getState().files).toHaveLength(1);
+    expect(e.getState().activeId).not.toBe(id);
+    expect(e.restoreDeleted()).toBe(true);
+    expect(e.getState().activeId).toBe(id);
+    e.discardFile(e.getState().files.find((f) => f.id !== id)!.id);
+    expect(e.getState().files.map((f) => f.id)).toEqual([id]);
   });
 
   it("doesn't paint on a locked layer", () => {

@@ -10,6 +10,7 @@ import { imageToBlock, loadImage } from '../io/image';
 import { pickFile } from '../io/pickFile';
 import { canvasToBlob, renderToCanvas } from '../io/png';
 import { documentFromJson, documentToJson, FILE_EXTENSION } from '../storage/fileFormat';
+import { leaveHome, showEmptyHome } from './home';
 import { openDialog, toast, uiStore } from './uiStore';
 
 export type ExportFormat = 'png' | 'svg';
@@ -55,7 +56,7 @@ export function createActions(editor: Editor) {
     else toast(t('toast.downloadBusy'));
   }
 
-  return {
+  const actions = {
     async exportImage(format: ExportFormat, onlyActiveLayer = false) {
       const { d, pixels, geometry, background } = renderInput(onlyActiveLayer);
       const filename = `${baseName()}.${format}`;
@@ -122,8 +123,8 @@ export function createActions(editor: Editor) {
       }
     },
 
-    /** Same size as the canvas: added as a layer. Otherwise: a new file. */
-    async importImage(file?: File | null) {
+    /** Same size as the canvas: added as a layer (unless `asNewFile`). Otherwise: a new file. */
+    async importImage(file?: File | null, asNewFile = false) {
       const f = file ?? (await pickFile('image/*'));
       if (!f) return;
       if (/\.(hex|gpl)$/i.test(f.name)) {
@@ -151,7 +152,7 @@ export function createActions(editor: Editor) {
       }
       const name = f.name.replace(/\.[^.]+$/, '') || t('default.image');
       const d = doc();
-      if (img.naturalWidth === d.width && img.naturalHeight === d.height) {
+      if (!asNewFile && img.naturalWidth === d.width && img.naturalHeight === d.height) {
         editor.paste(imageToBlock(img, d.width, d.height), name);
         editor.deselect();
         editor.setTool('pencil');
@@ -189,8 +190,16 @@ export function createActions(editor: Editor) {
     },
 
     // No confirmation: deleting is instant, and the toast offers to bring it back.
+    /** Deleting the last file goes back to the empty home screen; Undo brings the file back. */
     deleteFile(id: string, name: string) {
-      if (editor.deleteFile(id)) toast(t('toast.deleted', { name }), undoDelete());
+      const last = editor.getState().files.length === 1;
+      if (!editor.deleteFile(id)) return;
+      if (!last) return toast(t('toast.deleted', { name }), undoDelete());
+      showEmptyHome(editor);
+      toast(t('toast.deleted', { name }), {
+        label: t('common.undo'),
+        run: () => editor.restoreDeleted() && leaveHome(editor),
+      });
     },
 
     /** Deletes the selected layers (or the active one), with an Undo toast. */
@@ -202,7 +211,29 @@ export function createActions(editor: Editor) {
     },
 
     hasTransparentBackground: () => !alpha(doc().background),
+
+    /**
+     * Home screen import: a .baipix file or an image, always as a new file.
+     * Resolves true when a file was added.
+     */
+    async openFile(file?: File | null): Promise<boolean> {
+      const f = file ?? (await pickFile(`${FILE_EXTENSION},application/json,image/*`));
+      if (!f) return false;
+      const before = editor.getState().files.length;
+      if (f.name.endsWith(FILE_EXTENSION) || f.type === 'application/json') {
+        try {
+          editor.addDocument(documentFromJson(await f.text()));
+          toast(t('toast.opened', { name: f.name }));
+        } catch {
+          toast(t('toast.notBaipix'));
+        }
+      } else {
+        await actions.importImage(f, true);
+      }
+      return editor.getState().files.length > before;
+    },
   };
+  return actions;
 }
 
 export type Actions = ReturnType<typeof createActions>;

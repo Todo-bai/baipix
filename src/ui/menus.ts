@@ -1,4 +1,4 @@
-import type { Editor } from '../engine/editor';
+import type { Editor, FileInfo } from '../engine/editor';
 import { LOCALES, getLocale, setLocale, t } from '../i18n';
 import type { Actions } from './actions';
 import type { MenuItem } from './components/Menu';
@@ -8,9 +8,24 @@ import { openDialog, uiStore } from './uiStore';
 const CHANGELOG_URL = 'https://github.com/baipix/baipix/blob/main/CHANGELOG.md';
 import { viewport } from './viewport';
 
+/** A file's "…" menu, in the Files list and on the home screen cards. */
+export function fileMenu(editor: Editor, actions: Actions, file: FileInfo): MenuItem[] {
+  return [
+    { label: t('file.duplicate'), onSelect: () => editor.duplicateFile(file.id) },
+    {
+      label: t('file.download'),
+      onSelect: () => (editor.switchFile(file.id), void actions.saveDocument()),
+    },
+    '-',
+    { label: t('common.delete'), onSelect: () => actions.deleteFile(file.id, file.name) },
+  ];
+}
+
 export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
   const s = editor.getState();
   return [
+    { label: t('menu.home'), onSelect: () => uiStore.set({ home: true }) },
+    '-',
     { label: t('menu.newFile'), onSelect: () => openDialog({ type: 'newFile' }) },
     { label: t('menu.open'), shortcut: 'Ctrl+O', onSelect: () => void actions.openDocument() },
     { label: t('menu.saveAs'), onSelect: () => void actions.saveDocument() },

@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- maximum-scale stops iOS from zooming the page when a text field is focused (our fields are
+         under 16px); pinch zoom still works there, and the canvas has its own zoom. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
     <meta
       name="description"
       content="Baipix — a pixel art editor for designers, with the interface of a modern design tool."

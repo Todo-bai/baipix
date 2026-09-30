@@ -22,6 +22,27 @@ export interface RenderSettings {
   gap: number;
 }
 
+/**
+ * An image under the drawing to trace over. Never exported, not part of the undo history, and not
+ * in .baipix files: it's only kept with the workspace. Position and size are in art pixels.
+ */
+export interface ReferenceImage {
+  /** Data URL (WebP or PNG), scaled down on import. */
+  src: string;
+  /** Natural size of `src`, for its proportions. */
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** 0 to 1. */
+  opacity: number;
+  visible: boolean;
+  /** Locked: the Move tool leaves it alone. */
+  locked?: boolean;
+}
+
 export interface PixelDoc {
   id: string;
   name: string;
@@ -44,6 +65,7 @@ export interface PixelDoc {
   layerCounter: number;
   /** Last change, in ms since the epoch (for the home screen). Missing in older files. */
   updatedAt?: number;
+  reference?: ReferenceImage;
 }
 
 let seq = 0;
@@ -108,6 +130,9 @@ export function resizeDocument(doc: PixelDoc, width: number, height: number): vo
   const offsetY = Math.floor((height - doc.height) / 2);
   if (doc.axisX !== undefined) doc.axisX = Math.min(width, Math.max(0, doc.axisX + offsetX));
   if (doc.axisY !== undefined) doc.axisY = Math.min(height, Math.max(0, doc.axisY + offsetY));
+  // The reference stays under the same pixels.
+  if (doc.reference)
+    doc.reference = { ...doc.reference, x: doc.reference.x + offsetX, y: doc.reference.y + offsetY };
   for (const layer of doc.layers) {
     const next = new Uint32Array(width * height);
     for (let y = 0; y < doc.height; y++) {

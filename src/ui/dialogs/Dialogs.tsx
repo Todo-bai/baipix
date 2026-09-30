@@ -6,6 +6,9 @@ import { PALETTE_PRESETS, parseHexList, presetColors } from '../../engine/palett
 import { useT } from '../../i18n';
 import { useEditor, useEditorState } from '../EditorContext';
 import { IconButton } from '../components/IconButton';
+import { loadImage } from '../../io/image';
+import { pickFile } from '../../io/pickFile';
+import { useActions } from '../ActionsContext';
 import { hasUntouchedStarter, leaveHome } from '../home';
 import { closeDialog, toast, uiStore } from '../uiStore';
 import { Dialog } from './Dialog';
@@ -19,6 +22,21 @@ function NewFileDialog() {
   const doc = editor.getState().doc;
   const [w, setW] = useState(String(doc.width));
   const [h, setH] = useState(String(doc.height));
+  const [reference, setReference] = useState<File | null>(null);
+  const actions = useActions();
+  /** A reference image gives the canvas its proportions: the height follows the width. */
+  const pickReference = async () => {
+    const file = await pickFile('image/*');
+    if (!file) return;
+    setReference(file);
+    try {
+      const img = await loadImage(file);
+      const width = clamp(Number(w) || 32, 1, MAX_SIZE);
+      setH(String(clamp(Math.round((width * img.naturalHeight) / img.naturalWidth), 1, MAX_SIZE)));
+    } catch {
+      /* unreadable: addReference says so after creating the file */
+    }
+  };
   return (
     <Dialog
       title={t('dialog.newFile')}
@@ -29,6 +47,7 @@ function NewFileDialog() {
         const name = hasUntouchedStarter(editor) ? t('default.untitled') : undefined;
         editor.newFile(clamp(Number(w) || 32, 1, MAX_SIZE), clamp(Number(h) || 32, 1, MAX_SIZE), name);
         leaveHome(editor);
+        if (reference) void actions.addReference(reference);
       }}
     >
       <div className="chips">
@@ -69,6 +88,17 @@ function NewFileDialog() {
             required
           />
         </label>
+      </div>
+      <div className="reference-pick">
+        <button type="button" className="btn" onClick={() => void pickReference()}>
+          {reference ? t('dialog.referenceChange') : t('dialog.reference')}
+        </button>
+        {reference && (
+          <>
+            <span className="muted truncate">{reference.name}</span>
+            <IconButton icon="close" label={t('reference.remove')} onClick={() => setReference(null)} />
+          </>
+        )}
       </div>
       <p className="muted">{t('dialog.newFileHint')}</p>
     </Dialog>

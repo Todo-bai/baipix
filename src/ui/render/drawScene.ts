@@ -1,5 +1,5 @@
 import { alpha, toCss, type Color } from '../../engine/color';
-import { mirrorAxes, type PixelDoc } from '../../engine/document';
+import { hasBackground, mirrorAxes, type PixelDoc } from '../../engine/document';
 import type { ViewSettings } from '../../engine/editor';
 import type { Point, Rect } from '../../engine/math';
 import { brush, mirrored } from '../../engine/raster';
@@ -22,12 +22,23 @@ export interface BrushPreview {
   color: Color | null;
 }
 
+/** The reference image, under the layers. `rect` is in art pixels. */
+export interface SceneReference {
+  image: CanvasImageSource;
+  rect: Rect;
+  opacity: number;
+  /** Selected (like a layer): shown whole, with an outline and corner handles to resize it. */
+  selected: boolean;
+}
+
 export interface Scene {
   doc: PixelDoc;
   /** Flattened image (doc size, background included). */
   composite: CanvasImageSource;
   /** Grid line color for each pixel, same size as `composite` (see grid.ts). */
   gridInk: CanvasImageSource;
+  /** When set, `composite` leaves out the background: it is painted here, under the reference. */
+  reference: SceneReference | null;
   view: ViewSettings;
   selection: Rect | null;
   /** Animated selection outline offset, in CSS pixels. */
@@ -126,6 +137,26 @@ export function drawScene(
   ctx.fillStyle = checker;
   ctx.fillRect(0, 0, cw, ch);
   ctx.restore();
+  const ref = scene.reference;
+  if (ref) {
+    if (hasBackground(doc)) {
+      ctx.fillStyle = toCss(doc.background);
+      ctx.fillRect(X, Y, cw, ch);
+    }
+    const r = ref.rect;
+    ctx.save();
+    // Clipped to the canvas, except when selected, so it can be placed from outside too.
+    if (!ref.selected) {
+      ctx.beginPath();
+      ctx.rect(X, Y, cw, ch);
+      ctx.clip();
+    }
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.globalAlpha = ref.opacity;
+    ctx.drawImage(ref.image, X + r.x * s, Y + r.y * s, r.w * s, r.h * s);
+    ctx.restore();
+  }
   ctx.drawImage(scene.composite, X, Y, cw, ch);
 
   // Render gap: paint strips between pixels with the background (or the checkerboard).
@@ -218,6 +249,31 @@ export function drawScene(
     ctx.fillRect(X - ext, y, cw + ext * 2, lw);
     ctx.fillRect(X - ext, Math.round(ay - grip / 2), ext - Math.round(3 * dpr), grip);
     ctx.fillRect(X + cw + Math.round(3 * dpr), Math.round(ay - grip / 2), ext - Math.round(3 * dpr), grip);
+  }
+
+  // Selected reference: blue outline and corner handles.
+  if (ref?.selected) {
+    const r = ref.rect;
+    const rx = Math.round(X + r.x * s);
+    const ry = Math.round(Y + r.y * s);
+    const rw = Math.round(r.w * s);
+    const rh = Math.round(r.h * s);
+    ctx.strokeStyle = theme.highlight;
+    ctx.lineWidth = lw;
+    ctx.strokeRect(rx - lw / 2, ry - lw / 2, rw + lw, rh + lw);
+    const hs = Math.round(8 * dpr);
+    for (const [cx, cy] of [
+      [rx, ry],
+      [rx + rw, ry],
+      [rx, ry + rh],
+      [rx + rw, ry + rh],
+    ]) {
+      const hx = Math.round(cx - hs / 2);
+      const hy = Math.round(cy - hs / 2);
+      ctx.fillStyle = theme.handle;
+      ctx.fillRect(hx, hy, hs, hs);
+      ctx.strokeRect(hx + lw / 2, hy + lw / 2, hs - lw, hs - lw);
+    }
   }
 
   // Selection: blue outline, corner handles and a size badge.

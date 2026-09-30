@@ -10,6 +10,7 @@ import {
   resizeDocument,
   type Layer,
   type PixelDoc,
+  type ReferenceImage,
   type RenderSettings,
 } from './document';
 import { History, takeSnapshot, type Snapshot } from './history';
@@ -67,6 +68,8 @@ export interface EditorState {
   view: ViewSettings;
   /** Ids of the selected layers, bottom to top. Always includes the active layer. */
   selectedLayers: string[];
+  /** The reference image is selected (in the Layers panel, or picked by the Move tool). */
+  referenceSelected: boolean;
   canUndo: boolean;
   canRedo: boolean;
   revision: number;
@@ -89,7 +92,9 @@ export type Notice =
   | { type: 'rampAdded'; count: number }
   | { type: 'extracted'; count: number }
   | { type: 'pasted' }
-  | { type: 'merged' };
+  | { type: 'merged' }
+  /** A layer moved partly off the canvas: those pixels are gone (Undo brings them back). */
+  | { type: 'pixelsCut'; count: number };
 
 export interface Preferences {
   tool: ToolId;
@@ -108,6 +113,8 @@ interface Session {
   /** Ids of the selected layers (always including the active one), and where a Shift+click range starts. */
   picked?: string[];
   anchor?: string;
+  /** The reference image is selected in the Layers panel instead of a layer. */
+  referencePicked?: boolean;
 }
 
 /** What the last delete removed, so it can be brought back (the toast's Undo button). */
@@ -224,6 +231,7 @@ export class Editor {
       recent: this.recent,
       view: this.view,
       selectedLayers: s.picked,
+      referenceSelected: !!s.referencePicked && !!s.doc.reference,
       canUndo: s.history.canUndo,
       canRedo: s.history.canRedo,
       revision: this.revision,
@@ -259,6 +267,10 @@ export class Editor {
   }
 
   private restore(snapshot: Snapshot): void {
+    // The reference image isn't part of the history: undo and redo leave it where it is.
+    const { reference } = this.active.doc;
+    snapshot.doc.reference = reference;
+    if (!reference) delete snapshot.doc.reference;
     this.active.doc = snapshot.doc;
     this.active.selection = snapshot.selection;
   }
@@ -459,6 +471,52 @@ export class Editor {
     });
   }
 
+  /**
+   * Adds, replaces or removes (null) the reference image. Not undoable, like view settings. A new
+   * reference is selected, with the Move tool, so it can be placed right away.
+   */
+  setReference(reference: ReferenceImage | null): void {
+    this.cancelStroke();
+    if (reference) {
+      this.doc.reference = { ...reference };
+      this.active.referencePicked = true;
+      this.tool = 'move';
+    } else {
+      delete this.doc.reference;
+      this.active.referencePicked = false;
+    }
+    this.touch();
+    this.commit();
+  }
+
+  /** Selects the reference image like a layer, with the Move tool to place it. */
+  selectReference(): void {
+    if (!this.doc.reference || (this.active.referencePicked && this.tool === 'move')) return;
+    this.active.referencePicked = true;
+    this.tool = 'move';
+    this.commit(false);
+  }
+
+  /** Back to the active layer. */
+  deselectReference(): void {
+    if (!this.active.referencePicked) return;
+    this.active.referencePicked = false;
+    this.commit(false);
+  }
+
+  /**
+   * Moves, resizes or changes the reference image. `final` is false during a drag: the canvas redraws
+   * but nothing is saved until the gesture ends.
+   */
+  updateReference(patch: Partial<Omit<ReferenceImage, 'src' | 'width' | 'height'>>, final = true): void {
+    const r = this.doc.reference;
+    if (!r) return;
+    this.doc.reference = { ...r, ...patch, opacity: clamp(patch.opacity ?? r.opacity, 0, 1) };
+    if (!final) return this.pixelsChanged();
+    this.touch();
+    this.commit();
+  }
+
   /** Live background color edits (color picker drags) without an undo step per move. */
   previewBackground(color: Color): void {
     this.doc.background = color;
@@ -512,7 +570,9 @@ export class Editor {
   setActiveLayer(index: number): void {
     if (index < 0 || index >= this.doc.layers.length) return;
     const id = this.doc.layers[index].id;
-    if (index === this.doc.activeLayer && this.active.picked?.length === 1) return;
+    if (index === this.doc.activeLayer && this.active.picked?.length === 1 && !this.active.referencePicked)
+      return;
+    this.active.referencePicked = false;
     this.doc.activeLayer = index;
     this.active.picked = [id];
     this.active.anchor = id;
@@ -528,6 +588,7 @@ export class Editor {
     const layers = this.doc.layers;
     if (!layers[index]) return;
     if (mode === 'single') return this.setActiveLayer(index);
+    this.active.referencePicked = false;
     const id = layers[index].id;
     const picked = this.state.selectedLayers;
     if (mode === 'toggle') {
@@ -1015,6 +1076,11 @@ export class Editor {
 
   /** Moves the selection (or the layer) by a few pixels, as one undo step. */
   nudge(dx: number, dy: number): void {
+    const r = this.doc.reference;
+    if (this.state.referenceSelected && r) {
+      if (!r.locked) this.updateReference({ x: r.x + dx, y: r.y + dy });
+      return;
+    }
     if (this.stroke || !activeLayer(this.doc).visible || this.activeLocked()) return;
     this.checkpoint();
     const s = this.createStroke({ x: 0, y: 0 }, false);
@@ -1122,6 +1188,11 @@ export class Editor {
     if (this.adjusting) return false;
     const id = toolOverride ?? this.tool;
     const tool = TOOLS[id];
+    // Drawing, or moving pixels, goes back to the active layer.
+    if (tool.editsPixels && this.active.referencePicked) {
+      this.active.referencePicked = false;
+      this.commit(false);
+    }
     if (id === 'move' && !mods.keepLayer) this.pickLayerAt(p);
     if (tool.editsPixels && this.activeLocked()) return false;
     if (tool.editsPixels && !activeLayer(this.doc).visible) {
@@ -1166,6 +1237,10 @@ export class Editor {
       this.commit(false);
       return;
     }
+    if (id === 'move' && !s.selection) {
+      const cut = opaqueCount(s.base) - opaqueCount(s.layer.pixels);
+      if (cut > 0) this.notice({ type: 'pixelsCut', count: cut });
+    }
     if (tool.paintsColor) {
       const [c1, c2] = strokeColors(s);
       if (s.options.dither) this.remember(c1, c2);
@@ -1187,6 +1262,12 @@ export class Editor {
     this.active.selection = s.selection;
     this.commit(false);
   }
+}
+
+function opaqueCount(pixels: Uint32Array): number {
+  let n = 0;
+  for (let i = 0; i < pixels.length; i++) if (pixels[i] >>> 24) n++;
+  return n;
 }
 
 function changed(a: Uint32Array, b: Uint32Array): boolean {

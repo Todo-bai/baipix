@@ -335,6 +335,23 @@ body.is-resizing * {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.reference-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 12px;
+}
+/* The reference sits last in the Layers list, set apart from the layers above it. */
+.reference-item .item-name {
+  font-style: italic;
+}
+.reference-thumb {
+  object-fit: cover;
+}
+.section-note {
+  margin: 8px 0 0;
+}
 .subsection-title {
   display: flex;
   align-items: center;

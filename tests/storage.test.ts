@@ -63,4 +63,26 @@ describe('IndexedDbStorage', () => {
     expect(loaded?.documents[0].layers[0].pixels[0]).toBe(pack(255, 0, 0));
     expect(loaded?.ui).toEqual({ lang: 'fr' });
   });
+
+  it('keeps the reference image in the workspace, never in .baipix files', async () => {
+    const storage = new IndexedDbStorage();
+    const doc = createDocument('A', 4, 4);
+    const reference = {
+      src: 'data:image/webp;base64,AAAA',
+      width: 8,
+      height: 4,
+      x: 0,
+      y: 1,
+      w: 4,
+      h: 2,
+      opacity: 0.5,
+      visible: false,
+      locked: true,
+    };
+    doc.reference = reference;
+    await storage.save({ documents: [doc], activeId: doc.id, preferences: {}, ui: {} });
+    expect((await storage.load())?.documents[0].reference).toEqual(reference);
+    expect(documentToJson(doc)).not.toContain('reference');
+    expect(documentFromJson(documentToJson(doc)).reference).toBeUndefined();
+  });
 });

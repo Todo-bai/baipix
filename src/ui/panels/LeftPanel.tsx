@@ -160,7 +160,9 @@ function LayersSection() {
   const doc = useEditorState((s) => s.doc);
   const revision = useEditorState((s) => s.revision);
   const selected = useEditorState((s) => s.selectedLayers);
-  const multi = selected.length > 1;
+  const referenceSelected = useEditorState((s) => s.referenceSelected);
+  const reference = doc.reference;
+  const multi = !referenceSelected && selected.length > 1;
   const layers = doc.layers.map((layer, index) => ({ layer, index })).reverse();
   const n = layers.length;
   const listRef = useRef<HTMLDivElement>(null);
@@ -238,7 +240,7 @@ function LayersSection() {
     const y0 = e.clientY;
     let started = false;
     const slotAt = (y: number) => {
-      const items = [...(listRef.current?.querySelectorAll('.item') ?? [])];
+      const items = [...(listRef.current?.querySelectorAll('.item:not(.reference-item)') ?? [])];
       const k = items.findIndex((el) => {
         const r = el.getBoundingClientRect();
         return y < r.top + r.height / 2;
@@ -284,13 +286,20 @@ function LayersSection() {
     <Section
       title={t('section.layers')}
       className="grow"
-      aside={<IconButton icon="plus" label={t('layer.new')} onClick={() => editor.addLayer()} />}
+      aside={
+        <>
+          {!reference && (
+            <IconButton icon="image" label={t('reference.add')} onClick={() => void actions.addReference()} />
+          )}
+          <IconButton icon="plus" label={t('layer.new')} onClick={() => editor.addLayer()} />
+        </>
+      }
     >
       <div className="item-list" ref={listRef}>
         {layers.map(({ layer, index }, displayPos) => (
           <div
             key={layer.id}
-            className={`item${index === doc.activeLayer ? ' is-active' : ''}${
+            className={`item${index === doc.activeLayer && !referenceSelected ? ' is-active' : ''}${
               multi && selected.includes(layer.id) ? ' is-selected' : ''
             }${layer.visible ? '' : ' is-hidden'}${layer.locked ? ' is-locked' : ''}${
               drag &&
@@ -341,34 +350,75 @@ function LayersSection() {
             />
           </div>
         ))}
+        {reference && (
+          // Always last: it sits under every layer and can't be reordered.
+          <div
+            className={`item reference-item${referenceSelected ? ' is-active' : ''}${
+              reference.visible ? '' : ' is-hidden'
+            }${reference.locked ? ' is-locked' : ''}`}
+            onClick={() => editor.selectReference()}
+          >
+            <img className="thumb reference-thumb" src={reference.src} alt="" />
+            <span className="item-name">{t('reference.title')}</span>
+            {reference.opacity < 1 && <span className="muted">{Math.round(reference.opacity * 100)} %</span>}
+            <IconButton
+              icon={reference.locked ? 'lock' : 'unlock'}
+              className="icon-btn item-action item-lock"
+              label={reference.locked ? t('layer.unlock') : t('layer.lock')}
+              pressed={reference.locked}
+              onClick={(e) => {
+                e.stopPropagation();
+                editor.updateReference({ locked: !reference.locked });
+              }}
+            />
+            <IconButton
+              icon={reference.visible ? 'eye' : 'eyeOff'}
+              className="icon-btn item-action"
+              label={reference.visible ? t('reference.hide') : t('reference.show')}
+              onClick={(e) => {
+                e.stopPropagation();
+                editor.updateReference({ visible: !reference.visible });
+              }}
+            />
+          </div>
+        )}
       </div>
       <div className="layer-actions">
-        <IconButton icon="duplicate" label={t('layer.duplicate')} onClick={() => editor.duplicateLayer()} />
+        <IconButton
+          icon="duplicate"
+          label={t('layer.duplicate')}
+          disabled={referenceSelected}
+          onClick={() => editor.duplicateLayer()}
+        />
         <IconButton
           icon="up"
           label={t('layer.moveUp')}
-          disabled={doc.activeLayer >= doc.layers.length - 1}
+          disabled={referenceSelected || doc.activeLayer >= doc.layers.length - 1}
           onClick={() => editor.moveLayer(1)}
         />
         <IconButton
           icon="down"
           label={t('layer.moveDown')}
-          disabled={doc.activeLayer === 0}
+          disabled={referenceSelected || doc.activeLayer === 0}
           onClick={() => editor.moveLayer(-1)}
         />
         <IconButton
           icon="merge"
           label={multi ? t('layer.mergeCount', { count: selected.length }) : t('layer.mergeDown')}
-          disabled={multi ? false : doc.activeLayer === 0}
+          disabled={referenceSelected || (multi ? false : doc.activeLayer === 0)}
           onClick={() => (multi ? editor.mergeLayers() : editor.mergeDown())}
         />
         <span className="spacer" />
-        <IconButton
-          icon="trash"
-          label={multi ? t('layer.deleteCount', { count: selected.length }) : t('layer.delete')}
-          disabled={doc.layers.length < 2 || selected.length >= doc.layers.length}
-          onClick={() => actions.deleteLayers()}
-        />
+        {referenceSelected ? (
+          <IconButton icon="trash" label={t('reference.remove')} onClick={() => actions.removeReference()} />
+        ) : (
+          <IconButton
+            icon="trash"
+            label={multi ? t('layer.deleteCount', { count: selected.length }) : t('layer.delete')}
+            disabled={doc.layers.length < 2 || selected.length >= doc.layers.length}
+            onClick={() => actions.deleteLayers()}
+          />
+        )}
       </div>
     </Section>
   );

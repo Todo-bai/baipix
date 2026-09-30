@@ -62,6 +62,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
 
       if (e.key === 'Escape') {
         if (uiStore.get().picker) uiStore.set({ picker: null });
+        else if (editor.getState().referenceSelected) editor.deselectReference();
         else if (editor.isStroking) editor.cancelStroke();
         else editor.deselect();
         return;
@@ -76,6 +77,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
       }
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
+        if (editor.getState().referenceSelected) return actions.removeReference();
         return e.shiftKey ? editor.fill() : editor.clearSelection();
       }
       if (e.key.startsWith('Arrow') && (editor.getState().tool === 'move' || editor.getState().selection)) {

@@ -1,4 +1,4 @@
-import type { PixelDoc } from '../engine/document';
+import type { PixelDoc, ReferenceImage } from '../engine/document';
 import type { Preferences } from '../engine/editor';
 import { deserializeDocument, serializeDocument, type BaipixFile } from './fileFormat';
 
@@ -11,9 +11,12 @@ export interface Workspace {
   ui: Record<string, unknown>;
 }
 
+/** A file in the browser's workspace: the .baipix content, plus what isn't in .baipix files. */
+export type StoredFile = BaipixFile & { reference?: ReferenceImage };
+
 export interface StoredWorkspace {
   version: 1;
-  files: BaipixFile[];
+  files: StoredFile[];
   activeId: string;
   preferences: Partial<Preferences>;
   ui: Record<string, unknown>;
@@ -30,7 +33,10 @@ export interface StorageAdapter {
 
 export const toStored = (w: Workspace): StoredWorkspace => ({
   version: 1,
-  files: w.documents.map(serializeDocument),
+  files: w.documents.map((d) => ({
+    ...serializeDocument(d),
+    ...(d.reference && { reference: d.reference }),
+  })),
   activeId: w.activeId,
   preferences: w.preferences,
   ui: w.ui,
@@ -40,11 +46,35 @@ export function fromStored(s: StoredWorkspace): Workspace | null {
   const documents: PixelDoc[] = [];
   for (const f of s.files ?? []) {
     try {
-      documents.push(deserializeDocument(f));
+      const doc = deserializeDocument(f);
+      const reference = readReference(f.reference);
+      if (reference) doc.reference = reference;
+      documents.push(doc);
     } catch {
       /* skip unreadable files rather than losing the whole workspace */
     }
   }
   if (!documents.length) return null;
   return { documents, activeId: s.activeId, preferences: s.preferences ?? {}, ui: s.ui ?? {} };
+}
+
+/** Checks a stored reference image, dropping it when anything is off. */
+function readReference(r: unknown): ReferenceImage | undefined {
+  const x = r as Partial<ReferenceImage> | null | undefined;
+  if (!x || typeof x.src !== 'string' || !x.src.startsWith('data:image/')) return undefined;
+  const nums = [x.width, x.height, x.x, x.y, x.w, x.h, x.opacity];
+  if (!nums.every((n) => typeof n === 'number' && Number.isFinite(n))) return undefined;
+  if (!(x.w! > 0 && x.h! > 0)) return undefined;
+  return {
+    src: x.src,
+    width: x.width!,
+    height: x.height!,
+    x: x.x!,
+    y: x.y!,
+    w: x.w!,
+    h: x.h!,
+    opacity: Math.min(1, Math.max(0, x.opacity!)),
+    visible: x.visible !== false,
+    locked: x.locked === true,
+  };
 }

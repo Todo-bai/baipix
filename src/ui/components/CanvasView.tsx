@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { pack, toHex } from '../../engine/color';
 import { flatten } from '../../engine/composite';
+import type { PixelDoc } from '../../engine/document';
 import type { Point, Rect } from '../../engine/math';
 import { pixelBounds } from '../../engine/region';
 import { gridInk } from '../render/grid';
@@ -16,6 +17,7 @@ import {
   LABEL,
   labelRect,
   type BrushPreview,
+  type SceneReference,
 } from '../render/drawScene';
 import { readTheme, type Theme } from '../render/theme';
 import { BRUSH_TOOLS, SHAPE_IDS } from '../tools';
@@ -77,6 +79,87 @@ export function CanvasView() {
     let altHeld = false;
     // Dragging a symmetry axis by its grip.
     let axisDrag: 'x' | 'y' | null = null;
+    // Adjusting the reference image: moving it, or resizing it from a corner (the opposite one stays).
+    let refDrag: {
+      mode: 'move' | 'resize';
+      start: Point;
+      rect: { x: number; y: number; w: number; h: number };
+      anchor: Point;
+    } | null = null;
+    const refImages = new Map<string, HTMLImageElement>();
+    const refImage = (src: string): HTMLImageElement | null => {
+      let img = refImages.get(src);
+      if (!img) {
+        img = new Image();
+        img.onload = () => request();
+        img.src = src;
+        refImages.set(src, img);
+      }
+      return img.complete && img.naturalWidth ? img : null;
+    };
+    /** Pointer position in art pixels, not rounded. */
+    const artPoint = (l: { x: number; y: number }): Point => ({
+      x: (l.x * viewport.dpr - viewport.originX) / viewport.scale,
+      y: (l.y * viewport.dpr - viewport.originY) / viewport.scale,
+    });
+    /** The reference the Move tool can take: visible and unlocked, with no selection in the way. */
+    const movableReference = () => {
+      const st = editor.getState();
+      const r = st.doc.reference;
+      return st.tool === 'move' && !st.selection && r?.visible && !r.locked ? r : null;
+    };
+    const insideReference = (r: Rect, p: Point) =>
+      p.x >= r.x && p.y >= r.y && p.x <= r.x + r.w && p.y <= r.y + r.h;
+    /**
+     * Move tool on the reference: a corner of the selected reference resizes it, and the reference
+     * itself is taken where no layer has a pixel (or anywhere with Cmd/Ctrl once it's selected).
+     */
+    const beginRefDrag = (l: { x: number; y: number }, keep: boolean): boolean => {
+      const r = movableReference();
+      if (!r) return false;
+      const selected = editor.getState().referenceSelected;
+      const p = artPoint(l);
+      const rect = { x: r.x, y: r.y, w: r.w, h: r.h };
+      if (selected) {
+        const reach = (10 * viewport.dpr) / viewport.scale;
+        const corners: Point[] = [
+          { x: r.x, y: r.y },
+          { x: r.x + r.w, y: r.y },
+          { x: r.x, y: r.y + r.h },
+          { x: r.x + r.w, y: r.y + r.h },
+        ];
+        const i = corners.findIndex((c) => Math.abs(c.x - p.x) <= reach && Math.abs(c.y - p.y) <= reach);
+        if (i >= 0) {
+          refDrag = { mode: 'resize', start: p, rect, anchor: corners[3 - i] };
+          return true;
+        }
+      }
+      if (!insideReference(r, p)) return false;
+      if (keep ? !selected : editor.layerAt(viewport.toPixel(l.x, l.y)) >= 0) return false;
+      editor.selectReference();
+      refDrag = { mode: 'move', start: p, rect, anchor: p };
+      return true;
+    };
+    const dragRef = (l: { x: number; y: number }, final: boolean) => {
+      if (!refDrag) return;
+      const p = artPoint(l);
+      const { rect, anchor } = refDrag;
+      if (refDrag.mode === 'move') {
+        editor.updateReference(
+          { x: rect.x + p.x - refDrag.start.x, y: rect.y + p.y - refDrag.start.y },
+          final,
+        );
+        return;
+      }
+      // Keep the proportions: the larger of the two drag distances wins.
+      const ratio = rect.w / rect.h;
+      const w = Math.max(1, Math.abs(p.x - anchor.x), Math.abs(p.y - anchor.y) * ratio);
+      const h = w / ratio;
+      editor.updateReference(
+        { x: p.x < anchor.x ? anchor.x - w : anchor.x, y: p.y < anchor.y ? anchor.y - h : anchor.y, w, h },
+        final,
+      );
+    };
 
     /** The symmetry axis whose grip (the part outside the canvas) is under the pointer, if any. */
     const axisAt = (l: { x: number; y: number }): 'x' | 'y' | null => {
@@ -111,13 +194,24 @@ export function CanvasView() {
         composite.height = ink.height = doc.height;
       }
       const pixels = flatten(doc);
+      // A visible reference sits between the background and the layers: the renderer paints the
+      // background itself, under it.
+      const layers = doc.reference?.visible ? flatten(doc, { includeBackground: false }) : pixels;
       const image = cctx.createImageData(doc.width, doc.height);
-      new Uint32Array(image.data.buffer).set(pixels);
+      new Uint32Array(image.data.buffer).set(layers);
       cctx.putImageData(image, 0, 0);
       const lines = ictx.createImageData(doc.width, doc.height);
       new Uint32Array(lines.data.buffer).set(gridInk(pixels, theme.checkA));
       ictx.putImageData(lines, 0, 0);
       compositeDirty = false;
+    };
+
+    const sceneReference = (doc: PixelDoc): SceneReference | null => {
+      const r = doc.reference;
+      if (!r?.visible) return null;
+      const image = refImage(r.src);
+      if (!image) return null;
+      return { image, rect: r, opacity: r.opacity, selected: editor.getState().referenceSelected };
     };
 
     const draw = (now = performance.now()) => {
@@ -162,6 +256,7 @@ export function CanvasView() {
           doc: live.doc,
           composite,
           gridInk: ink,
+          reference: sceneReference(live.doc),
           view: live.view,
           selection: live.selection,
           selectionDashOffset: reduceMotion ? 0 : (now / 80) % 8,
@@ -289,7 +384,10 @@ export function CanvasView() {
       if (!p || state.tool !== 'move' || state.selection || panStart || pinch) return null;
       if (mods.metaKey || mods.ctrlKey) return null;
       const k = editor.layerAt(p);
-      if (k < 0) return null;
+      if (k < 0) {
+        const r = movableReference();
+        return r && insideReference(r, artPoint(lastLocal)) ? r : null;
+      }
       const { doc } = state;
       const key = `${doc.layers[k].id}:${state.revision}`;
       if (boundsCache?.key !== key)
@@ -297,6 +395,8 @@ export function CanvasView() {
       return boundsCache.rect;
     };
     let lastMods = { metaKey: false, ctrlKey: false };
+    // Last pointer position over the canvas (CSS px), for the reference hit test.
+    let lastLocal = { x: 0, y: 0 };
 
     const touches = () => [...pointers.values()].filter((p) => p.touch);
     const pinchInfo = () => {
@@ -337,6 +437,7 @@ export function CanvasView() {
       if (onLabel(l)) return;
       const p = viewport.toPixel(l.x, l.y);
       updateHover(p);
+      if (e.button === 0 && beginRefDrag(l, e.metaKey || e.ctrlKey)) return;
       const tool = editor.getState().tool;
       const override = e.altKey && DRAWING_TOOLS.includes(tool) ? 'picker' : undefined;
       editor.beginStroke(
@@ -372,6 +473,10 @@ export function CanvasView() {
         dragAxis(local(e));
         return;
       }
+      if (refDrag) {
+        dragRef(local(e), false);
+        return;
+      }
       const onAxis = editor.isStroking ? null : axisAt(local(e));
       canvas.classList.toggle('on-axis-x', onAxis === 'x');
       canvas.classList.toggle('on-axis-y', onAxis === 'y');
@@ -385,6 +490,7 @@ export function CanvasView() {
       updateHover(hover);
       if (!editor.isStroking) canvas.classList.toggle('on-label', onLabel(local(e)));
       lastMods = { metaKey: e.metaKey, ctrlKey: e.ctrlKey };
+      lastLocal = local(e);
       // Alt picks a color with drawing tools: show the eyedropper while it is held.
       canvas.classList.toggle('alt-pick', e.altKey && DRAWING_TOOLS.includes(editor.getState().tool));
       request();
@@ -409,6 +515,11 @@ export function CanvasView() {
         axisDrag = null;
         return;
       }
+      if (refDrag) {
+        dragRef(local(e), true);
+        refDrag = null;
+        return;
+      }
       editor.endStroke();
     };
 
@@ -418,6 +529,8 @@ export function CanvasView() {
       panStart = null;
       pinch = null;
       axisDrag = null;
+      if (refDrag) editor.updateReference(refDrag.rect);
+      refDrag = null;
     };
 
     const onLeave = (e: PointerEvent) => {

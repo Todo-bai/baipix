@@ -16,6 +16,7 @@ import {
   FlipHorizontal2,
   FlipVertical2,
   Hand,
+  Image,
   Lock,
   Menu,
   Minus,
@@ -183,6 +184,7 @@ export const ICONS = {
   rotate: Reload,
   flipH: FlipHorizontal2,
   flipV: FlipVertical2,
+  image: Image,
 } satisfies Record<string, PixelGlyph>;
 
 export type IconName = keyof typeof ICONS | 'logo';

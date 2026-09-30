@@ -8,6 +8,7 @@ import { copyPng, copyText } from '../io/clipboard';
 import { saveFile, safeFileName } from '../io/download';
 import { imageToBlock, loadImage } from '../io/image';
 import { pickFile } from '../io/pickFile';
+import { referenceFromFile } from '../io/reference';
 import { canvasToBlob, renderToCanvas } from '../io/png';
 import { documentFromJson, documentToJson, FILE_EXTENSION } from '../storage/fileFormat';
 import { leaveHome, showEmptyHome } from './home';
@@ -47,6 +48,34 @@ export function createActions(editor: Editor) {
     }
     editor.setPaletteColors(colors);
     toast(t('toast.colorsImported', { count: colors.length }));
+  }
+
+  /**
+   * "Use as reference" in the toast after an image became pixels: takes the pixels back out, then
+   * puts the image, sharp, under the drawing. `undoImport` removes what the import added.
+   */
+  const asReferenceAction = (file: File, undoImport: () => void) => ({
+    label: t('reference.useInstead'),
+    run: () => {
+      undoImport();
+      void actions.addReference(file);
+    },
+  });
+
+  /** Removes the layer an image was just pasted on: an undo if nothing happened since, else a delete. */
+  function removePastedLayer(): () => void {
+    const s = editor.getState();
+    const docId = s.doc.id;
+    const layerId = s.doc.layers[s.doc.activeLayer].id;
+    const revision = s.revision;
+    return () => {
+      if (editor.getState().revision === revision) return editor.undo();
+      editor.switchFile(docId);
+      const i = editor.getState().doc.layers.findIndex((l) => l.id === layerId);
+      if (i < 0) return;
+      editor.setActiveLayer(i);
+      editor.deleteLayers();
+    };
   }
 
   async function report(filename: string, result: Promise<string>) {
@@ -156,17 +185,25 @@ export function createActions(editor: Editor) {
         editor.paste(imageToBlock(img, d.width, d.height), name);
         editor.deselect();
         editor.setTool('pencil');
-        toast(t('toast.imageAsLayer'));
+        toast(t('toast.imageAsLayer'), asReferenceAction(f, removePastedLayer()));
         return;
       }
       const block = imageToBlock(img, MAX_SIZE, MAX_SIZE);
       const next = createDocument(name, block.width, block.height, t('default.image'));
       next.layers[0].pixels.set(block.pixels);
+      const previous = d.id;
       editor.addDocument(next);
+      const message = block.scaled
+        ? t('toast.imageShrunk', { w: block.width, h: block.height, max: MAX_SIZE })
+        : t('toast.imageAsFile', { w: block.width, h: block.height });
+      // From the home screen the new file is the point; elsewhere, offer to trace over it instead.
+      if (asNewFile) return toast(message);
       toast(
-        block.scaled
-          ? t('toast.imageShrunk', { w: block.width, h: block.height, max: MAX_SIZE })
-          : t('toast.imageAsFile', { w: block.width, h: block.height }),
+        message,
+        asReferenceAction(f, () => {
+          editor.discardFile(next.id);
+          editor.switchFile(previous);
+        }),
       );
     },
 
@@ -177,6 +214,7 @@ export function createActions(editor: Editor) {
         try {
           const d = doc();
           editor.paste(imageToBlock(await loadImage(image), d.width, d.height), t('default.pastedImage'));
+          toast(t('toast.imagePasted'), asReferenceAction(image, removePastedLayer()));
         } catch {
           toast(t('toast.unreadableImage'));
         }
@@ -211,6 +249,34 @@ export function createActions(editor: Editor) {
     },
 
     hasTransparentBackground: () => !alpha(doc().background),
+
+    /** Removes the reference image, with an Undo in the toast (it isn't in the history). */
+    removeReference() {
+      const reference = doc().reference;
+      if (!reference) return;
+      const docId = doc().id;
+      editor.setReference(null);
+      toast(t('toast.referenceRemoved'), {
+        label: t('common.undo'),
+        run: () => {
+          editor.switchFile(docId);
+          editor.setReference(reference);
+        },
+      });
+    },
+
+    /** Puts an image (picked, or given) under the drawing, fitted to the canvas. */
+    async addReference(file?: File | null) {
+      const f = file ?? (await pickFile('image/*'));
+      if (!f) return;
+      try {
+        const d = doc();
+        editor.setReference(await referenceFromFile(f, d.width, d.height));
+        toast(t('toast.referenceAdded'));
+      } catch {
+        toast(t('toast.unreadableImage'));
+      }
+    },
 
     /**
      * Home screen import: a .baipix file or an image, always as a new file.

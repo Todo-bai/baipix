@@ -215,6 +215,18 @@ export const fr: Record<MessageKey, string> = {
   'canvas.hideBackground': 'Masquer le fond',
   'canvas.showBackground': 'Afficher le fond',
   'canvas.removeBackground': 'Retirer le fond',
+  'reference.useInstead': 'Utiliser comme référence',
+  'toast.imagePasted': 'Image collée sur un nouveau calque.',
+  'reference.hint':
+    "Sous tous les calques, jamais exportée. Avec l'outil Déplacer, glisse-la pour la déplacer, ou un coin pour la redimensionner.",
+  'toast.referenceAdded':
+    "Référence ajoutée sous les calques. Glisse-la, ou un coin pour la redimensionner. Elle n'est jamais exportée.",
+  'toast.referenceRemoved': 'Référence retirée.',
+  'reference.title': 'Référence',
+  'reference.add': 'Ajouter une image de référence à décalquer',
+  'reference.hide': 'Masquer la référence',
+  'reference.show': 'Afficher la référence',
+  'reference.remove': 'Retirer la référence',
   'canvas.drop': "Dépose une image pour l'importer",
 
   'display.grid': 'Grille de pixels',
@@ -244,6 +256,8 @@ export const fr: Record<MessageKey, string> = {
   'coordinates.colors': '{count} couleurs',
 
   'dialog.newFile': 'Nouveau fichier',
+  'dialog.reference': "Partir d'une image de référence…",
+  'dialog.referenceChange': "Changer d'image…",
   'dialog.newFileHint': "Le fichier s'ajoute à la liste, ton dessin actuel reste intact.",
   'dialog.pasteColorsHint':
     'Colle des codes hex séparés par des espaces, des virgules ou des retours à la ligne. Le format .hex de Lospec fonctionne tel quel.',
@@ -311,5 +325,6 @@ export const fr: Record<MessageKey, string> = {
   'home.recent': 'Récents',
   'home.drop': 'Dépose pour ouvrir',
   'home.justNow': "À l'instant",
+  'toast.pixelsCut': '{count} pixels sont sortis du canevas et ont été coupés.',
   'toast.saveFailed': 'Impossible de sauvegarder dans ce navigateur : pense à télécharger tes fichiers.',
 };

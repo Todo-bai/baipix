@@ -212,6 +212,18 @@ export const en = {
   'canvas.hideBackground': 'Hide the background',
   'canvas.showBackground': 'Show the background',
   'canvas.removeBackground': 'Remove the background',
+  'reference.useInstead': 'Use as reference',
+  'toast.imagePasted': 'Image pasted on a new layer.',
+  'reference.hint':
+    'Under every layer, never exported. With the Move tool, drag it to move it, or a corner to resize it.',
+  'toast.referenceAdded':
+    'Reference added under the layers. Drag it, or a corner to resize it. It is never exported.',
+  'toast.referenceRemoved': 'Reference removed.',
+  'reference.title': 'Reference',
+  'reference.add': 'Add a reference image to trace over',
+  'reference.hide': 'Hide the reference',
+  'reference.show': 'Show the reference',
+  'reference.remove': 'Remove the reference',
   'canvas.drop': 'Drop an image to import it',
 
   'display.grid': 'Pixel grid',
@@ -241,6 +253,8 @@ export const en = {
   'coordinates.colors': '{count} colors',
 
   'dialog.newFile': 'New file',
+  'dialog.reference': 'Start from a reference image…',
+  'dialog.referenceChange': 'Change the image…',
   'dialog.newFileHint': 'The file is added to the list; your current drawing stays untouched.',
   'dialog.pasteColorsHint':
     'Paste hex codes separated by spaces, commas or line breaks. Lospec .hex files work as is.',
@@ -307,6 +321,7 @@ export const en = {
   'home.recent': 'Recent',
   'home.drop': 'Drop to open',
   'home.justNow': 'Just now',
+  'toast.pixelsCut': '{count} pixels went off the canvas and were cut.',
   'toast.saveFailed': 'Unable to save in this browser: remember to download your files.',
 } as const;
 

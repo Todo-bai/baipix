@@ -201,12 +201,51 @@ function PaletteSection() {
   );
 }
 
+/** The selected reference image, in the place of the layer's settings. */
+function ReferenceSection() {
+  const t = useT();
+  const editor = useEditor();
+  const reference = useEditorState((s) => s.doc.reference);
+  if (!reference) return null;
+  return (
+    <Section
+      id="layer"
+      title={t('section.layer')}
+      aside={<span className="muted">{t('reference.title')}</span>}
+    >
+      <div className="two-columns">
+        <NumberField
+          value={Math.round(reference.opacity * 100)}
+          min={0}
+          max={100}
+          label="◐"
+          suffix="%"
+          ariaLabel={t('common.opacity')}
+          scrubHint={t('common.dragToAdjust')}
+          sensitivity={2}
+          onChange={(v, final) => editor.updateReference({ opacity: v / 100 }, final)}
+        />
+        <button
+          type="button"
+          className="btn"
+          onClick={() => editor.updateReference({ visible: !reference.visible })}
+        >
+          {reference.visible ? t('layer.hide') : t('layer.show')}
+        </button>
+      </div>
+      <p className="muted section-note">{t('reference.hint')}</p>
+    </Section>
+  );
+}
+
 function LayerSection() {
   const t = useT();
   const editor = useEditor();
   const layer = useEditorState((s) => s.doc.layers[s.doc.activeLayer]);
   const index = useEditorState((s) => s.doc.activeLayer);
+  const referenceSelected = useEditorState((s) => s.referenceSelected);
   useEditorState((s) => s.revision);
+  if (referenceSelected) return <ReferenceSection />;
   return (
     <Section
       id="layer"

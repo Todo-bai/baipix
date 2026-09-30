@@ -108,10 +108,51 @@ describe('Editor', () => {
     move([5, 5], [6, 5], true);
     expect(e.getState().doc.activeLayer).toBe(0);
     expect(e.getState().doc.layers[1].pixels[5 * 32 + 5]).toBe(RED);
+    // Moving pixels off the canvas says so.
+    const notices: string[] = [];
+    e.onNotice((n) => notices.push(n.type));
+    move([2, 2], [40, 2]);
+    expect(notices).toContain('pixelsCut');
     // Locked layers are skipped.
     e.setActiveLayer(1);
     e.setLayerLocked(1, true);
     expect(e.layerAt({ x: 5, y: 5 })).toBe(-1);
+  });
+
+  it('leaves the reference image out of undo', () => {
+    const e = new Editor();
+    const ref = { src: 'data:image/png;base64,', width: 2, height: 1, x: 0, y: 0, w: 32, h: 16 };
+    e.setReference({ ...ref, opacity: 0.5, visible: true });
+    drag(e, [[1, 1]]);
+    e.updateReference({ x: 4, opacity: 2 });
+    expect(e.getState().doc.reference?.opacity).toBe(1);
+    e.undo();
+    expect(painted(e)).toBe(0);
+    expect(e.getState().doc.reference?.x).toBe(4);
+    e.resize(34, 32);
+    expect(e.getState().doc.reference?.x).toBe(5);
+    e.setReference(null);
+    expect(e.getState().doc.reference).toBeUndefined();
+  });
+
+  it('selects the reference like a layer', () => {
+    const e = new Editor();
+    const ref = { src: 'data:image/png;base64,', width: 1, height: 1, x: 0, y: 0, w: 8, h: 8 };
+    e.setReference({ ...ref, opacity: 1, visible: true });
+    // A new reference is selected, with the Move tool, to place it.
+    expect(e.getState().referenceSelected).toBe(true);
+    expect(e.getState().tool).toBe('move');
+    e.nudge(2, 1);
+    expect(e.getState().doc.reference).toMatchObject({ x: 2, y: 1 });
+    e.setActiveLayer(0);
+    expect(e.getState().referenceSelected).toBe(false);
+    e.selectReference();
+    e.setTool('pencil');
+    e.setColor('primary', RED);
+    drag(e, [[1, 1]]);
+    // Drawing goes back to the active layer.
+    expect(e.getState().referenceSelected).toBe(false);
+    expect(painted(e)).toBe(1);
   });
 
   it('moves a selection', () => {

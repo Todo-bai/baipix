@@ -653,6 +653,8 @@ body.is-resizing * {
 /* ---------- Files & layers ---------- */
 .item-list {
   display: grid;
+  /* A long name must not widen the list: rows keep the panel's width and cut the name instead. */
+  grid-template-columns: minmax(0, 1fr);
   margin: 0 -8px;
 }
 .files-list {
@@ -660,6 +662,8 @@ body.is-resizing * {
   overflow-y: auto;
 }
 .item {
+  position: relative;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -701,6 +705,35 @@ body.is-resizing * {
   border-radius: 4px;
   background: var(--panel);
   outline: none;
+}
+/* The name (and the size or opacity after it) uses the whole row. The action icons float over its
+   end, on the row's own color with a short fade, only when they show: on hover, or a hidden or
+   locked layer's eye and lock. */
+.item-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 4px 0 16px;
+  background: linear-gradient(90deg, transparent, var(--panel) 14px);
+  opacity: 0;
+  pointer-events: none;
+}
+.item.is-active .item-actions,
+.item.is-selected .item-actions {
+  background:
+    linear-gradient(90deg, transparent, var(--selected) 14px),
+    linear-gradient(90deg, transparent, var(--panel) 14px);
+}
+.item:hover .item-actions,
+.item:focus-within .item-actions,
+.item.is-hidden .item-actions,
+.item.is-locked .item-actions,
+.item-actions:has([aria-expanded='true']) {
+  opacity: 1;
+  pointer-events: auto;
 }
 .item-action {
   opacity: 0;
@@ -1865,6 +1898,9 @@ body.is-dragging-swatch * {
   --muted: rgba(0, 0, 0, 0.55);
   background: var(--glow);
   color: var(--glow-ink);
+}
+.item:hover:not(.is-active):not(.is-selected) .item-actions {
+  background: linear-gradient(90deg, transparent, var(--glow) 14px);
 }
 /* Text buttons stay neutral on hover (they only sink), so the blue main button stands alone. */
 .btn:hover:not(:disabled) {

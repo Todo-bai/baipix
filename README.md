@@ -76,4 +76,4 @@ If you like Baipix, a ⭐ on [GitHub](https://github.com/baipix/baipix) helps ot
 
 [MIT](LICENSE)
 
-Icons from [Lucide](https://lucide.dev) (ISC).
+Icons from [Pixelarticons](https://pixelarticons.com) (MIT).

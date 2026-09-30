@@ -26,6 +26,8 @@ export interface Scene {
   doc: PixelDoc;
   /** Flattened image (doc size, background included). */
   composite: CanvasImageSource;
+  /** Grid line color for each pixel, same size as `composite` (see grid.ts). */
+  gridInk: CanvasImageSource;
   view: ViewSettings;
   selection: Rect | null;
   /** Animated selection outline offset, in CSS pixels. */
@@ -141,16 +143,20 @@ export function drawScene(
   ctx.textBaseline = 'bottom';
   ctx.fillText(scene.label, X, Y - Math.round(LABEL.gap * dpr));
 
-  // Pixel grid (every pixel) and major grid (every 8 pixels).
+  // Pixel grid (every pixel) and major grid (every 8 pixels, drawn twice to stand out). Each line
+  // is a column or row of the ink image, stretched: its color follows the pixels it runs along.
+  const ink = scene.gridInk;
+  const col = (i: number) => ctx.drawImage(ink, i, 0, 1, H, X + i * s, Y, 1, ch);
+  const row = (j: number) => ctx.drawImage(ink, 0, j, W, 1, X, Y + j * s, cw, 1);
   if (view.grid && s >= 6 && !gap) {
-    ctx.fillStyle = theme.grid;
-    for (let i = 1; i < W; i++) if (i % 8) ctx.fillRect(X + i * s, Y, 1, ch);
-    for (let j = 1; j < H; j++) if (j % 8) ctx.fillRect(X, Y + j * s, cw, 1);
+    for (let i = 1; i < W; i++) if (i % 8) col(i);
+    for (let j = 1; j < H; j++) if (j % 8) row(j);
   }
   if (view.grid && s >= 2 && (W > 8 || H > 8)) {
-    ctx.fillStyle = theme.gridMajor;
-    for (let i = 8; i < W; i += 8) ctx.fillRect(X + i * s, Y, 1, ch);
-    for (let j = 8; j < H; j += 8) ctx.fillRect(X, Y + j * s, cw, 1);
+    for (let k = 0; k < 2; k++) {
+      for (let i = 8; i < W; i += 8) col(i);
+      for (let j = 8; j < H; j += 8) row(j);
+    }
   }
   ctx.strokeStyle = theme.frame;
   ctx.lineWidth = 1;

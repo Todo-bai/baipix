@@ -10,6 +10,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- The pixel grid stays visible on any drawing: its lines are dark on light pixels and light on dark ones, instead of following the app theme. (#145)
 - The eyedropper cursor is the pixel pipette of the toolbar, with a white edge so it shows on any color. (#144)
 - A new pixel look for the editor: pixel art icons, side panels floating over the canvas, notched corners and hard shadows, key-style buttons like on the website, pixel checkboxes, and a sky blue for hovers and the main button. The dark theme is now neutral gray. (#131)
 

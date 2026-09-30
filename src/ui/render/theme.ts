@@ -3,7 +3,6 @@ export interface Theme {
   checkA: string;
   checkB: string;
   grid: string;
-  gridMajor: string;
   frame: string;
   accent: string;
   /** Text drawn on top of the accent. */
@@ -32,7 +31,6 @@ export function readTheme(el: Element = document.documentElement): Theme {
     checkA: v('--check-a'),
     checkB: v('--check-b'),
     grid: v('--grid'),
-    gridMajor: v('--grid-major'),
     frame: v('--frame'),
     accent: v('--accent'),
     accentInk: v('--accent-ink'),

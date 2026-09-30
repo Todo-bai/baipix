@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- On phones, the colors stay in view in a strip above the toolbar: tap a swatch for the primary color, long press for the secondary one, tap a chip to open the color picker. (#146)
 - A home screen: a welcome on first launch, Create and Import buttons, and your drawings as thumbnails with their last modified date, newest first. Open it from the main menu. The last file can now be deleted too, which brings back the empty home screen. (#143)
 
 ### Changed

@@ -12,6 +12,7 @@ import { Coordinates } from './components/Coordinates';
 import { IconButton } from './components/IconButton';
 import { MenuHost } from './components/Menu';
 import { MobileBar } from './components/MobileBar';
+import { MobileColors } from './components/MobileColors';
 import { PanelResizer } from './components/PanelResizer';
 import { ToolOptionsBar } from './components/ToolOptionsBar';
 import { Toasts } from './components/Toasts';
@@ -121,6 +122,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
             <PanelResizer side="left" />
             <PanelResizer side="right" />
             <MobileBar />
+            <MobileColors />
             <Coordinates />
             <IconButton
               className="icon-btn large shortcuts-help-button"

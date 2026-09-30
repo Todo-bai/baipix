@@ -5,6 +5,8 @@ export interface Theme {
   grid: string;
   frame: string;
   accent: string;
+  /** The blue of hovers, for what the pointer is about to act on. */
+  highlight: string;
   /** Text drawn on top of the accent. */
   accentInk: string;
   muted: string;
@@ -33,6 +35,7 @@ export function readTheme(el: Element = document.documentElement): Theme {
     grid: v('--grid'),
     frame: v('--frame'),
     accent: v('--accent'),
+    highlight: v('--glow-line'),
     accentInk: v('--accent-ink'),
     muted: v('--muted'),
     axis: v('--axis'),

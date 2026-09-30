@@ -743,8 +743,13 @@ body.is-resizing * {
   cursor: crosshair;
   touch-action: none;
 }
+/* Move tool: the pixel arrow of the toolbar, white halo, hotspot on the tip. The layer it would
+   take is outlined on the canvas instead of changing the cursor. */
 .canvas-wrap[data-tool='move'] .canvas {
-  cursor: move;
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='-2 -2 28 28' shape-rendering='crispEdges'%3E%3Cpath d='M6 4h2v16H6zm2 0h2v2H8zm2 2h2v2h-2zm2 2h2v2h-2zm2 2h2v2h-2zm2 2h2v2h-2zm-8 6h2v2H8zm2-2h2v2h-2zm2-2h6v2h-6z' fill='white' stroke='white' stroke-width='4' stroke-linejoin='miter'/%3E%3Cpath d='M6 4h2v16H6zm2 0h2v2H8zm2 2h2v2h-2zm2 2h2v2h-2zm2 2h2v2h-2zm2 2h2v2h-2zm-8 6h2v2H8zm2-2h2v2h-2zm2-2h6v2h-6z' fill='black'/%3E%3C/svg%3E")
+      8 6,
+    default;
 }
 .canvas-wrap[data-tool='hand'] .canvas {
   cursor: grab;

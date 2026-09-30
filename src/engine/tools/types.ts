@@ -55,6 +55,8 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
 
 export interface Modifiers {
   shift: boolean;
+  /** Move tool: Cmd/Ctrl held, move the active layer instead of the one under the pointer. */
+  keepLayer?: boolean;
 }
 
 /** Everything a tool needs during one pointer gesture. Created by the editor on pointer down. */

@@ -121,3 +121,22 @@ export function uniqueColors(pixels: Uint32Array, limit = 256): Color[] {
   }
   return [...set];
 }
+
+/** Smallest rectangle holding every non-transparent pixel, or null when there is none. */
+export function pixelBounds(pixels: Uint32Array, width: number, height: number): Rect | null {
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      if (!(pixels[row + x] >>> 24)) continue;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      maxY = y;
+    }
+  }
+  return maxX < 0 ? null : { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+}

@@ -9,6 +9,7 @@ import {
   CircleQuestion,
   Close,
   Copy,
+  CursorMinimal,
   Eraser,
   Eye,
   EyeOff,
@@ -20,7 +21,6 @@ import {
   Minus,
   Moon,
   MoreHorizontal,
-  Move,
   Pencil,
   Pipette,
   Plus,
@@ -141,7 +141,7 @@ const Layers = drawn([
 
 /** Interface icons, from Pixelarticons (MIT, https://pixelarticons.com) plus a few drawn here. */
 export const ICONS = {
-  move: Move,
+  move: CursorMinimal,
   hand: Hand,
   select: Select,
   pencil: Pencil,

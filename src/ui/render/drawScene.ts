@@ -33,6 +33,8 @@ export interface Scene {
   /** Animated selection outline offset, in CSS pixels. */
   selectionDashOffset: number;
   brush: BrushPreview | null;
+  /** Move tool: the bounds of the layer a click would move, outlined on hover. */
+  moveTarget: Rect | null;
   /** Eyedropper loupe around the hovered pixel, with the text shown under it (the hex code). */
   loupe: { at: Point; color: Color | null; text: string } | null;
   label: string;
@@ -161,6 +163,13 @@ export function drawScene(
   ctx.strokeStyle = theme.frame;
   ctx.lineWidth = 1;
   ctx.strokeRect(X - 0.5, Y - 0.5, cw + 1, ch + 1);
+
+  if (scene.moveTarget) {
+    const r = scene.moveTarget;
+    ctx.strokeStyle = theme.highlight;
+    ctx.lineWidth = lw;
+    ctx.strokeRect(X + r.x * s - lw / 2, Y + r.y * s - lw / 2, r.w * s - gap + lw, r.h * s - gap + lw);
+  }
 
   // Brush footprint: one cell per pixel, shrunk by the gap so it matches what will be painted.
   if (scene.brush) {

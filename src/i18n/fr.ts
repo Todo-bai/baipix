@@ -167,7 +167,8 @@ export const fr: Record<MessageKey, string> = {
   'hint.picker': 'Clic gauche pour la couleur principale, clic droit pour la secondaire.',
   'hint.select': 'Ctrl+C, Ctrl+X, Ctrl+V. Suppr efface la sélection.',
   'hint.moveSelection': 'Glisse pour déplacer la sélection. Flèches du clavier pour 1 px, Maj pour 8 px.',
-  'hint.moveLayer': 'Glisse pour déplacer tout le calque. Flèches du clavier pour 1 px, Maj pour 8 px.',
+  'hint.moveLayer':
+    'Glisse un pixel pour déplacer son calque, Cmd/Ctrl pour garder le calque actif. Flèches du clavier pour 1 px, Maj pour 8 px.',
 
   'color.primary': 'Couleur principale',
   'color.secondary': 'Couleur secondaire',

@@ -85,6 +85,35 @@ describe('Editor', () => {
     expect(notices).toContain('layerHidden');
   });
 
+  it('moves the layer under the pointer with the Move tool', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    drag(e, [[1, 1]]); // layer 1
+    e.addLayer();
+    drag(e, [[5, 5]]); // layer 2, now active
+    const move = (from: [number, number], to: [number, number], keepLayer = false) => {
+      e.beginStroke({ x: from[0], y: from[1] }, false, { shift: false, keepLayer });
+      e.moveStroke({ x: to[0], y: to[1] }, { shift: false });
+      e.endStroke();
+    };
+    e.setTool('move');
+    move([1, 1], [2, 1]);
+    expect(e.getState().doc.activeLayer).toBe(0);
+    expect(layer(e)[1 * 32 + 2]).toBe(RED);
+    // Empty spot: the active layer moves.
+    move([10, 10], [10, 11]);
+    expect(e.getState().doc.activeLayer).toBe(0);
+    expect(layer(e)[2 * 32 + 2]).toBe(RED);
+    // Cmd/Ctrl: the active layer moves, even over another layer's pixel.
+    move([5, 5], [6, 5], true);
+    expect(e.getState().doc.activeLayer).toBe(0);
+    expect(e.getState().doc.layers[1].pixels[5 * 32 + 5]).toBe(RED);
+    // Locked layers are skipped.
+    e.setActiveLayer(1);
+    e.setLayerLocked(1, true);
+    expect(e.layerAt({ x: 5, y: 5 })).toBe(-1);
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

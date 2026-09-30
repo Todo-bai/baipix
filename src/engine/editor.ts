@@ -494,6 +494,21 @@ export class Editor {
 
   /* ------------------------------------------------------------------ layers */
 
+  /**
+   * The layer the Move tool takes at pixel `p`: the top visible, unlocked layer with a pixel there.
+   * -1 when there is none, or with a selection (the selection moves instead).
+   */
+  layerAt(p: Point): number {
+    const { width, height, layers } = this.doc;
+    if (this.active.selection || p.x < 0 || p.y < 0 || p.x >= width || p.y >= height) return -1;
+    const i = p.y * width + p.x;
+    for (let k = layers.length - 1; k >= 0; k--) {
+      const l = layers[k];
+      if (l.visible && !l.locked && l.opacity > 0 && l.pixels[i] >>> 24) return k;
+    }
+    return -1;
+  }
+
   setActiveLayer(index: number): void {
     if (index < 0 || index >= this.doc.layers.length) return;
     const id = this.doc.layers[index].id;
@@ -1107,6 +1122,7 @@ export class Editor {
     if (this.adjusting) return false;
     const id = toolOverride ?? this.tool;
     const tool = TOOLS[id];
+    if (id === 'move' && !mods.keepLayer) this.pickLayerAt(p);
     if (tool.editsPixels && this.activeLocked()) return false;
     if (tool.editsPixels && !activeLayer(this.doc).visible) {
       this.notice({ type: 'layerHidden' });
@@ -1118,6 +1134,17 @@ export class Editor {
     tool.onDown(this.stroke, p, mods);
     this.pixelsChanged();
     return true;
+  }
+
+  /** Makes the layer under `p` the active one (see `layerAt`), without an undo step of its own. */
+  private pickLayerAt(p: Point): void {
+    const k = this.layerAt(p);
+    if (k < 0 || k === this.doc.activeLayer) return;
+    const id = this.doc.layers[k].id;
+    this.doc.activeLayer = k;
+    this.active.picked = [id];
+    this.active.anchor = id;
+    this.commit(false);
   }
 
   moveStroke(p: Point, mods: Modifiers): void {

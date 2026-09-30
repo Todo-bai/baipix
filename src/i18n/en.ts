@@ -165,7 +165,8 @@ export const en = {
   'hint.picker': 'Left click for the primary color, right click for the secondary.',
   'hint.select': 'Ctrl+C, Ctrl+X, Ctrl+V. Delete clears the selection.',
   'hint.moveSelection': 'Drag to move the selection. Arrow keys for 1 px, Shift for 8 px.',
-  'hint.moveLayer': 'Drag to move the whole layer. Arrow keys for 1 px, Shift for 8 px.',
+  'hint.moveLayer':
+    'Drag a pixel to move its layer, Cmd/Ctrl to keep the active one. Arrow keys for 1 px, Shift for 8 px.',
 
   'color.primary': 'Primary color',
   'color.secondary': 'Secondary color',

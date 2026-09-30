@@ -1,6 +1,8 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { pack, toHex } from '../../engine/color';
 import { flatten } from '../../engine/composite';
+import type { Point, Rect } from '../../engine/math';
+import { pixelBounds } from '../../engine/region';
 import { gridInk } from '../render/grid';
 import type { ToolId } from '../../engine/tools';
 import { t as translate, useT } from '../../i18n';
@@ -164,6 +166,7 @@ export function CanvasView() {
           selection: live.selection,
           selectionDashOffset: reduceMotion ? 0 : (now / 80) % 8,
           brush,
+          moveTarget: editor.isStroking ? null : moveTargetAt(hover, lastMods),
           loupe,
           label: renamingRef.current ? '' : live.doc.name,
         },
@@ -278,6 +281,23 @@ export function CanvasView() {
       hoverStore.set({ x: p.x, y: p.y, color: d[3] ? pack(d[0], d[1], d[2], d[3]) : null });
     };
 
+    // Bounds of the layer the Move tool would take, cached until the drawing changes.
+    let boundsCache: { key: string; rect: Rect | null } | null = null;
+    const moveTargetAt = (p: Point | null, mods: { metaKey: boolean; ctrlKey: boolean }): Rect | null => {
+      const state = editor.getState();
+      // With a selection, or Cmd/Ctrl held, nothing is picked: no outline.
+      if (!p || state.tool !== 'move' || state.selection || panStart || pinch) return null;
+      if (mods.metaKey || mods.ctrlKey) return null;
+      const k = editor.layerAt(p);
+      if (k < 0) return null;
+      const { doc } = state;
+      const key = `${doc.layers[k].id}:${state.revision}`;
+      if (boundsCache?.key !== key)
+        boundsCache = { key, rect: pixelBounds(doc.layers[k].pixels, doc.width, doc.height) };
+      return boundsCache.rect;
+    };
+    let lastMods = { metaKey: false, ctrlKey: false };
+
     const touches = () => [...pointers.values()].filter((p) => p.touch);
     const pinchInfo = () => {
       const [a, b] = touches();
@@ -319,7 +339,12 @@ export function CanvasView() {
       updateHover(p);
       const tool = editor.getState().tool;
       const override = e.altKey && DRAWING_TOOLS.includes(tool) ? 'picker' : undefined;
-      editor.beginStroke(p, e.button === 2, { shift: e.shiftKey }, override);
+      editor.beginStroke(
+        p,
+        e.button === 2,
+        { shift: e.shiftKey, keepLayer: e.metaKey || e.ctrlKey },
+        override,
+      );
     };
 
     const onMove = (e: PointerEvent) => {
@@ -359,6 +384,7 @@ export function CanvasView() {
       }
       updateHover(hover);
       if (!editor.isStroking) canvas.classList.toggle('on-label', onLabel(local(e)));
+      lastMods = { metaKey: e.metaKey, ctrlKey: e.ctrlKey };
       // Alt picks a color with drawing tools: show the eyedropper while it is held.
       canvas.classList.toggle('alt-pick', e.altKey && DRAWING_TOOLS.includes(editor.getState().tool));
       request();

@@ -1,4 +1,5 @@
 import { alpha, type Color } from './color';
+import { reframe, type Outside } from './outside';
 
 export const MAX_SIZE = 512;
 
@@ -12,6 +13,8 @@ export interface Layer {
   opacity: number;
   /** width × height packed colors, row-major. */
   pixels: Uint32Array;
+  /** What was moved off the canvas, kept to bring it back (see outside.ts). */
+  outside?: Outside;
 }
 
 /** How pixels are rendered on export (and optionally previewed on the canvas). */
@@ -133,17 +136,11 @@ export function resizeDocument(doc: PixelDoc, width: number, height: number): vo
   // The reference stays under the same pixels.
   if (doc.reference)
     doc.reference = { ...doc.reference, x: doc.reference.x + offsetX, y: doc.reference.y + offsetY };
+  // A smaller canvas keeps what it cuts off, a bigger one brings back what was outside.
   for (const layer of doc.layers) {
-    const next = new Uint32Array(width * height);
-    for (let y = 0; y < doc.height; y++) {
-      const ty = y + offsetY;
-      if (ty < 0 || ty >= height) continue;
-      for (let x = 0; x < doc.width; x++) {
-        const tx = x + offsetX;
-        if (tx >= 0 && tx < width) next[ty * width + tx] = layer.pixels[y * doc.width + x];
-      }
-    }
-    layer.pixels = next;
+    const r = reframe(layer.pixels, doc.width, doc.height, layer.outside, offsetX, offsetY, width, height);
+    layer.pixels = r.pixels;
+    layer.outside = r.outside;
   }
   doc.width = width;
   doc.height = height;

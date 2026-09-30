@@ -1,6 +1,13 @@
 import type { PixelDoc, ReferenceImage } from '../engine/document';
 import type { Preferences } from '../engine/editor';
-import { deserializeDocument, serializeDocument, type BaipixFile } from './fileFormat';
+import type { Outside } from '../engine/outside';
+import {
+  decodePixels,
+  deserializeDocument,
+  encodePixels,
+  serializeDocument,
+  type BaipixFile,
+} from './fileFormat';
 
 /** Everything that is persisted between sessions. */
 export interface Workspace {
@@ -11,8 +18,21 @@ export interface Workspace {
   ui: Record<string, unknown>;
 }
 
-/** A file in the browser's workspace: the .baipix content, plus what isn't in .baipix files. */
-export type StoredFile = BaipixFile & { reference?: ReferenceImage };
+/** A layer's part outside the canvas, run-length encoded like .baipix layers. */
+interface StoredOutside {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  colors: number[];
+  runs: number[];
+}
+
+/**
+ * A file in the browser's workspace: the .baipix content, plus what isn't in .baipix files (the
+ * reference image, and each layer's pixels outside the canvas, by layer index).
+ */
+export type StoredFile = BaipixFile & { reference?: ReferenceImage; outside?: (StoredOutside | null)[] };
 
 export interface StoredWorkspace {
   version: 1;
@@ -36,6 +56,9 @@ export const toStored = (w: Workspace): StoredWorkspace => ({
   files: w.documents.map((d) => ({
     ...serializeDocument(d),
     ...(d.reference && { reference: d.reference }),
+    ...(d.layers.some((l) => l.outside) && {
+      outside: d.layers.map((l) => (l.outside ? storeOutside(l.outside) : null)),
+    }),
   })),
   activeId: w.activeId,
   preferences: w.preferences,
@@ -49,6 +72,10 @@ export function fromStored(s: StoredWorkspace): Workspace | null {
       const doc = deserializeDocument(f);
       const reference = readReference(f.reference);
       if (reference) doc.reference = reference;
+      f.outside?.forEach((o, i) => {
+        const outside = readOutside(o);
+        if (outside && doc.layers[i]) doc.layers[i].outside = outside;
+      });
       documents.push(doc);
     } catch {
       /* skip unreadable files rather than losing the whole workspace */
@@ -77,4 +104,18 @@ function readReference(r: unknown): ReferenceImage | undefined {
     visible: x.visible !== false,
     locked: x.locked === true,
   };
+}
+
+const storeOutside = (o: Outside): StoredOutside => ({
+  x: o.x,
+  y: o.y,
+  w: o.w,
+  h: o.h,
+  ...encodePixels(o.pixels),
+});
+
+function readOutside(o: StoredOutside | null | undefined): Outside | undefined {
+  if (!o || ![o.x, o.y, o.w, o.h].every(Number.isInteger) || o.w < 1 || o.h < 1) return undefined;
+  if (!Array.isArray(o.colors) || !Array.isArray(o.runs)) return undefined;
+  return { x: o.x, y: o.y, w: o.w, h: o.h, pixels: decodePixels(o.colors, o.runs, o.w * o.h) };
 }

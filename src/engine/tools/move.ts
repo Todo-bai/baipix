@@ -1,5 +1,6 @@
 import type { Rect } from '../math';
-import { extractBlock, fillRect, shiftPixels, stampBlock, type PixelBlock } from '../region';
+import { reframe } from '../outside';
+import { extractBlock, fillRect, stampBlock, type PixelBlock } from '../region';
 import type { Stroke, Tool } from './types';
 
 interface MoveState {
@@ -8,7 +9,10 @@ interface MoveState {
   origin?: Rect;
 }
 
-/** Lifts the selection (or the whole layer) on pointer down, then re-stamps it at the new offset. */
+/**
+ * Lifts the selection (or the whole layer) on pointer down, then re-stamps it at the new offset. A
+ * selection is clipped to the canvas; a whole layer keeps its pixels outside it.
+ */
 export function beginMove(s: Stroke): void {
   const state: MoveState = {};
   if (s.selection) {
@@ -28,7 +32,10 @@ export function applyMove(s: Stroke, dx: number, dy: number): void {
   const { width, height } = s.doc;
   const state = s.scratch.move as MoveState;
   if (!state.block || !state.cleared || !state.origin) {
-    s.layer.pixels.set(shiftPixels(s.base, width, height, dx, dy));
+    // The whole layer: what goes off the canvas is kept, and comes back when moved back.
+    const r = reframe(s.base, width, height, s.baseOutside, dx, dy, width, height);
+    s.layer.pixels.set(r.pixels);
+    s.layer.outside = r.outside;
     return;
   }
   s.layer.pixels.set(state.cleared);

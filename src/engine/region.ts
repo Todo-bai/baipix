@@ -92,26 +92,6 @@ export function rotateRect(pixels: Uint32Array, width: number, height: number, r
   return clipRect({ x: x0, y: y0, w: r.h, h: r.w }, width, height);
 }
 
-/** Shifts all pixels by (dx, dy); pixels pushed off canvas are lost. */
-export function shiftPixels(
-  source: Uint32Array,
-  width: number,
-  height: number,
-  dx: number,
-  dy: number,
-): Uint32Array {
-  const out = new Uint32Array(width * height);
-  for (let y = 0; y < height; y++) {
-    const sy = y - dy;
-    if (sy < 0 || sy >= height) continue;
-    for (let x = 0; x < width; x++) {
-      const sx = x - dx;
-      if (sx >= 0 && sx < width) out[y * width + x] = source[sy * width + sx];
-    }
-  }
-  return out;
-}
-
 /** Unique opaque colors of a buffer, at most `limit`. */
 export function uniqueColors(pixels: Uint32Array, limit = 256): Color[] {
   const set = new Set<Color>();

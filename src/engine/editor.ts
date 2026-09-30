@@ -14,6 +14,7 @@ import {
   type RenderSettings,
 } from './document';
 import { History, takeSnapshot, type Snapshot } from './history';
+import { flipOutside } from './outside';
 import { clamp, clipRect, type Point, type Rect } from './math';
 import { PaletteIndex, hueShiftedRamp, presetColors, sortByLightness } from './palette';
 import { extractBlock, fillRect, flipRect, rotateRect, uniqueColors, type PixelBlock } from './region';
@@ -92,9 +93,7 @@ export type Notice =
   | { type: 'rampAdded'; count: number }
   | { type: 'extracted'; count: number }
   | { type: 'pasted' }
-  | { type: 'merged' }
-  /** A layer moved partly off the canvas: those pixels are gone (Undo brings them back). */
-  | { type: 'pixelsCut'; count: number };
+  | { type: 'merged' };
 
 export interface Preferences {
   tool: ToolId;
@@ -990,9 +989,14 @@ export class Editor {
 
   flip(horizontal: boolean): void {
     if (this.activeLocked()) return;
-    this.edit((doc) =>
-      flipRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect(), horizontal),
-    );
+    const wholeLayer = !this.active.selection;
+    this.edit((doc) => {
+      const layer = activeLayer(doc);
+      flipRect(layer.pixels, doc.width, doc.height, this.targetRect(), horizontal);
+      // The part outside the canvas flips across it too.
+      if (wholeLayer && layer.outside)
+        layer.outside = flipOutside(layer.outside, doc.width, doc.height, horizontal);
+    });
   }
 
   /** Rotates the selection (or the layer) by 90° clockwise; the selection follows the new shape. */
@@ -1000,8 +1004,11 @@ export class Editor {
     if (this.activeLocked()) return;
     const hadSelection = this.active.selection !== null;
     this.edit((doc) => {
-      const rotated = rotateRect(activeLayer(doc).pixels, doc.width, doc.height, this.targetRect());
+      const layer = activeLayer(doc);
+      const rotated = rotateRect(layer.pixels, doc.width, doc.height, this.targetRect());
       if (hadSelection) this.active.selection = rotated;
+      // Rotating the layer turns it within the canvas: what was outside doesn't follow.
+      else delete layer.outside;
     });
   }
 
@@ -1151,6 +1158,7 @@ export class Editor {
       doc,
       layer,
       base: layer.pixels.slice(),
+      baseOutside: layer.outside,
       start: p,
       last: p,
       secondary,
@@ -1237,10 +1245,6 @@ export class Editor {
       this.commit(false);
       return;
     }
-    if (id === 'move' && !s.selection) {
-      const cut = opaqueCount(s.base) - opaqueCount(s.layer.pixels);
-      if (cut > 0) this.notice({ type: 'pixelsCut', count: cut });
-    }
     if (tool.paintsColor) {
       const [c1, c2] = strokeColors(s);
       if (s.options.dither) this.remember(c1, c2);
@@ -1257,17 +1261,12 @@ export class Editor {
     this.strokeTool = null;
     if (TOOLS[id].editsPixels) {
       s.layer.pixels.set(s.base);
+      s.layer.outside = s.baseOutside;
       this.active.history.discardLast();
     }
     this.active.selection = s.selection;
     this.commit(false);
   }
-}
-
-function opaqueCount(pixels: Uint32Array): number {
-  let n = 0;
-  for (let i = 0; i < pixels.length; i++) if (pixels[i] >>> 24) n++;
-  return n;
 }
 
 function changed(a: Uint32Array, b: Uint32Array): boolean {

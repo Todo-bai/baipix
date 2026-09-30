@@ -6,7 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
-- A home screen: a welcome on first launch, Create and Import buttons, and your drawings as thumbnails with their last modified date, newest first. Open it from the main menu. The last file can now be deleted too, which brings back the empty home screen. (#PR)
+- A home screen: a welcome on first launch, Create and Import buttons, and your drawings as thumbnails with their last modified date, newest first. Open it from the main menu. The last file can now be deleted too, which brings back the empty home screen. (#143)
 
 ### Changed
 

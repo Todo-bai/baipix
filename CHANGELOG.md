@@ -18,7 +18,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Fixed
 
-- On iPhone, editing a file name or any field no longer zooms the whole interface. (#PR)
+- On iPhone, editing a file name or any field no longer zooms the whole interface. (#149)
 
 ### Website
 

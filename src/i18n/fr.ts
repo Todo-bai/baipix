@@ -142,6 +142,9 @@ export const fr: Record<MessageKey, string> = {
   'options.tipRound': 'Pointe ronde',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Tramage en damier',
+  'options.blend': 'Mélanger',
+  'options.blendHint':
+    "Une couleur semi-transparente se mélange aux pixels dessous, comme de l'aquarelle, au lieu de les remplacer.",
   'options.filled': 'Forme pleine',
   'options.radius': 'Rayon',
   'options.contiguous': 'Zone contiguë uniquement',

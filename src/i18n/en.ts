@@ -141,6 +141,9 @@ export const en = {
   'options.tipRound': 'Round tip',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Checkerboard dithering',
+  'options.blend': 'Blend',
+  'options.blendHint':
+    'A semi-transparent color mixes with the pixels underneath, like watercolor, instead of replacing them.',
   'options.filled': 'Filled shape',
   'options.radius': 'Radius',
   'options.contiguous': 'Contiguous area only',

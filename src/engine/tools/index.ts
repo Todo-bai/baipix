@@ -3,7 +3,7 @@ import { bucket } from './bucket';
 import { eraser } from './eraser';
 import { hand } from './hand';
 import { move } from './move';
-import { pencil } from './pencil';
+import { lassoFillTool, pencil } from './pencil';
 import { picker } from './picker';
 import { select } from './select';
 import { lighten, shade } from './shade';
@@ -18,6 +18,7 @@ export const TOOLS: Record<ToolId, Tool> = {
   select,
   hand,
   pencil,
+  lassoFill: lassoFillTool,
   eraser,
   bucket,
   line: lineTool,

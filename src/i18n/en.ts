@@ -33,6 +33,7 @@ export const en = {
   'tool.hand': 'Hand',
   'tool.select': 'Selection',
   'tool.pencil': 'Pencil',
+  'tool.lassoFill': 'Lasso fill',
   'tool.eraser': 'Eraser',
   'tool.bucket': 'Paint bucket',
   'tool.line': 'Line',
@@ -174,6 +175,8 @@ export const en = {
   'shade.free': 'Free',
 
   'hint.pencil': 'Alt to pick a color. Dithering alternates the left-click and right-click colors.',
+  'hint.lassoFill':
+    'Draw a shape freehand: when you let go it closes and fills with the color. Right-click for the secondary color.',
   'hint.eraser': 'Erases to transparency.',
   'hint.line': 'Shift to lock to 0°, 45° or 90°.',
   'hint.shape': 'Shift for a regular shape.',

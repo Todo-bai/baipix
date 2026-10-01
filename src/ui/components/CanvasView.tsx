@@ -24,7 +24,16 @@ import { BRUSH_TOOLS, SHAPE_IDS } from '../tools';
 import { hoverStore, uiStore } from '../uiStore';
 import { viewport } from '../viewport';
 
-const DRAWING_TOOLS: ToolId[] = ['pencil', 'eraser', ...SHAPE_IDS, 'bucket', 'shade', 'lighten', 'blur'];
+const DRAWING_TOOLS: ToolId[] = [
+  'pencil',
+  'lassoFill',
+  'eraser',
+  ...SHAPE_IDS,
+  'bucket',
+  'shade',
+  'lighten',
+  'blur',
+];
 
 interface Pinch {
   distance: number;

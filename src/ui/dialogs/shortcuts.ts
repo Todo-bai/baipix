@@ -8,6 +8,7 @@ export const SHORTCUT_GROUPS: { title: MessageKey; items: [MessageKey, string][]
       ['tool.select', 'M'],
       ['tool.hand', 'H'],
       ['tool.pencil', 'B'],
+      ['tool.lassoFill', 'K'],
       ['tool.eraser', 'E'],
       ['tool.bucket', 'G'],
       ['tool.line', 'L'],

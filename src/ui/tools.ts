@@ -30,6 +30,7 @@ export const TOOL_GROUPS: ToolMeta[][] = [
   ],
   [
     { id: 'pencil', icon: 'pencil', label: 'tool.pencil', shortcut: 'B' },
+    { id: 'lassoFill', icon: 'lassoFill', label: 'tool.lassoFill', shortcut: 'K' },
     { id: 'eraser', icon: 'eraser', label: 'tool.eraser', shortcut: 'E' },
     { id: 'bucket', icon: 'bucket', label: 'tool.bucket', shortcut: 'G' },
   ],
@@ -50,6 +51,7 @@ export const toolMeta = (id: ToolId): ToolMeta => TOOL_LIST.find((t) => t.id ===
 /** Tools that show a brush footprint under the cursor. */
 export const BRUSH_TOOLS: ToolId[] = [
   'pencil',
+  'lassoFill',
   'eraser',
   ...SHAPE_IDS,
   'shade',

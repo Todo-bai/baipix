@@ -156,7 +156,16 @@ const DEFAULT_LABELS: EditorLabels = {
 };
 
 /** Freehand tools the stabilizer smooths (shapes, selections and fills don't need it). */
-const STABILIZED_TOOLS: ToolId[] = ['pencil', 'eraser', 'shade', 'lighten', 'blur', 'spray', 'jumble'];
+const STABILIZED_TOOLS: ToolId[] = [
+  'pencil',
+  'lassoFill',
+  'eraser',
+  'shade',
+  'lighten',
+  'blur',
+  'spray',
+  'jumble',
+];
 
 /** A color change applied to every pixel, color by color (Adjustments). */
 export type ColorMap = (c: Color) => Color;

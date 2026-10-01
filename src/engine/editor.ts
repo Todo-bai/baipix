@@ -7,6 +7,7 @@ import {
   createDocument,
   createLayer,
   MAX_SIZE,
+  newId,
   resizeDocument,
   type Layer,
   type PixelDoc,
@@ -83,6 +84,8 @@ export interface EditorState {
   palette: PaletteState;
   /** Last colors painted with, most recent first. */
   recent: Color[];
+  /** Custom brushes made from selections. */
+  brushes: BrushInfo[];
   view: ViewSettings;
   /** Ids of the selected layers, bottom to top. Always includes the active layer. */
   selectedLayers: string[];
@@ -101,6 +104,8 @@ export interface EditorLabels {
   copyOf: (name: string) => string;
   untitled: (n: number) => string;
   pasted: string;
+  /** Name of the n-th custom brush. */
+  brush: (n: number) => string;
 }
 
 export type Notice =
@@ -122,6 +127,8 @@ export interface Preferences {
   palette: PaletteState;
   recent: Color[];
   view: ViewSettings;
+  /** Custom brushes, colors as numbers so they can be saved as they are. */
+  brushes: StoredBrush[];
 }
 
 interface Session {
@@ -153,6 +160,7 @@ const DEFAULT_LABELS: EditorLabels = {
   copyOf: (name) => `${name} copy`,
   untitled: (n) => (n > 1 ? `Untitled ${n}` : 'Untitled'),
   pasted: 'Pasted',
+  brush: (n) => `Brush ${n}`,
 };
 
 /** Freehand tools the stabilizer smooths (shapes, selections and fills don't need it). */
@@ -170,6 +178,20 @@ const STABILIZED_TOOLS: ToolId[] = [
 
 /** A color change applied to every pixel, color by color (Adjustments). */
 export type ColorMap = (c: Color) => Color;
+
+/** A custom brush: a block of pixels taken from a selection. */
+export interface CustomBrush {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  pixels: Uint32Array;
+}
+export type StoredBrush = Omit<CustomBrush, 'pixels'> & { pixels: number[] };
+export type BrushInfo = Omit<CustomBrush, 'pixels'>;
+
+/** Brushes are kept small: past this, a selection is scaled down. */
+export const MAX_BRUSH = 64;
 
 export class Editor {
   private sessions: Session[] = [];
@@ -210,6 +232,7 @@ export class Editor {
   private opacityChange = false;
   private deleted: Deleted | null = null;
   private recent: Color[] = [];
+  private brushes: CustomBrush[] = [];
   private revision = 0;
   private state!: EditorState;
 
@@ -286,6 +309,7 @@ export class Editor {
       secondary: this.secondary,
       palette: this.palette,
       recent: this.recent,
+      brushes: this.brushes.map(({ id, name, width, height }) => ({ id, name, width, height })),
       view: this.view,
       selectedLayers: s.picked,
       referenceSelected: !!s.referencePicked && !!s.doc.reference,
@@ -1003,6 +1027,7 @@ export class Editor {
       palette: this.palette,
       recent: this.recent,
       view: this.view,
+      brushes: this.brushes.map((b) => ({ ...b, pixels: [...b.pixels] })),
     };
   }
 
@@ -1022,6 +1047,11 @@ export class Editor {
         mirrorY,
       };
     }
+    if (Array.isArray(p.brushes))
+      this.brushes = p.brushes
+        .filter((b) => b && typeof b.id === 'string' && b.width > 0 && b.height > 0)
+        .filter((b) => Array.isArray(b.pixels) && b.pixels.length === b.width * b.height)
+        .map((b) => ({ ...b, pixels: Uint32Array.from(b.pixels) }));
     if (Array.isArray(p.recent))
       this.recent = p.recent.filter((c) => typeof c === 'number').slice(0, RECENT_COLORS);
     if (p.palette?.colors?.length) {
@@ -1029,6 +1059,54 @@ export class Editor {
       this.paletteIndex = new PaletteIndex(p.palette.colors);
     }
     this.commit(false);
+  }
+
+  /* ------------------------------------------------------------------ custom brushes */
+
+  /** The custom brush the Pencil and Lasso fill paint with, if one is chosen. */
+  private strokeBrush(): PixelBlock | null {
+    if (this.tool !== 'pencil' && this.tool !== 'lassoFill') return null;
+    const b = this.brushes.find((x) => x.id === this.options.customBrush);
+    return b ? { width: b.width, height: b.height, pixels: b.pixels } : null;
+  }
+
+  /**
+   * Makes a custom brush from the active layer's pixels in the selection (trimmed to what's
+   * drawn there), and paints with it. Returns false when the selection is empty.
+   */
+  brushFromSelection(): boolean {
+    const sel = this.active.selection;
+    if (!sel) return false;
+    const { width, height } = this.doc;
+    const r = clipRect(sel, width, height);
+    const block = extractBlock(activeLayer(this.doc).pixels, width, height, r);
+    const bounds = pixelBounds(block.pixels, block.width, block.height);
+    if (!bounds) return false;
+    let brush = extractBlock(block.pixels, block.width, block.height, bounds);
+    const k = Math.min(1, MAX_BRUSH / Math.max(brush.width, brush.height));
+    if (k < 1) brush = scaleBlock(brush, brush.width * k, brush.height * k);
+    const n = this.brushes.length + 1;
+    const id = newId('brush');
+    this.brushes = [
+      ...this.brushes,
+      { id, name: this.labels.brush(n), width: brush.width, height: brush.height, pixels: brush.pixels },
+    ];
+    this.options = { ...this.options, customBrush: id };
+    this.tool = this.tool === 'lassoFill' ? 'lassoFill' : 'pencil';
+    this.commit();
+    return true;
+  }
+
+  /** A custom brush's pixels, for the preview under the pointer. */
+  brushPixels(id: string | null): PixelBlock | null {
+    const b = this.brushes.find((x) => x.id === id);
+    return b ? { width: b.width, height: b.height, pixels: b.pixels } : null;
+  }
+
+  deleteBrush(id: string): void {
+    this.brushes = this.brushes.filter((b) => b.id !== id);
+    if (this.options.customBrush === id) this.options = { ...this.options, customBrush: null };
+    this.commit();
   }
 
   /* ------------------------------------------------------------------ selection & clipboard */
@@ -1391,6 +1469,7 @@ export class Editor {
       mirrorX: this.view.mirrorX,
       mirrorY: this.view.mirrorY,
       wrap: this.view.tile,
+      customBrush: this.strokeBrush(),
       selection: this.active.selection,
       visited: new Uint8Array(doc.width * doc.height),
       trail: [],

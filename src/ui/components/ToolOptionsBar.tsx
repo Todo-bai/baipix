@@ -24,6 +24,7 @@ export function ToolOptionsBar() {
   const tool = useEditorState((s) => s.tool);
   const options = useEditorState((s) => s.options);
   const hasSelection = useEditorState((s) => s.selection !== null);
+  const brushes = useEditorState((s) => s.brushes);
   const meta = toolMeta(tool);
   const set =
     <K extends keyof ToolOptions>(k: K) =>
@@ -80,6 +81,41 @@ export function ToolOptionsBar() {
    * Less common on/off options go in a "…" menu, to keep the bar short. A dot on the button says
    * one of them is on, so it's never forgotten.
    */
+  /** Custom brushes: the normal tip or one of them, make one from the selection, its colors, delete it. */
+  const brushItems = (): MenuItem[] => {
+    const active = brushes.find((b) => b.id === options.customBrush);
+    return [
+      {
+        label: t('brush.normal'),
+        checked: !active,
+        onSelect: () => editor.setOption('customBrush', null),
+      },
+      ...brushes.map((b) => ({
+        label: t('brush.item', { name: b.name, w: b.width, h: b.height }),
+        checked: b.id === active?.id,
+        onSelect: () => editor.setOption('customBrush', b.id),
+      })),
+      {
+        label: t('brush.fromSelection'),
+        disabled: !hasSelection,
+        onSelect: () => editor.brushFromSelection(),
+      },
+      ...(active
+        ? [
+            {
+              label: t('brush.ownColors'),
+              checked: options.brushOwnColors,
+              onSelect: () => editor.setOption('brushOwnColors', !options.brushOwnColors),
+            },
+            {
+              label: t('brush.delete', { name: active.name }),
+              onSelect: () => editor.deleteBrush(active.id),
+            },
+          ]
+        : []),
+      '-' as const,
+    ];
+  };
   const ditherItems = (): MenuItem[] => [
     { label: t('dither.none'), checked: !options.dither, onSelect: () => editor.setOption('dither', false) },
     ...DITHER_PATTERNS.map((p) => ({
@@ -92,8 +128,8 @@ export function ToolOptionsBar() {
     })),
     '-' as const,
   ];
-  const more = (keys: ('dither' | 'lassoFill' | 'blend')[]) => {
-    const anyOn = keys.some((k) => options[k]);
+  const more = (keys: ('dither' | 'lassoFill' | 'blend')[], withBrushes = false) => {
+    const anyOn = keys.some((k) => options[k]) || (withBrushes && !!options.customBrush);
     return (
       <IconButton
         icon="more"
@@ -103,6 +139,7 @@ export function ToolOptionsBar() {
         onClick={(e) =>
           openMenu(e.currentTarget, [
             // Dithering: off, or one of the patterns, picked like a radio group.
+            ...(withBrushes ? brushItems() : []),
             ...(keys.includes('dither') ? ditherItems() : []),
             ...keys
               .filter((k) => k !== 'dither')
@@ -154,7 +191,7 @@ export function ToolOptionsBar() {
             onChange={set('pixelPerfect')}
             label={t('options.pixelPerfect')}
           />
-          {more(['dither', 'lassoFill', 'blend'])}
+          {more(['dither', 'lassoFill', 'blend'], true)}
         </>
       );
       break;
@@ -164,7 +201,7 @@ export function ToolOptionsBar() {
         <>
           {size}
           {stabilizer}
-          {more(['dither', 'blend'])}
+          {more(['dither', 'blend'], true)}
         </>
       );
       break;

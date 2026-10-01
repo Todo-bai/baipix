@@ -3,6 +3,7 @@ import { hasBackground, mirrorAxes, type PixelDoc } from '../../engine/document'
 import type { ViewSettings } from '../../engine/editor';
 import type { Point, Rect } from '../../engine/math';
 import { brush, mirrored } from '../../engine/raster';
+import type { PixelBlock } from '../../engine/region';
 import { checkerPattern, type Theme } from './theme';
 
 export interface Camera {
@@ -24,6 +25,8 @@ export interface BrushPreview {
   circle?: number;
   /** Round brush tip. */
   round?: boolean;
+  /** A custom brush, previewed as it will paint (its colors, or `color` as a stencil). */
+  block?: PixelBlock;
 }
 
 /** The reference image, under the layers. `rect` is in art pixels. */
@@ -274,7 +277,24 @@ export function drawScene(
   }
 
   // Brush footprint: one cell per pixel, shrunk by the gap so it matches what will be painted.
-  if (scene.brush?.circle) {
+  if (scene.brush?.block) {
+    const { at, block, color } = scene.brush;
+    const ox = Math.floor((block.width - 1) / 2);
+    const oy = Math.floor((block.height - 1) / 2);
+    const cell = gap ? s - gap : s;
+    ctx.globalAlpha = 0.6;
+    for (let by = 0; by < block.height; by++)
+      for (let bx = 0; bx < block.width; bx++) {
+        const c = block.pixels[by * block.width + bx];
+        if (!alpha(c)) continue;
+        ctx.fillStyle = toCss(color ?? c);
+        ctx.fillRect(X + (at.x - ox + bx) * s, Y + (at.y - oy + by) * s, cell, cell);
+      }
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.rect(X + (at.x - ox) * s, Y + (at.y - oy) * s, block.width * s, block.height * s);
+    strokeTwoTone(ctx, lw, theme);
+  } else if (scene.brush?.circle) {
     const { at, circle } = scene.brush;
     const axes = mirrorAxes(doc);
     for (const m of mirrored(at.x, at.y, axes.x, axes.y, view.mirrorX, view.mirrorY)) {

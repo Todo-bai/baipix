@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- Custom brushes: select something and "Make a brush from the selection" in the Pencil's … menu, then paint with it (leaves, bricks, stars…), previewed under the pointer. It paints with its own colors, or as a stencil in the current color. Brushes are saved with the preferences and can be picked or deleted in the same menu; the Lasso fill can use them too. (#PR)
 - In tile preview, painting wraps around: a stroke that goes past an edge continues on the opposite side, so seamless textures are easy to draw. Works with the Pencil, Eraser, shapes, Spray, Lighten, Shade and Blur. (#191)
 - More dithering patterns: besides the checkerboard, dots (1 in 4), dense (3 in 4), horizontal or vertical lines and diagonals, for the Pencil, the Lasso fill (in their … menu) and the Bucket (a list in its options). (#190)
 - A Liquify tool (W) that warps the drawing without adding colors: Push drags pixels along with the brush, Expand and Shrink make a part bigger or smaller (and keep going while you hold still). Size and strength options; it redraws from the pixels of the stroke's start, so the drawing stays sharp and passes don't degrade it. Works with symmetry and the selection. (#189)

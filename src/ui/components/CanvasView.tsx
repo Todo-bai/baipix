@@ -252,6 +252,12 @@ export function CanvasView() {
                   size: state.options.size,
                   color: paints ? state.primary : null,
                   round: state.options.roundTip,
+                  // A custom brush shows its pixels: its own colors, or the primary as a stencil.
+                  ...((tool === 'pencil' || tool === 'lassoFill') &&
+                    state.options.customBrush && {
+                      block: editor.brushPixels(state.options.customBrush) ?? undefined,
+                      color: state.options.brushOwnColors ? null : state.primary,
+                    }),
                 };
       }
       const { doc } = live;

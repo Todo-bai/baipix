@@ -29,8 +29,8 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
-- The left panel is lighter: the Files list is gone (the home screen lists the drawings), and a button next to the file name opens the recent files, this file's actions, a new file and all files. The layers get the whole height. (#PR)
-- The preview is now a small floating window over the canvas: drag it by its title, resize it by its corner, fold or close it (the main menu brings it back). It has its own zoom, from fit to 1000%, and you can pan when zoomed. Its place, size and zoom are remembered. (#PR)
+- The left panel is lighter: the Files list is gone (the home screen lists the drawings), and a button next to the file name opens the recent files, this file's actions, a new file and all files. The layers get the whole height. (#193)
+- The preview is now a small floating window over the canvas: drag it by its title, resize it by its corner, fold or close it (the main menu brings it back). It has its own zoom, from fit to 1000%, and you can pan when zoomed. Its place, size and zoom are remembered. (#193)
 - Layer and file thumbnails follow the drawing's proportions (up to 2:1 either way), so a wide drawing shows as a wide thumbnail instead of a thin strip in a square. (#185)
 - "Adjust colors" becomes the Adjustments panel, ready for more kinds of adjustments. Besides the main menu and Ctrl+U, it opens from a button in the Layer section and from the layer right-click menu, starting on the active layer. (#183)
 - With "Adjust the palette too" checked, the palette now previews the adjustment live, and undoing the adjustment puts back the palette along with the pixels, so they stay in step. (#183)

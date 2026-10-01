@@ -12,7 +12,7 @@
   --panel: light-dark(#ffffff, #1f1f1f);
   --line: light-dark(#e6e6e6, #333333);
   --text: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
-  --muted: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.55));
+  --muted: light-dark(rgba(0, 0, 0, 0.56), rgba(255, 255, 255, 0.55));
   --input: light-dark(#f5f5f5, #2a2a2a);
   --hover: light-dark(#f5f5f5, #2a2a2a);
   --selected: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.1));
@@ -38,7 +38,7 @@
   --menu-bg: light-dark(#ffffff, #191919);
   --menu-text: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
   --menu-muted: light-dark(rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.35));
-  --menu-shortcut: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.5));
+  --menu-shortcut: light-dark(rgba(0, 0, 0, 0.56), rgba(255, 255, 255, 0.5));
   --menu-line: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.12));
 
   /* Tooltips stay dark in both themes. */

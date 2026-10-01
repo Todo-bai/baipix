@@ -68,7 +68,7 @@ Drawings are saved in your browser and never uploaded. baipix.app counts page vi
 
 ## Contributing
 
-Contributions are welcome, from bug reports to new tools. Read [CONTRIBUTING.md](CONTRIBUTING.md) to get started: adding a tool or a language is a good first contribution.
+Contributions are welcome, from bug reports to new tools. Read [CONTRIBUTING.md](CONTRIBUTING.md) to get started: adding a tool or a language is a good first contribution. The [design system](https://baipix.app/app/design.html) shows the colors, components and icons to use, and the logo to download ([DESIGN.md](DESIGN.md) sums it up).
 
 If you like Baipix, a ⭐ on [GitHub](https://github.com/baipix/baipix) helps other people find it.
 

@@ -16,6 +16,8 @@ export const SHORTCUT_GROUPS: { title: MessageKey; items: [MessageKey, string][]
       ['tool.shade', 'S'],
       ['tool.lighten', 'O'],
       ['tool.blur', 'F'],
+      ['tool.spray', 'A'],
+      ['tool.jumble', 'J'],
       ['tool.picker', 'I / Alt'],
     ],
   },

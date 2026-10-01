@@ -196,6 +196,76 @@ export function ToolOptionsBar() {
         </>
       );
       break;
+    case 'spray':
+      info = t('hint.spray');
+      body = (
+        <>
+          <Row label={t('options.size')}>
+            <NumberField
+              value={options.spraySize}
+              min={2}
+              max={64}
+              label="⇔"
+              suffix="px"
+              ariaLabel={t('options.size')}
+              scrubHint={t('common.dragToAdjust')}
+              sensitivity={4}
+              onChange={(v) => editor.setOption('spraySize', v)}
+            />
+          </Row>
+          <Row label={t('options.density')}>
+            <NumberField
+              value={options.sprayDensity}
+              min={1}
+              max={100}
+              label="◐"
+              suffix="%"
+              ariaLabel={t('options.density')}
+              scrubHint={t('common.dragToAdjust')}
+              sensitivity={2}
+              onChange={(v) => editor.setOption('sprayDensity', v)}
+            />
+          </Row>
+          <Checkbox
+            checked={options.sprayOpacity}
+            onChange={set('sprayOpacity')}
+            label={t('options.sprayOpacity')}
+          />
+        </>
+      );
+      break;
+    case 'jumble':
+      info = t('hint.jumble');
+      body = (
+        <>
+          <Row label={t('options.size')}>
+            <NumberField
+              value={options.jumbleSize}
+              min={2}
+              max={32}
+              label="⇔"
+              suffix="px"
+              ariaLabel={t('options.size')}
+              scrubHint={t('common.dragToAdjust')}
+              sensitivity={6}
+              onChange={(v) => editor.setOption('jumbleSize', v)}
+            />
+          </Row>
+          <Row label={t('options.strength')}>
+            <NumberField
+              value={options.jumbleStrength}
+              min={1}
+              max={3}
+              label="⇔"
+              ariaLabel={t('options.strength')}
+              scrubHint={t('common.dragToAdjust')}
+              sensitivity={14}
+              onChange={(v) => editor.setOption('jumbleStrength', v)}
+            />
+          </Row>
+        </>
+      );
+      break;
     case 'picker':
       info = t('hint.picker');
       body = null;

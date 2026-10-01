@@ -20,6 +20,8 @@ export type ToolId =
   | 'shade'
   | 'lighten'
   | 'blur'
+  | 'spray'
+  | 'jumble'
   | 'picker';
 
 export interface ToolOptions {
@@ -38,6 +40,16 @@ export interface ToolOptions {
   shadeStrength: number;
   /** Free mode: highlights toward yellow, shadows toward blue-violet. */
   shadeHueShift: boolean;
+  /** Spray: diameter of the circle, in pixels. */
+  spraySize: number;
+  /** Spray: how many pixels each dab drops, 1 to 100. */
+  sprayDensity: number;
+  /** Spray: give each pixel a random opacity. */
+  sprayOpacity: boolean;
+  /** Jumble: side of the square whose pixels get shuffled. */
+  jumbleSize: number;
+  /** Jumble: how many swaps per step, 1 to 3. */
+  jumbleStrength: number;
 }
 
 export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
@@ -52,6 +64,11 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   shadeMode: 'ramp',
   shadeStrength: 1,
   shadeHueShift: true,
+  spraySize: 8,
+  sprayDensity: 30,
+  sprayOpacity: false,
+  jumbleSize: 6,
+  jumbleStrength: 1,
 };
 
 export interface Modifiers {

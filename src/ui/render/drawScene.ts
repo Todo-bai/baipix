@@ -20,6 +20,8 @@ export interface BrushPreview {
   size: number;
   /** Fill color of the footprint (null = outline only). */
   color: Color | null;
+  /** Spray: diameter of the circle the pixels land in, outlined around the pointer. */
+  circle?: number;
 }
 
 /** The reference image, under the layers. `rect` is in art pixels. */
@@ -76,6 +78,19 @@ const FONT = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto
 /** Frame name above the canvas, in CSS pixels. Shared with the inline rename field. */
 export const LABEL = { size: 11, gap: 6 };
 const labelFont = (dpr: number) => `500 ${Math.round(LABEL.size * dpr)}px ${FONT}`;
+
+/**
+ * Strokes the current path dark on a white halo, so a brush outline shows on any color: black
+ * pixels, white pixels and the checkerboard alike.
+ */
+function strokeTwoTone(ctx: CanvasRenderingContext2D, lw: number, theme: Theme): void {
+  ctx.lineWidth = lw * 3;
+  ctx.strokeStyle = theme.handle;
+  ctx.stroke();
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = theme.highlightInk;
+  ctx.stroke();
+}
 
 /**
  * A blue frame with white square handles on its corners, like a selected object in a design tool,
@@ -255,7 +270,15 @@ export function drawScene(
   }
 
   // Brush footprint: one cell per pixel, shrunk by the gap so it matches what will be painted.
-  if (scene.brush) {
+  if (scene.brush?.circle) {
+    const { at, circle } = scene.brush;
+    const axes = mirrorAxes(doc);
+    for (const m of mirrored(at.x, at.y, axes.x, axes.y, view.mirrorX, view.mirrorY)) {
+      ctx.beginPath();
+      ctx.arc(X + (m.x + 0.5) * s, Y + (m.y + 0.5) * s, (circle / 2) * s, 0, Math.PI * 2);
+      strokeTwoTone(ctx, lw, theme);
+    }
+  } else if (scene.brush) {
     const { at, size, color } = scene.brush;
     const cell = gap ? s - gap : s;
     const o = Math.floor((size - 1) / 2);
@@ -271,16 +294,16 @@ export function drawScene(
           ctx.globalAlpha = 1;
         }
         if (gap || size === 1) {
-          ctx.strokeStyle = theme.accent;
-          ctx.lineWidth = lw;
-          ctx.strokeRect(rx + lw / 2, ry + lw / 2, cell - lw, cell - lw);
+          ctx.beginPath();
+          ctx.rect(rx + lw / 2, ry + lw / 2, cell - lw, cell - lw);
+          strokeTwoTone(ctx, lw, theme);
         }
       });
       if (!gap && size > 1) {
         const w = size * s;
-        ctx.strokeStyle = theme.accent;
-        ctx.lineWidth = lw;
-        ctx.strokeRect(X + m.x * s + lw / 2, Y + m.y * s + lw / 2, w - lw, w - lw);
+        ctx.beginPath();
+        ctx.rect(X + m.x * s + lw / 2, Y + m.y * s + lw / 2, w - lw, w - lw);
+        strokeTwoTone(ctx, lw, theme);
       }
     }
   }

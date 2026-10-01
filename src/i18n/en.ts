@@ -44,6 +44,8 @@ export const en = {
   'tool.shade': 'Shade',
   'tool.lighten': 'Lighten',
   'tool.blur': 'Blur',
+  'tool.spray': 'Spray',
+  'tool.jumble': 'Jumble',
   'tool.picker': 'Eyedropper',
 
   'section.files': 'Files',
@@ -140,6 +142,8 @@ export const en = {
   'options.radius': 'Radius',
   'options.contiguous': 'Contiguous area only',
   'options.strength': 'Strength',
+  'options.density': 'Density',
+  'options.sprayOpacity': 'Random opacity',
   'options.blurSnap': 'Stay within the palette',
   'options.shadeMode': 'Mode',
   'options.hueShift': 'Hue shift',
@@ -162,6 +166,10 @@ export const en = {
     'Mixes neighboring pixels, then picks the closest palette color. Paint again to blur more.',
   'hint.blurFree':
     'Mixes neighboring pixels, with new colors and semi-transparency. Paint again to blur more.',
+  'hint.spray':
+    'Drops random pixels in a circle, like a spray can. Hold still to keep spraying. Right-click sprays the secondary color.',
+  'hint.jumble':
+    'Shuffles the pixels under the brush, without adding any color: texture for foliage, rock or noise. Hold still to keep going.',
   'hint.picker': 'Left click for the primary color, right click for the secondary.',
   'hint.select': 'Ctrl+C, Ctrl+X, Ctrl+V. Delete clears the selection.',
   'hint.moveSelection': 'Drag to move the selection. Arrow keys for 1 px, Shift for 8 px.',

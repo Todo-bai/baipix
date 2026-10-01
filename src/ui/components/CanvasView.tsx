@@ -79,6 +79,7 @@ export function CanvasView() {
     let altHeld = false;
     // Dragging a symmetry axis by its grip.
     let axisDrag: 'x' | 'y' | null = null;
+    let sprayTimer = 0;
     // Adjusting the reference image: moving it, or resizing it from a corner (the opposite one stays).
     let refDrag: {
       mode: 'move' | 'resize';
@@ -227,7 +228,12 @@ export function CanvasView() {
       const shapeInProgress = live.stroking !== null && SHAPE_IDS.includes(live.stroking);
       if (hover && !panStart && !pinch && BRUSH_TOOLS.includes(tool) && !shapeInProgress && !picking) {
         const paints = !['eraser', 'shade', 'lighten', 'blur'].includes(tool);
-        brush = { at: hover, size: state.options.size, color: paints ? state.primary : null };
+        brush =
+          tool === 'spray'
+            ? { at: hover, size: 1, color: null, circle: state.options.spraySize }
+            : tool === 'jumble'
+              ? { at: hover, size: state.options.jumbleSize, color: null }
+              : { at: hover, size: state.options.size, color: paints ? state.primary : null };
       }
       const { doc } = live;
       let loupe = null;
@@ -459,12 +465,20 @@ export function CanvasView() {
       if (e.button === 0 && beginRefDrag(l, e.metaKey || e.ctrlKey)) return;
       const tool = editor.getState().tool;
       const override = e.altKey && DRAWING_TOOLS.includes(tool) ? 'picker' : undefined;
-      editor.beginStroke(
+      const started = editor.beginStroke(
         p,
         e.button === 2,
         { shift: e.shiftKey, keepLayer: e.metaKey || e.ctrlKey },
         override,
       );
+      // The spray and the jumble keep going while the pointer holds still, like a real can.
+      if (started && !override && (tool === 'spray' || tool === 'jumble')) {
+        clearInterval(sprayTimer);
+        sprayTimer = window.setInterval(() => {
+          if (editor.isStroking && hover) editor.moveStroke(hover, { shift: false });
+          else clearInterval(sprayTimer);
+        }, 50);
+      }
     };
 
     const onMove = (e: PointerEvent) => {
@@ -516,6 +530,7 @@ export function CanvasView() {
     };
 
     const onUp = (e: PointerEvent) => {
+      clearInterval(sprayTimer);
       pointers.delete(e.pointerId);
       if (pinch) {
         if (touches().length < 2) {
@@ -543,6 +558,7 @@ export function CanvasView() {
     };
 
     const onCancel = (e: PointerEvent) => {
+      clearInterval(sprayTimer);
       pointers.delete(e.pointerId);
       editor.cancelStroke();
       panStart = null;

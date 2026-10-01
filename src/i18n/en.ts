@@ -62,10 +62,8 @@ export const en = {
   'section.exportFile': 'File',
 
   'menu.main': 'Main menu',
-  'menu.home': 'Home',
   'menu.newFile': 'New file…',
   'menu.open': 'Open a .baipix file…',
-  'menu.saveAs': 'Download as .baipix',
   'menu.importImage': 'Import an image…',
   'menu.export': 'Export',
   'menu.copySvg': 'Copy as SVG',

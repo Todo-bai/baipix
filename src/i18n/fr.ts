@@ -63,10 +63,8 @@ export const fr: Record<MessageKey, string> = {
   'section.exportFile': 'Fichier',
 
   'menu.main': 'Menu principal',
-  'menu.home': 'Accueil',
   'menu.newFile': 'Nouveau fichier…',
   'menu.open': 'Ouvrir un fichier .baipix…',
-  'menu.saveAs': 'Télécharger en .baipix',
   'menu.importImage': 'Importer une image…',
   'menu.export': 'Exporter',
   'menu.copySvg': 'Copier en SVG',

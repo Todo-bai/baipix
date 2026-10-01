@@ -1571,6 +1571,10 @@ body.is-dragging-swatch * {
     flex: 1;
     min-width: 0;
     padding-left: 4px;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: left;
     overflow: hidden;
     font-weight: 600;
     text-overflow: ellipsis;
@@ -1809,8 +1813,11 @@ body.is-dragging-swatch * {
       2px 0 0 0 var(--panel),
       4px 6px 0 0 var(--hard-shadow);
   }
+  /* The left panel is as tall as its layers, up to the window, then the list scrolls. */
   .panel-left {
     grid-column: 1;
+    align-self: start;
+    max-height: calc(100% - 26px);
     margin: 12px 0 14px 12px;
   }
   .panel-right {

@@ -39,6 +39,9 @@ export function filesMenu(editor: Editor, actions: Actions): MenuItem[] {
     ...fileMenu(editor, actions, current),
     '-',
     { label: t('menu.newFile'), onSelect: () => openDialog({ type: 'newFile' }) },
+    { label: t('menu.open'), shortcut: 'Ctrl+O', onSelect: () => void actions.openDocument() },
+    { label: t('menu.importImage'), onSelect: () => void actions.importImage() },
+    '-',
     { label: t('file.allFiles'), onSelect: () => uiStore.set({ home: true }) },
   ];
 }
@@ -46,13 +49,7 @@ export function filesMenu(editor: Editor, actions: Actions): MenuItem[] {
 export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
   const s = editor.getState();
   return [
-    { label: t('menu.home'), onSelect: () => uiStore.set({ home: true }) },
-    '-',
-    { label: t('menu.newFile'), onSelect: () => openDialog({ type: 'newFile' }) },
-    { label: t('menu.open'), shortcut: 'Ctrl+O', onSelect: () => void actions.openDocument() },
-    { label: t('menu.saveAs'), onSelect: () => void actions.saveDocument() },
-    { label: t('menu.importImage'), onSelect: () => void actions.importImage() },
-    '-',
+    // Files live in the files menu (next to the file name); this one is for the app and the drawing.
     {
       label: t('menu.export'),
       shortcut: 'Ctrl+E',

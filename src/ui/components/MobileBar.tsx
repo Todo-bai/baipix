@@ -1,7 +1,7 @@
 import { useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
 import { useEditor, useEditorState } from '../EditorContext';
-import { mainMenu } from '../menus';
+import { filesMenu, mainMenu } from '../menus';
 import { uiStore } from '../uiStore';
 import { IconButton } from './IconButton';
 import { openMenu } from './Menu';
@@ -24,7 +24,15 @@ export function MobileBar() {
         label={t('menu.main')}
         onClick={(e) => openMenu(e.currentTarget, mainMenu(editor, actions))}
       />
-      <span className="mobile-name">{name}</span>
+      {/* The file name opens the files menu, like the ▾ next to it on larger screens. */}
+      <button
+        type="button"
+        className="mobile-name"
+        aria-haspopup="menu"
+        onClick={(e) => openMenu(e.currentTarget, filesMenu(editor, actions))}
+      >
+        {name} ▾
+      </button>
       <IconButton
         className="icon-btn large"
         icon="layers"

@@ -6,7 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
-- A Blend option for the Pencil and the Spray: a semi-transparent color mixes with the pixels underneath, like watercolor, instead of replacing them. Going over the same spot again in one stroke doesn't build it up. (#PR)
+- A Blend option for the Pencil and the Spray: a semi-transparent color mixes with the pixels underneath, like watercolor, instead of replacing them. Going over the same spot again in one stroke doesn't build it up. (#179)
 - A round brush tip, next to the size in the tool options: from 3px it paints a round shape instead of a square, for the Pencil, the Eraser, shapes, Lighten, Shade and Blur. (#178)
 - A Spray tool (A): it drops random pixels in a circle, like a spray can, and keeps spraying while you hold still. Options for size, density and a random opacity per pixel. Works with symmetry and the selection. (#177)
 - A Jumble tool (J): it shuffles the pixels under the brush without adding any color, for texture on foliage, rock or noise, and keeps going while you hold still. Options for size and strength. (#177)
@@ -35,7 +35,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Website
 
-- The design system shows the segmented icon buttons (like the brush tip choice). (#PR)
+- The design system shows the segmented icon buttons (like the brush tip choice). (#179)
 - A design system page at /app/design.html: the logo with SVG and PNG downloads, every color token in light and dark, type, shapes, icons, the components in their states, and a live contrast check. DESIGN.md sums up the rules for contributors. (#175)
 - The screenshot on the home page and in the README shows the new pixel look, in a pixel frame with notched corners and a solid side like the buttons. (#132)
 

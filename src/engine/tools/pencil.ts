@@ -3,7 +3,8 @@ import { isDoubledCorner } from '../raster';
 import { followPointer, inBounds, mirrorsOf, setPixel, stamp, strokeColors } from './paint';
 import type { Stroke, Tool } from './types';
 
-function paint(s: Stroke, p: Point): void {
+/** Paints at `p`; with `fill` (or the lassoFill option), also records the path to fill at the end. */
+function paint(s: Stroke, p: Point, fill = s.options.lassoFill): void {
   const [c1, c2] = strokeColors(s);
   if (s.options.pixelPerfect && s.options.size === 1) {
     const n = s.trail.length;
@@ -20,7 +21,7 @@ function paint(s: Stroke, p: Point): void {
     s.trail.push(p);
   }
   stamp(s, p.x, p.y, c1, c2, s.options.dither);
-  if (s.options.lassoFill) ((s.scratch.path as Point[] | undefined) ?? (s.scratch.path = [])).push(p);
+  if (fill) ((s.scratch.path as Point[] | undefined) ?? (s.scratch.path = [])).push(p);
 }
 
 /**
@@ -65,5 +66,15 @@ export const pencil: Tool = {
   paintsColor: true,
   onDown: (s, p) => paint(s, p),
   onMove: (s, p) => followPointer(s, p, (q) => paint(s, q)),
+  onUp: (s) => fillPath(s),
+};
+
+/** The Lasso fill tool: draws like the Pencil, and always fills the shape when the stroke ends. */
+export const lassoFillTool: Tool = {
+  id: 'lassoFill',
+  editsPixels: true,
+  paintsColor: true,
+  onDown: (s, p) => paint(s, p, true),
+  onMove: (s, p) => followPointer(s, p, (q) => paint(s, q, true)),
   onUp: (s) => fillPath(s),
 };

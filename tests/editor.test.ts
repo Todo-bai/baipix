@@ -317,6 +317,21 @@ describe('Editor', () => {
     expect(painted(e)).toBe(0);
   });
 
+  it('has a Lasso fill tool that always fills', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    e.setTool('lassoFill');
+    drag(e, [
+      [4, 4],
+      [12, 4],
+      [12, 12],
+      [4, 12],
+      [4, 5],
+    ]);
+    expect(e.getState().options.lassoFill).toBe(false);
+    expect(painted(e)).toBe(81);
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

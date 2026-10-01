@@ -143,6 +143,16 @@ export function ToolOptionsBar() {
         </>
       );
       break;
+    case 'lassoFill':
+      info = t('hint.lassoFill');
+      body = (
+        <>
+          {size}
+          {stabilizer}
+          {more(['dither', 'blend'])}
+        </>
+      );
+      break;
     case 'eraser':
       info = t('hint.eraser');
       body = (

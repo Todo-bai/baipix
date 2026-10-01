@@ -34,6 +34,7 @@ export const fr: Record<MessageKey, string> = {
   'tool.hand': 'Main',
   'tool.select': 'Sélection',
   'tool.pencil': 'Crayon',
+  'tool.lassoFill': 'Remplissage au lasso',
   'tool.eraser': 'Gomme',
   'tool.bucket': 'Pot de peinture',
   'tool.line': 'Ligne',
@@ -176,6 +177,8 @@ export const fr: Record<MessageKey, string> = {
 
   'hint.pencil':
     'Alt pour prélever une couleur. Le tramage alterne les couleurs du clic gauche et du clic droit.',
+  'hint.lassoFill':
+    'Dessine une forme à main levée : quand tu relâches, elle se ferme et se remplit de la couleur. Clic droit pour la couleur secondaire.',
   'hint.eraser': 'Efface vers la transparence.',
   'hint.line': 'Maj pour bloquer à 0°, 45° ou 90°.',
   'hint.shape': 'Maj pour une forme régulière.',

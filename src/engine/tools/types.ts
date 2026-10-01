@@ -22,6 +22,7 @@ export type ToolId =
   | 'blur'
   | 'spray'
   | 'jumble'
+  | 'lassoFill'
   | 'picker';
 
 export interface ToolOptions {

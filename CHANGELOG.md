@@ -6,7 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
-- Resize a layer or a selection by its corner handles with the Move tool, with sharp, nearest-neighbor pixels. Sizes snap to whole multiples (×2, ×3, ×1/2…), shown next to the size; Shift keeps the proportions, Alt resizes from the center, Cmd/Ctrl turns snapping off. One undo step; pixels pushed off the canvas are kept. (#PR)
+- Resize a layer or a selection by its corner handles with the Move tool, with sharp, nearest-neighbor pixels. Sizes snap to whole multiples (×2, ×3, ×1/2…), shown next to the size; Shift keeps the proportions, Alt resizes from the center, Cmd/Ctrl turns snapping off. One undo step; pixels pushed off the canvas are kept. (#187)
 - Lasso fill: with "Fill the shape when the stroke ends" in the Pencil's "…" menu, a stroke closes back to its start when it ends and the shape it draws is filled, with the current color, dithering and symmetry. One undo step. (#186)
 - The Pencil's options bar is shorter: dithering, lasso fill and Blend move to a "…" menu (Blend too for the Spray), with a blue dot on it when one of them is on. (#186)
 - A Remap tab in the Adjustments panel, to move a drawing to another palette or clean it up: pick a preset or the file's palette, match colors to the nearest one or by lightness (darkest to darkest, which recolors and keeps shadows and highlights), reduce how many colors are used, and optionally replace the file's palette. Live preview, one undo step. (#184)

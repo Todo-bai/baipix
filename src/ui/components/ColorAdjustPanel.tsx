@@ -8,6 +8,9 @@ import { IconButton } from './IconButton';
 
 const close = () => uiStore.set({ adjust: false });
 
+/** Kinds of adjustments, each a tab of the panel. */
+const TABS: { id: 'colors'; label: MessageKey }[] = [{ id: 'colors', label: 'adjust.colors' }];
+
 const SLIDERS: { key: keyof ColorAdjustment; label: MessageKey; min: number; max: number; unit: string }[] = [
   { key: 'hue', label: 'adjust.hue', min: -180, max: 180, unit: '°' },
   { key: 'saturation', label: 'adjust.saturation', min: 0, max: 200, unit: '%' },
@@ -15,8 +18,9 @@ const SLIDERS: { key: keyof ColorAdjustment; label: MessageKey; min: number; max
 ];
 
 /**
- * Floating panel that shifts hue, saturation and brightness of the whole drawing (or the active
- * layer, or the selection), with a live preview on the canvas. Applying makes one undo step.
+ * The Adjustments panel, floating: changes to the existing pixels of the active layer or all
+ * layers (limited to the selection if any), with a live preview on the canvas. Applying makes one
+ * undo step. Its tabs are the kinds of adjustments; Colors shifts hue, saturation and brightness.
  */
 export function ColorAdjustPanel() {
   const open = uiStore.use((s) => s.adjust);
@@ -29,7 +33,7 @@ function Panel() {
   const hasSelection = useEditorState((s) => s.selection !== null);
   const rightWidth = uiStore.use((s) => (s.uiHidden ? 0 : s.panelWidths.right));
   const [adj, setAdj] = useState<ColorAdjustment>(NO_ADJUSTMENT);
-  const [allLayers, setAllLayers] = useState(true);
+  const [allLayers, setAllLayers] = useState(() => uiStore.get().adjustScope === 'all');
   const [palette, setPalette] = useState(false);
 
   // Starts (or restarts on scope change) the adjustment; leaving without applying cancels it.
@@ -63,6 +67,16 @@ function Panel() {
         <span>{t('adjust.title')}</span>
         <IconButton icon="close" label={t('common.close')} onClick={close} />
       </div>
+      {/* Tabs show once there are several kinds of adjustments. */}
+      {TABS.length > 1 && (
+        <div className="panel-tabs" role="tablist" aria-label={t('adjust.title')}>
+          {TABS.map((tab) => (
+            <button key={tab.id} type="button" role="tab" aria-selected className="panel-tab">
+              {t(tab.label)}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="popover-body">
         {SLIDERS.map(({ key, label, min, max, unit }) => (
           <div key={key} className="adjust-row">

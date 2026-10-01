@@ -3,7 +3,7 @@ import { LOCALES, getLocale, setLocale, t } from '../i18n';
 import type { Actions } from './actions';
 import type { MenuItem } from './components/Menu';
 import { getTheme, setTheme, type ThemePreference } from './theme';
-import { openDialog, uiStore } from './uiStore';
+import { openAdjust, openDialog, uiStore } from './uiStore';
 
 const CHANGELOG_URL = 'https://github.com/baipix/baipix/blob/main/CHANGELOG.md';
 import { viewport } from './viewport';
@@ -57,7 +57,7 @@ export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
     { label: t('menu.flipH'), onSelect: () => editor.flip(true) },
     { label: t('menu.flipV'), onSelect: () => editor.flip(false) },
     { label: t('menu.rotate'), onSelect: () => editor.rotate() },
-    { label: t('menu.adjustColors'), shortcut: 'Ctrl+U', onSelect: () => uiStore.set({ adjust: true }) },
+    { label: t('menu.adjustColors'), shortcut: 'Ctrl+U', onSelect: () => openAdjust('all') },
     '-',
     {
       label: t('menu.grid'),

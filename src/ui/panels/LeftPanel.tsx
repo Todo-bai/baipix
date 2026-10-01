@@ -9,7 +9,7 @@ import { openMenu } from '../components/Menu';
 import { Section } from '../components/Section';
 import { Thumbnail } from '../components/Thumbnail';
 import { fileMenu, mainMenu } from '../menus';
-import { openDialog } from '../uiStore';
+import { openAdjust, openDialog } from '../uiStore';
 import { PreviewSection } from './PreviewSection';
 
 /** Inline rename on double-click, used by files and layers. */
@@ -239,6 +239,7 @@ function LayersSection() {
         onSelect: () => editor.mergeVisible(),
       },
       flatten,
+      { label: t('adjust.open'), icon: 'panel', onSelect: () => openAdjust('layer') },
       '-',
       {
         label: layer.locked ? t('layer.unlock') : t('layer.lock'),

@@ -5,7 +5,7 @@ import type { Actions } from '../actions';
 import { isMenuOpen } from '../components/Menu';
 import { keyState } from '../keyState';
 import { TOOL_LIST } from '../tools';
-import { openDialog, toast, uiStore } from '../uiStore';
+import { openAdjust, openDialog, toast, uiStore } from '../uiStore';
 import { viewport } from '../viewport';
 
 const isTyping = (target: EventTarget | null) =>
@@ -53,7 +53,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
               true
             );
           if (key === 'o') return (void actions.openDocument(), true);
-          if (key === 'u') return (uiStore.set({ adjust: true }), true);
+          if (key === 'u') return (openAdjust('all'), true);
           return false;
         })();
         if (handled) e.preventDefault();

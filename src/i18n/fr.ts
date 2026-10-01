@@ -52,7 +52,6 @@ export const fr: Record<MessageKey, string> = {
   'tool.liquify': 'Fluidité',
   'tool.picker': 'Pipette',
 
-  'section.files': 'Fichiers',
   'section.layers': 'Calques',
   'section.preview': 'Aperçu',
   'section.render': 'Rendu des pixels',
@@ -120,6 +119,8 @@ export const fr: Record<MessageKey, string> = {
   'file.name': 'Nom du fichier',
   'file.size': '{w} × {h} px',
   'file.new': 'Nouveau fichier',
+  'file.recent': 'Fichiers',
+  'file.allFiles': 'Tous les fichiers',
   'file.actions': 'Actions du fichier',
   'file.duplicate': 'Dupliquer',
   'file.download': 'Télécharger en .baipix',
@@ -144,6 +145,10 @@ export const fr: Record<MessageKey, string> = {
 
   'preview.gap': 'Espacement {gap} px',
   'preview.reduced': 'réduit',
+  'preview.fit': 'Ajusté',
+  'preview.collapse': "Replier l'aperçu",
+  'preview.expand': "Déplier l'aperçu",
+  'menu.preview': "Fenêtre d'aperçu",
 
   'render.pixelSize': 'Taille',
   'render.scaleTip': 'Chaque pixel fait {size} × {size} px',

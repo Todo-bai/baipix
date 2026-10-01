@@ -11,6 +11,18 @@ export type DialogState =
   | { type: 'confirm'; title: string; message: string; confirmLabel: string; onConfirm: () => void }
   | { type: 'output'; title: string; message: string; image?: string; text?: string };
 
+export interface PreviewWindow {
+  open: boolean;
+  collapsed: boolean;
+  /** Top-left corner in the workspace, in CSS px; null until moved (it then sits bottom left). */
+  x: number | null;
+  y: number | null;
+  w: number;
+  h: number;
+  /** Zoom in %, relative to the fit (200: twice as large as fitted); null fits the whole drawing. */
+  zoom: number | null;
+}
+
 export interface UiState {
   dialog: DialogState | null;
   /** Open color picker: which color it edits and where to anchor it vertically. */
@@ -19,6 +31,8 @@ export interface UiState {
   sheet: 'left' | 'right' | null;
   /** Color adjustment panel open. */
   adjust: boolean;
+  /** The floating preview window: shown or not, folded, where (null: the default spot), its size and zoom. */
+  preview: PreviewWindow;
   /** What the Adjustments panel starts on: the active layer (from the Layer section) or all layers. */
   adjustScope: 'layer' | 'all';
   panelWidths: { left: number; right: number };
@@ -48,6 +62,7 @@ export const uiStore = createStore<UiState>({
   sheet: null,
   adjust: false,
   adjustScope: 'all',
+  preview: { open: true, collapsed: false, x: null, y: null, w: 208, h: 168, zoom: null },
   panelWidths: { left: PANEL_LIMITS.left.default, right: PANEL_LIMITS.right.default },
   uiHidden: false,
   exportFormat: 'png',

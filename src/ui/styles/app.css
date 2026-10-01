@@ -649,10 +649,6 @@ body.is-resizing * {
   grid-template-columns: minmax(0, 1fr);
   margin: 0 -8px;
 }
-.files-list {
-  max-height: 220px;
-  overflow-y: auto;
-}
 .item {
   position: relative;
   min-width: 0;
@@ -1771,7 +1767,8 @@ body.is-dragging-swatch * {
 .toast,
 .menu,
 .mobile-bar,
-.mobile-colors {
+.mobile-colors,
+.floating-preview {
   --surface: var(--panel);
   border-radius: 0;
   box-shadow:
@@ -2232,5 +2229,67 @@ body.is-dragging-swatch * {
   .home-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 14px;
+  }
+}
+
+/* ---------- Floating preview ---------- */
+.floating-preview {
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+}
+.floating-preview-header {
+  height: 32px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 10px;
+  cursor: grab;
+  user-select: none;
+}
+.floating-preview-header:active {
+  cursor: grabbing;
+}
+.floating-preview-title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+.floating-preview-zoom {
+  height: 22px;
+  padding: 0 6px;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+}
+.preview.floating-preview-body {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  margin: 0 8px 8px;
+}
+.floating-preview-body canvas.is-pannable {
+  cursor: grab;
+}
+.floating-preview-body canvas.is-pannable:active {
+  cursor: grabbing;
+}
+.floating-preview-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+}
+.app.ui-hidden .floating-preview {
+  display: none;
+}
+@media (max-width: 820px) {
+  .floating-preview {
+    display: none;
   }
 }

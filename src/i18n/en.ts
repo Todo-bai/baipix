@@ -51,7 +51,6 @@ export const en = {
   'tool.liquify': 'Liquify',
   'tool.picker': 'Eyedropper',
 
-  'section.files': 'Files',
   'section.layers': 'Layers',
   'section.preview': 'Preview',
   'section.render': 'Pixel rendering',
@@ -119,6 +118,8 @@ export const en = {
   'file.name': 'File name',
   'file.size': '{w} × {h} px',
   'file.new': 'New file',
+  'file.recent': 'Files',
+  'file.allFiles': 'All files',
   'file.actions': 'File actions',
   'file.duplicate': 'Duplicate',
   'file.download': 'Download as .baipix',
@@ -143,6 +144,10 @@ export const en = {
 
   'preview.gap': 'Gap {gap} px',
   'preview.reduced': 'reduced',
+  'preview.fit': 'Fit',
+  'preview.collapse': 'Fold the preview',
+  'preview.expand': 'Unfold the preview',
+  'menu.preview': 'Preview window',
 
   'render.pixelSize': 'Size',
   'render.pixelSizeHint': 'Size of one pixel in the exported file',

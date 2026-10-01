@@ -7,6 +7,7 @@ import { ActionsContext } from './ActionsContext';
 import { createActions } from './actions';
 import { CanvasView } from './components/CanvasView';
 import { ColorPicker } from './components/ColorPicker';
+import { FloatingPreview } from './components/FloatingPreview';
 import { ColorAdjustPanel } from './components/ColorAdjustPanel';
 import { Coordinates } from './components/Coordinates';
 import { IconButton } from './components/IconButton';
@@ -27,7 +28,7 @@ import { showEmptyHome } from './home';
 import { HomeScreen } from './panels/HomeScreen';
 import { LeftPanel } from './panels/LeftPanel';
 import { RightPanel } from './panels/RightPanel';
-import { openDialog, PANEL_LIMITS, toast, uiStore, type UiState } from './uiStore';
+import { openDialog, PANEL_LIMITS, toast, uiStore, type PreviewWindow, type UiState } from './uiStore';
 
 const editorLabels = () => ({
   layer: (n: number) => t('default.layer', { n }),
@@ -36,6 +37,22 @@ const editorLabels = () => ({
   pasted: t('default.pasted'),
   brush: (n: number) => t('default.brush', { n }),
 });
+
+/** The saved preview window, checked field by field (older saves don't have it). */
+function readPreview(p: Partial<PreviewWindow>): PreviewWindow {
+  const d = uiStore.get().preview;
+  const num = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
+  const opt = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  return {
+    open: p.open !== false,
+    collapsed: p.collapsed === true,
+    x: opt(p.x),
+    y: opt(p.y),
+    w: Math.max(140, num(p.w, d.w)),
+    h: Math.max(100, num(p.h, d.h)),
+    zoom: opt(p.zoom),
+  };
+}
 
 /** Restores the saved workspace (or imports the prototype's drawings) before enabling autosave. */
 function useRestore(editor: Editor, storage: StorageAdapter): boolean {
@@ -62,6 +79,7 @@ function useRestore(editor: Editor, storage: StorageAdapter): boolean {
             hiddenPalettes: Array.isArray(ui.hiddenPalettes)
               ? ui.hiddenPalettes.filter((x) => typeof x === 'string')
               : [],
+            ...(ui.preview && typeof ui.preview === 'object' && { preview: readPreview(ui.preview) }),
             ...(widths && {
               panelWidths: {
                 left: Math.min(Math.max(widths.left, PANEL_LIMITS.left.min), PANEL_LIMITS.left.max),
@@ -133,6 +151,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
               shortcut="?"
               onClick={() => openDialog({ type: 'shortcuts' })}
             />
+            <FloatingPreview />
             <ToolOptionsBar />
             <Toolbar />
           </main>

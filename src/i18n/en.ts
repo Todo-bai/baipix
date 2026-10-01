@@ -166,7 +166,7 @@ export const en = {
   'hint.select': 'Ctrl+C, Ctrl+X, Ctrl+V. Delete clears the selection.',
   'hint.moveSelection': 'Drag to move the selection. Arrow keys for 1 px, Shift for 8 px.',
   'hint.moveLayer':
-    'Drag a pixel to move its layer, Cmd/Ctrl to keep the active one. Arrow keys for 1 px, Shift for 8 px.',
+    'Drag a pixel to move its layer, click beside to drop the frame, Cmd/Ctrl to move the active one. Arrow keys for 1 px, Shift for 8 px.',
 
   'color.primary': 'Primary color',
   'color.secondary': 'Secondary color',

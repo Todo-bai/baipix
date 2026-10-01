@@ -17,7 +17,15 @@ import { History, takeSnapshot, type Snapshot } from './history';
 import { flipOutside } from './outside';
 import { clamp, clipRect, type Point, type Rect } from './math';
 import { PaletteIndex, hueShiftedRamp, presetColors, sortByLightness } from './palette';
-import { extractBlock, fillRect, flipRect, rotateRect, uniqueColors, type PixelBlock } from './region';
+import {
+  extractBlock,
+  fillRect,
+  flipRect,
+  pixelBounds,
+  rotateRect,
+  uniqueColors,
+  type PixelBlock,
+} from './region';
 import {
   DEFAULT_TOOL_OPTIONS,
   TOOLS,
@@ -71,6 +79,8 @@ export interface EditorState {
   selectedLayers: string[];
   /** The reference image is selected (in the Layers panel, or picked by the Move tool). */
   referenceSelected: boolean;
+  /** The Move tool frames the active layer (until a click beside every layer). */
+  layerFramed: boolean;
   canUndo: boolean;
   canRedo: boolean;
   revision: number;
@@ -114,6 +124,8 @@ interface Session {
   anchor?: string;
   /** The reference image is selected in the Layers panel instead of a layer. */
   referencePicked?: boolean;
+  /** A click beside every layer with the Move tool: the active layer stays active, without its frame. */
+  unframed?: boolean;
 }
 
 /** What the last delete removed, so it can be brought back (the toast's Undo button). */
@@ -231,6 +243,7 @@ export class Editor {
       view: this.view,
       selectedLayers: s.picked,
       referenceSelected: !!s.referencePicked && !!s.doc.reference,
+      layerFramed: !s.unframed,
       canUndo: s.history.canUndo,
       canRedo: s.history.canRedo,
       revision: this.revision,
@@ -569,9 +582,10 @@ export class Editor {
   setActiveLayer(index: number): void {
     if (index < 0 || index >= this.doc.layers.length) return;
     const id = this.doc.layers[index].id;
-    if (index === this.doc.activeLayer && this.active.picked?.length === 1 && !this.active.referencePicked)
-      return;
-    this.active.referencePicked = false;
+    const s = this.active;
+    if (index === this.doc.activeLayer && s.picked?.length === 1 && !s.referencePicked && !s.unframed) return;
+    s.referencePicked = false;
+    s.unframed = false;
     this.doc.activeLayer = index;
     this.active.picked = [id];
     this.active.anchor = id;
@@ -588,6 +602,7 @@ export class Editor {
     if (!layers[index]) return;
     if (mode === 'single') return this.setActiveLayer(index);
     this.active.referencePicked = false;
+    this.active.unframed = false;
     const id = layers[index].id;
     const picked = this.state.selectedLayers;
     if (mode === 'toggle') {
@@ -1089,6 +1104,7 @@ export class Editor {
       return;
     }
     if (this.stroke || !activeLayer(this.doc).visible || this.activeLocked()) return;
+    this.active.unframed = false;
     this.checkpoint();
     const s = this.createStroke({ x: 0, y: 0 }, false);
     beginMove(s);
@@ -1201,7 +1217,17 @@ export class Editor {
       this.active.referencePicked = false;
       this.commit(false);
     }
-    if (id === 'move' && !mods.keepLayer) this.pickLayerAt(p);
+    if (id === 'move' && !this.active.selection) {
+      // Beside every layer (and outside the active one's frame), a click just drops the frame.
+      if (!mods.keepLayer && !this.pickLayerAt(p)) {
+        if (!this.active.unframed) {
+          this.active.unframed = true;
+          this.commit(false);
+        }
+        return false;
+      }
+      this.active.unframed = false;
+    }
     if (tool.editsPixels && this.activeLocked()) return false;
     if (tool.editsPixels && !activeLayer(this.doc).visible) {
       this.notice({ type: 'layerHidden' });
@@ -1215,15 +1241,25 @@ export class Editor {
     return true;
   }
 
-  /** Makes the layer under `p` the active one (see `layerAt`), without an undo step of its own. */
-  private pickLayerAt(p: Point): void {
+  /**
+   * Makes the layer under `p` the active one (see `layerAt`), without an undo step of its own.
+   * Returns false when there's nothing to take there: no layer pixel, and not inside the frame of
+   * the active layer (a hole in a drawing still moves it).
+   */
+  private pickLayerAt(p: Point): boolean {
     const k = this.layerAt(p);
-    if (k < 0 || k === this.doc.activeLayer) return;
+    if (k < 0) {
+      const { width, height } = this.doc;
+      const box = this.active.unframed ? null : pixelBounds(activeLayer(this.doc).pixels, width, height);
+      return !!box && p.x >= box.x && p.y >= box.y && p.x < box.x + box.w && p.y < box.y + box.h;
+    }
+    if (k === this.doc.activeLayer) return true;
     const id = this.doc.layers[k].id;
     this.doc.activeLayer = k;
     this.active.picked = [id];
     this.active.anchor = id;
     this.commit(false);
+    return true;
   }
 
   moveStroke(p: Point, mods: Modifiers): void {

@@ -403,7 +403,8 @@ export function CanvasView() {
     let activeBoxCache: { key: string; rect: Rect | null } | null = null;
     const activeLayerBox = (): Rect | null => {
       const state = editor.getState();
-      if (state.tool !== 'move' || state.selection || state.referenceSelected) return null;
+      if (state.tool !== 'move' || state.selection || state.referenceSelected || !state.layerFramed)
+        return null;
       const { doc } = editor.getLive();
       const layer = doc.layers[doc.activeLayer];
       if (!layer?.visible) return null;

@@ -9,14 +9,30 @@ import type { Stroke } from './types';
 export const inBounds = (s: Stroke, x: number, y: number): boolean =>
   x >= 0 && y >= 0 && x < s.doc.width && y < s.doc.height;
 
+const mod = (a: number, n: number) => ((a % n) + n) % n;
+
+/**
+ * Where a painted pixel lands: its index on the canvas, or -1 when it falls outside (or outside
+ * the selection). In tile preview, strokes wrap around: past an edge they continue on the
+ * opposite side, so seamless textures are easy to draw.
+ */
+export function pixelIndex(s: Stroke, x: number, y: number): number {
+  const { width, height } = s.doc;
+  if (s.wrap) {
+    x = mod(x, width);
+    y = mod(y, height);
+  } else if (x < 0 || y < 0 || x >= width || y >= height) return -1;
+  return rectContains(s.selection, x, y) ? y * width + x : -1;
+}
+
 /**
  * Writes a pixel if it lies on the canvas and inside the selection. With the `blend` option, a
  * semi-transparent color mixes with the pixel as it was when the stroke started, so going over the
  * same spot twice in one stroke doesn't build it up.
  */
 export function setPixel(s: Stroke, x: number, y: number, color: Color): void {
-  if (!inBounds(s, x, y) || !rectContains(s.selection, x, y)) return;
-  const i = y * s.doc.width + x;
+  const i = pixelIndex(s, x, y);
+  if (i < 0) return;
   s.layer.pixels[i] = s.options.blend && alpha(color) < 255 ? blendOver(color, s.base[i]) : color;
 }
 
@@ -76,12 +92,11 @@ export function forEachBrushPixelOnce(
     p.y,
     s.options.size,
     (bx, by) => {
-      for (const { x, y } of mirrorsOf(s, bx, by)) {
-        if (!inBounds(s, x, y) || !rectContains(s.selection, x, y)) continue;
-        const i = y * s.doc.width + x;
-        if (s.visited[i]) continue;
+      for (const m of mirrorsOf(s, bx, by)) {
+        const i = pixelIndex(s, m.x, m.y);
+        if (i < 0 || s.visited[i]) continue;
         s.visited[i] = 1;
-        visit(i, x, y);
+        visit(i, i % s.doc.width, Math.floor(i / s.doc.width));
       }
     },
     s.options.roundTip,

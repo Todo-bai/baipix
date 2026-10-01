@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- In tile preview, painting wraps around: a stroke that goes past an edge continues on the opposite side, so seamless textures are easy to draw. Works with the Pencil, Eraser, shapes, Spray, Lighten, Shade and Blur. (#191)
 - More dithering patterns: besides the checkerboard, dots (1 in 4), dense (3 in 4), horizontal or vertical lines and diagonals, for the Pencil, the Lasso fill (in their … menu) and the Bucket (a list in its options). (#190)
 - A Liquify tool (W) that warps the drawing without adding colors: Push drags pixels along with the brush, Expand and Shrink make a part bigger or smaller (and keep going while you hold still). Size and strength options; it redraws from the pixels of the stroke's start, so the drawing stays sharp and passes don't degrade it. Works with symmetry and the selection. (#189)
 - A Lasso fill tool (K), next to the Pencil: draw a shape freehand and it closes and fills when you let go. The Pencil's "Fill the shape" option stays for those who prefer it. (#188)

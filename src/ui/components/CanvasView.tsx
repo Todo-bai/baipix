@@ -262,6 +262,7 @@ export function CanvasView() {
           selectionDashOffset: reduceMotion ? 0 : (now / 80) % 8,
           brush,
           moveTarget: editor.isStroking ? null : moveTargetAt(hover, lastMods),
+          layerBox: activeLayerBox(),
           loupe,
           label: renamingRef.current ? '' : live.doc.name,
         },
@@ -395,6 +396,23 @@ export function CanvasView() {
       return boundsCache.rect;
     };
     let lastMods = { metaKey: false, ctrlKey: false };
+    /**
+     * With the Move tool, the active layer is framed like a selected object: the bounds of its
+     * pixels, live while it's being moved, cached otherwise.
+     */
+    let activeBoxCache: { key: string; rect: Rect | null } | null = null;
+    const activeLayerBox = (): Rect | null => {
+      const state = editor.getState();
+      if (state.tool !== 'move' || state.selection || state.referenceSelected) return null;
+      const { doc } = editor.getLive();
+      const layer = doc.layers[doc.activeLayer];
+      if (!layer?.visible) return null;
+      if (editor.isStroking) return pixelBounds(layer.pixels, doc.width, doc.height);
+      const key = `${layer.id}:${state.revision}`;
+      if (activeBoxCache?.key !== key)
+        activeBoxCache = { key, rect: pixelBounds(layer.pixels, doc.width, doc.height) };
+      return activeBoxCache.rect;
+    };
     // Last pointer position over the canvas (CSS px), for the reference hit test.
     let lastLocal = { x: 0, y: 0 };
 

@@ -46,6 +46,8 @@ export interface Scene {
   brush: BrushPreview | null;
   /** Move tool: the bounds of the layer a click would move, outlined on hover. */
   moveTarget: Rect | null;
+  /** Move tool: the bounds of the active layer's pixels, framed with handles and its size. */
+  layerBox: Rect | null;
   /** Eyedropper loupe around the hovered pixel, with the text shown under it (the hex code). */
   loupe: { at: Point; color: Color | null; text: string } | null;
   label: string;
@@ -74,6 +76,52 @@ const FONT = 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto
 /** Frame name above the canvas, in CSS pixels. Shared with the inline rename field. */
 export const LABEL = { size: 11, gap: 6 };
 const labelFont = (dpr: number) => `500 ${Math.round(LABEL.size * dpr)}px ${FONT}`;
+
+/**
+ * A blue frame with white square handles on its corners, like a selected object in a design tool,
+ * and an optional size badge under it. In device pixels.
+ */
+function drawFrame(
+  ctx: CanvasRenderingContext2D,
+  rx: number,
+  ry: number,
+  rw: number,
+  rh: number,
+  dpr: number,
+  theme: Theme,
+  label?: string,
+): void {
+  const lw = Math.max(1, Math.round(dpr));
+  ctx.strokeStyle = theme.highlight;
+  ctx.lineWidth = lw;
+  ctx.strokeRect(rx - lw / 2, ry - lw / 2, rw + lw, rh + lw);
+  const hs = Math.round(8 * dpr);
+  for (const [cx, cy] of [
+    [rx, ry],
+    [rx + rw, ry],
+    [rx, ry + rh],
+    [rx + rw, ry + rh],
+  ]) {
+    const hx = Math.round(cx - hs / 2);
+    const hy = Math.round(cy - hs / 2);
+    ctx.fillStyle = theme.handle;
+    ctx.fillRect(hx, hy, hs, hs);
+    ctx.strokeRect(hx + lw / 2, hy + lw / 2, hs - lw, hs - lw);
+  }
+  if (!label) return;
+  ctx.font = `600 ${Math.round(11 * dpr)}px ${FONT}`;
+  const pw = Math.round(ctx.measureText(label).width + 10 * dpr);
+  const ph = Math.round(18 * dpr);
+  const bx = Math.round(rx + rw / 2 - pw / 2);
+  const by = Math.round(ry + rh + 10 * dpr);
+  ctx.fillStyle = theme.highlightFill;
+  ctx.fillRect(bx, by, pw, ph);
+  ctx.fillStyle = theme.highlightInk;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, bx + pw / 2, by + ph / 2 + Math.round(dpr / 2));
+  ctx.textAlign = 'start';
+}
 
 /** Hit box of the frame name, in device pixels (a few pixels of slack around the text). */
 export function labelRect(ctx: CanvasRenderingContext2D, label: string, camera: Camera): Rect {
@@ -251,29 +299,24 @@ export function drawScene(
     ctx.fillRect(X + cw + Math.round(3 * dpr), Math.round(ay - grip / 2), ext - Math.round(3 * dpr), grip);
   }
 
-  // Selected reference: blue outline and corner handles.
+  // Selected reference, or the active layer with the Move tool: a blue frame with white corner
+  // handles, and the layer's size under it.
   if (ref?.selected) {
     const r = ref.rect;
-    const rx = Math.round(X + r.x * s);
-    const ry = Math.round(Y + r.y * s);
-    const rw = Math.round(r.w * s);
-    const rh = Math.round(r.h * s);
-    ctx.strokeStyle = theme.highlight;
-    ctx.lineWidth = lw;
-    ctx.strokeRect(rx - lw / 2, ry - lw / 2, rw + lw, rh + lw);
-    const hs = Math.round(8 * dpr);
-    for (const [cx, cy] of [
-      [rx, ry],
-      [rx + rw, ry],
-      [rx, ry + rh],
-      [rx + rw, ry + rh],
-    ]) {
-      const hx = Math.round(cx - hs / 2);
-      const hy = Math.round(cy - hs / 2);
-      ctx.fillStyle = theme.handle;
-      ctx.fillRect(hx, hy, hs, hs);
-      ctx.strokeRect(hx + lw / 2, hy + lw / 2, hs - lw, hs - lw);
-    }
+    drawFrame(
+      ctx,
+      Math.round(X + r.x * s),
+      Math.round(Y + r.y * s),
+      Math.round(r.w * s),
+      Math.round(r.h * s),
+      dpr,
+      theme,
+    );
+  } else if (scene.layerBox) {
+    const r = scene.layerBox;
+    const rw = r.w * s - gap;
+    const rh = r.h * s - gap;
+    drawFrame(ctx, X + r.x * s, Y + r.y * s, rw, rh, dpr, theme, `${r.w} × ${r.h}`);
   }
 
   // Selection: blue outline, corner handles and a size badge.

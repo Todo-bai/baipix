@@ -7,6 +7,9 @@ export interface Theme {
   accent: string;
   /** The blue of hovers, for what the pointer is about to act on. */
   highlight: string;
+  /** Solid blue for badges, and the dark text on it. */
+  highlightFill: string;
+  highlightInk: string;
   /** Text drawn on top of the accent. */
   accentInk: string;
   muted: string;
@@ -36,6 +39,8 @@ export function readTheme(el: Element = document.documentElement): Theme {
     frame: v('--frame'),
     accent: v('--accent'),
     highlight: v('--glow-line'),
+    highlightFill: v('--glow'),
+    highlightInk: v('--glow-ink'),
     accentInk: v('--accent-ink'),
     muted: v('--muted'),
     axis: v('--axis'),

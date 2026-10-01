@@ -48,6 +48,7 @@ export const fr: Record<MessageKey, string> = {
   'tool.blur': 'Flou',
   'tool.spray': 'Spray',
   'tool.jumble': 'Mélangeur',
+  'tool.liquify': 'Fluidité',
   'tool.picker': 'Pipette',
 
   'section.files': 'Fichiers',
@@ -197,6 +198,12 @@ export const fr: Record<MessageKey, string> = {
     'Pose des pixels au hasard dans un cercle, comme une bombe de peinture. Reste immobile pour continuer à vaporiser. Clic droit pour la couleur secondaire.',
   'hint.jumble':
     'Mélange les pixels sous le pinceau, sans ajouter de couleur : de la texture pour du feuillage, de la roche ou du bruit. Reste immobile pour continuer.',
+  'hint.liquify':
+    'Déforme le dessin sans ajouter de couleur : Pousser entraîne les pixels, Gonfler et Rétrécir agrandissent ou rapetissent une zone (reste immobile pour continuer).',
+  'liquify.push': 'Pousser',
+  'liquify.expand': 'Gonfler',
+  'liquify.shrink': 'Rétrécir',
+  'liquify.mode': 'Mode',
   'hint.picker': 'Clic gauche pour la couleur principale, clic droit pour la secondaire.',
   'hint.select': 'Ctrl+C, Ctrl+X, Ctrl+V. Suppr efface la sélection.',
   'hint.moveSelection': 'Glisse pour déplacer la sélection. Flèches du clavier pour 1 px, Maj pour 8 px.',

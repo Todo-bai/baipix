@@ -165,6 +165,7 @@ const STABILIZED_TOOLS: ToolId[] = [
   'blur',
   'spray',
   'jumble',
+  'liquify',
 ];
 
 /** A color change applied to every pixel, color by color (Adjustments). */

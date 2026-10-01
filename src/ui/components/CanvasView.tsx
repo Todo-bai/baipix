@@ -238,8 +238,13 @@ export function CanvasView() {
       if (hover && !panStart && !pinch && BRUSH_TOOLS.includes(tool) && !shapeInProgress && !picking) {
         const paints = !['eraser', 'shade', 'lighten', 'blur'].includes(tool);
         brush =
-          tool === 'spray'
-            ? { at: hover, size: 1, color: null, circle: state.options.spraySize }
+          tool === 'spray' || tool === 'liquify'
+            ? {
+                at: hover,
+                size: 1,
+                color: null,
+                circle: tool === 'spray' ? state.options.spraySize : state.options.liquifySize,
+              }
             : tool === 'jumble'
               ? { at: hover, size: state.options.jumbleSize, color: null }
               : {
@@ -553,7 +558,7 @@ export function CanvasView() {
         override,
       );
       // The spray and the jumble keep going while the pointer holds still, like a real can.
-      if (started && !override && (tool === 'spray' || tool === 'jumble')) {
+      if (started && !override && (tool === 'spray' || tool === 'jumble' || tool === 'liquify')) {
         clearInterval(sprayTimer);
         sprayTimer = window.setInterval(() => {
           if (editor.isStroking && hover) editor.moveStroke(hover, { shift: false });

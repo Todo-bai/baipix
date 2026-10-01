@@ -1,6 +1,7 @@
 import type { Color } from '../color';
 import type { Layer, PixelDoc } from '../document';
 import type { Outside } from '../outside';
+import type { LiquifyMode } from './liquify';
 import type { Point, Rect } from '../math';
 import type { PaletteIndex, ShadeMode } from '../palette';
 
@@ -23,6 +24,7 @@ export type ToolId =
   | 'spray'
   | 'jumble'
   | 'lassoFill'
+  | 'liquify'
   | 'picker';
 
 export interface ToolOptions {
@@ -35,6 +37,12 @@ export interface ToolOptions {
   stabilizer: number;
   /** Pencil: when the stroke ends, close it and fill the shape it draws (lasso fill). */
   lassoFill: boolean;
+  /** Liquify: push pixels along, or expand or shrink them around the brush's center. */
+  liquifyMode: LiquifyMode;
+  /** Liquify: diameter of the brush, in pixels. */
+  liquifySize: number;
+  /** Liquify: how much each dab warps, 1 to 100. */
+  liquifyStrength: number;
   pixelPerfect: boolean;
   dither: boolean;
   filled: boolean;
@@ -67,6 +75,9 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   blend: false,
   stabilizer: 0,
   lassoFill: false,
+  liquifyMode: 'push',
+  liquifySize: 12,
+  liquifyStrength: 50,
   pixelPerfect: true,
   dither: false,
   filled: false,

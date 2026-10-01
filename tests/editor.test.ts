@@ -380,6 +380,42 @@ describe('Editor', () => {
     expect(e.getState().selection).toEqual({ x: 2, y: 2, w: 3, h: 3 });
   });
 
+  it('liquifies: pushes, expands and shrinks without new colors', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    e.setTool('pencil');
+    e.setOption('size', 4);
+    drag(e, [[16, 16]]); // a 4×4 block, 14..17
+    const count = () => painted(e);
+    const onlyRed = () => [...layer(e)].every((c) => c === 0 || c === RED);
+    e.setTool('liquify');
+    e.setOption('liquifySize', 16);
+    e.setOption('liquifyStrength', 100);
+    // Push to the right: the block's content moves right.
+    drag(e, [
+      [15, 16],
+      [22, 16],
+    ]);
+    expect(layer(e)[16 * 32 + 19]).toBe(RED);
+    expect(onlyRed()).toBe(true);
+    e.undo();
+    expect(count()).toBe(16);
+    // Expand makes it bigger, Shrink smaller, holding still at its center.
+    const hold = (mode: 'expand' | 'shrink') => {
+      e.setOption('liquifyMode', mode);
+      e.beginStroke({ x: 15, y: 15 }, false, { shift: false });
+      for (let k = 0; k < 6; k++) e.moveStroke({ x: 15, y: 15 }, { shift: false });
+      e.endStroke();
+    };
+    hold('expand');
+    expect(count()).toBeGreaterThan(16);
+    expect(onlyRed()).toBe(true);
+    e.undo();
+    hold('shrink');
+    expect(count()).toBeLessThan(16);
+    expect(onlyRed()).toBe(true);
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

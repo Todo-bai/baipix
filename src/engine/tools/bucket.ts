@@ -1,3 +1,4 @@
+import { ditherSecond } from '../dither';
 import { rectContains } from '../math';
 import { floodFill } from '../raster';
 import { inBounds, mirrorsOf, strokeColors } from './paint';
@@ -14,7 +15,7 @@ export const bucket: Tool = {
     const paint = (i: number) => {
       const x = i % width;
       const y = (i / width) | 0;
-      s.layer.pixels[i] = dither && (x + y) & 1 ? c2 : c1;
+      s.layer.pixels[i] = dither && ditherSecond(s.options.ditherPattern, x, y) ? c2 : c1;
     };
     for (const m of mirrorsOf(s, p.x, p.y)) {
       if (!inBounds(s, m.x, m.y) || !rectContains(s.selection, m.x, m.y)) continue;

@@ -5,15 +5,15 @@ import { useEditor, useEditorState } from '../EditorContext';
 import { toolMeta } from '../tools';
 import { Checkbox } from './Checkbox';
 import { Icon } from './Icon';
+import { DITHER_PATTERNS, type DitherPattern } from '../../engine/dither';
 import { IconButton } from './IconButton';
-import { openMenu } from './Menu';
+import { openMenu, type MenuItem } from './Menu';
 import { NumberField } from './NumberField';
 import { Row } from './Section';
 
 /** Options of the active tool, in a small bar right above the toolbar. Hidden for tools without any. */
 /** Options of the "…" menu, with labels that say what they do on their own. */
 const MORE_LABELS = {
-  dither: 'options.dither',
   lassoFill: 'options.lassoFillMenu',
   blend: 'options.blendMenu',
 } as const;
@@ -80,6 +80,18 @@ export function ToolOptionsBar() {
    * Less common on/off options go in a "…" menu, to keep the bar short. A dot on the button says
    * one of them is on, so it's never forgotten.
    */
+  const ditherItems = (): MenuItem[] => [
+    { label: t('dither.none'), checked: !options.dither, onSelect: () => editor.setOption('dither', false) },
+    ...DITHER_PATTERNS.map((p) => ({
+      label: t(`dither.${p}`),
+      checked: options.dither && options.ditherPattern === p,
+      onSelect: () => {
+        editor.setOption('ditherPattern', p);
+        editor.setOption('dither', true);
+      },
+    })),
+    '-' as const,
+  ];
   const more = (keys: ('dither' | 'lassoFill' | 'blend')[]) => {
     const anyOn = keys.some((k) => options[k]);
     return (
@@ -89,14 +101,17 @@ export function ToolOptionsBar() {
         label={t('options.more')}
         aria-haspopup="menu"
         onClick={(e) =>
-          openMenu(
-            e.currentTarget,
-            keys.map((k) => ({
-              label: t(MORE_LABELS[k]),
-              checked: options[k],
-              onSelect: () => editor.setOption(k, !options[k]),
-            })),
-          )
+          openMenu(e.currentTarget, [
+            // Dithering: off, or one of the patterns, picked like a radio group.
+            ...(keys.includes('dither') ? ditherItems() : []),
+            ...keys
+              .filter((k) => k !== 'dither')
+              .map((k) => ({
+                label: t(MORE_LABELS[k]),
+                checked: options[k],
+                onSelect: () => editor.setOption(k, !options[k]),
+              })),
+          ])
         }
       />
     );
@@ -203,7 +218,24 @@ export function ToolOptionsBar() {
             onChange={set('contiguous')}
             label={t('options.contiguous')}
           />
-          <Checkbox checked={options.dither} onChange={set('dither')} label={t('options.dither')} />
+          <select
+            className="select-plain"
+            aria-label={t('options.dither')}
+            value={options.dither ? options.ditherPattern : 'none'}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === 'none') return editor.setOption('dither', false);
+              editor.setOption('ditherPattern', v as DitherPattern);
+              editor.setOption('dither', true);
+            }}
+          >
+            <option value="none">{t('dither.none')}</option>
+            {DITHER_PATTERNS.map((p) => (
+              <option key={p} value={p}>
+                {t(`dither.${p}`)}
+              </option>
+            ))}
+          </select>
           <div className="button-row">
             <button type="button" className="btn" data-kbd="Shift+Del" onClick={() => editor.fill()}>
               {hasSelection ? t('menu.fillSelection') : t('menu.fillLayer')}

@@ -1,3 +1,4 @@
+import { ditherSecond } from '../dither';
 import type { Point } from '../math';
 import { isDoubledCorner } from '../raster';
 import { followPointer, inBounds, mirrorsOf, setPixel, stamp, strokeColors } from './paint';
@@ -33,7 +34,7 @@ function fillPath(s: Stroke): void {
   if (!path || path.length < 3) return;
   const [c1, c2] = strokeColors(s);
   const paintAt = (x: number, y: number) => {
-    const color = s.options.dither && (x + y) & 1 ? c2 : c1;
+    const color = s.options.dither && ditherSecond(s.options.ditherPattern, x, y) ? c2 : c1;
     for (const m of mirrorsOf(s, x, y)) setPixel(s, m.x, m.y, color);
   };
   // The outline itself, corners included (pixel-perfect removes some while drawing): a solid shape.

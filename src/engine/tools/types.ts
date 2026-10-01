@@ -1,6 +1,7 @@
 import type { Color } from '../color';
 import type { Layer, PixelDoc } from '../document';
 import type { Outside } from '../outside';
+import type { DitherPattern } from '../dither';
 import type { LiquifyMode } from './liquify';
 import type { Point, Rect } from '../math';
 import type { PaletteIndex, ShadeMode } from '../palette';
@@ -45,6 +46,8 @@ export interface ToolOptions {
   liquifyStrength: number;
   pixelPerfect: boolean;
   dither: boolean;
+  /** Which dithering pattern `dither` uses. */
+  ditherPattern: DitherPattern;
   filled: boolean;
   /** Corner radius of the rounded rectangle, in pixels. */
   radius: number;
@@ -80,6 +83,7 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   liquifyStrength: 50,
   pixelPerfect: true,
   dither: false,
+  ditherPattern: 'checker',
   filled: false,
   radius: 2,
   contiguous: true,

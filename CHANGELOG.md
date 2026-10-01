@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- More dithering patterns: besides the checkerboard, dots (1 in 4), dense (3 in 4), horizontal or vertical lines and diagonals, for the Pencil, the Lasso fill (in their … menu) and the Bucket (a list in its options). (#190)
 - A Liquify tool (W) that warps the drawing without adding colors: Push drags pixels along with the brush, Expand and Shrink make a part bigger or smaller (and keep going while you hold still). Size and strength options; it redraws from the pixels of the stroke's start, so the drawing stays sharp and passes don't degrade it. Works with symmetry and the selection. (#189)
 - A Lasso fill tool (K), next to the Pencil: draw a shape freehand and it closes and fills when you let go. The Pencil's "Fill the shape" option stays for those who prefer it. (#188)
 - Resize a layer or a selection by its corner handles with the Move tool, with sharp, nearest-neighbor pixels. Sizes snap to whole multiples (×2, ×3, ×1/2…), shown next to the size; Shift keeps the proportions, Alt resizes from the center, Cmd/Ctrl turns snapping off. One undo step; pixels pushed off the canvas are kept. (#187)

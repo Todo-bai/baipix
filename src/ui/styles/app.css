@@ -806,6 +806,12 @@ body.is-resizing * {
       4 24,
     crosshair;
 }
+.canvas.on-handle-nwse {
+  cursor: nwse-resize !important;
+}
+.canvas.on-handle-nesw {
+  cursor: nesw-resize !important;
+}
 .canvas.on-axis-x {
   cursor: ew-resize;
 }

@@ -52,6 +52,8 @@ export interface Scene {
   moveTarget: Rect | null;
   /** Move tool: the bounds of the active layer's pixels, framed with handles and its size. */
   layerBox: Rect | null;
+  /** While resizing by a handle and snapped: the factor, shown after the size ("×2"). */
+  sizeNote?: string | null;
   /** Eyedropper loupe around the hovered pixel, with the text shown under it (the hex code). */
   loupe: { at: Point; color: Color | null; text: string } | null;
   label: string;
@@ -354,7 +356,8 @@ export function drawScene(
     const r = scene.layerBox;
     const rw = r.w * s - gap;
     const rh = r.h * s - gap;
-    drawFrame(ctx, X + r.x * s, Y + r.y * s, rw, rh, dpr, theme, `${r.w} × ${r.h}`);
+    const note = scene.sizeNote ? ` · ${scene.sizeNote}` : '';
+    drawFrame(ctx, X + r.x * s, Y + r.y * s, rw, rh, dpr, theme, `${r.w} × ${r.h}${note}`);
   }
 
   // Selection: blue outline, corner handles and a size badge.
@@ -388,7 +391,7 @@ export function drawScene(
       ctx.fillRect(hx, hy, hs, hs);
       ctx.strokeRect(hx + lw / 2, hy + lw / 2, hs - lw, hs - lw);
     }
-    const text = `${sel.w} × ${sel.h}`;
+    const text = `${sel.w} × ${sel.h}${scene.sizeNote ? ` · ${scene.sizeNote}` : ''}`;
     ctx.font = `500 ${Math.round(11 * dpr)}px ${FONT}`;
     const pw = Math.round(ctx.measureText(text).width + 10 * dpr);
     const ph = Math.round(16 * dpr);

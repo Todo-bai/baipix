@@ -1,5 +1,6 @@
 import { alpha, type Color } from '../color';
 import { blendOver } from '../composite';
+import { ditherSecond } from '../dither';
 import { rectContains, type Point } from '../math';
 import { mirrorAxes } from '../document';
 import { brush, line, mirrored } from '../raster';
@@ -27,7 +28,7 @@ export const mirrorsOf = (s: Stroke, x: number, y: number): Point[] => {
 
 /**
  * Paints the brush footprint at (cx, cy), with symmetry. With `dither`, pixels alternate
- * between c1 and c2 in a checkerboard (decided from the source pixel so mirrored copies match).
+ * between c1 and c2 in the dithering pattern (decided from the source pixel so mirrored copies match).
  */
 export function stamp(
   s: Stroke,
@@ -43,7 +44,7 @@ export function stamp(
     cy,
     size,
     (x, y) => {
-      const color = dither && (x + y) & 1 ? c2 : c1;
+      const color = dither && ditherSecond(s.options.ditherPattern, x, y) ? c2 : c1;
       for (const m of mirrorsOf(s, x, y)) setPixel(s, m.x, m.y, color);
     },
     s.options.roundTip,

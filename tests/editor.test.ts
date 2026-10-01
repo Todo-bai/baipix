@@ -100,14 +100,23 @@ describe('Editor', () => {
     move([1, 1], [2, 1]);
     expect(e.getState().doc.activeLayer).toBe(0);
     expect(layer(e)[1 * 32 + 2]).toBe(RED);
-    // Empty spot: the active layer moves.
+    // Beside every layer: nothing moves, the frame goes away, the layer stays active.
     move([10, 10], [10, 11]);
+    expect(e.getState().layerFramed).toBe(false);
+    expect(e.getState().doc.activeLayer).toBe(0);
+    expect(layer(e)[1 * 32 + 2]).toBe(RED);
+    // Cmd/Ctrl: the active layer moves (and is framed again), even over another layer's pixel.
+    move([5, 5], [5, 6], true);
+    expect(e.getState().layerFramed).toBe(true);
     expect(e.getState().doc.activeLayer).toBe(0);
     expect(layer(e)[2 * 32 + 2]).toBe(RED);
-    // Cmd/Ctrl: the active layer moves, even over another layer's pixel.
-    move([5, 5], [6, 5], true);
-    expect(e.getState().doc.activeLayer).toBe(0);
     expect(e.getState().doc.layers[1].pixels[5 * 32 + 5]).toBe(RED);
+    // A hole inside the active layer's frame still moves it.
+    e.setTool('pencil');
+    drag(e, [[7, 7]]);
+    e.setTool('move');
+    move([4, 4], [4, 5]);
+    expect(layer(e)[3 * 32 + 2]).toBe(RED);
     // Locked layers are skipped.
     e.setActiveLayer(1);
     e.setLayerLocked(1, true);

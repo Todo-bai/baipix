@@ -14,7 +14,7 @@ import {
   type RenderSettings,
 } from './document';
 import { History, takeSnapshot, type Snapshot } from './history';
-import { flipOutside } from './outside';
+import { flipOutside, layerContent, reframe, type Outside } from './outside';
 import { clamp, clipRect, type Point, type Rect } from './math';
 import { PaletteIndex, hueShiftedRamp, presetColors, sortByLightness } from './palette';
 import {
@@ -23,6 +23,8 @@ import {
   flipRect,
   pixelBounds,
   rotateRect,
+  scaleBlock,
+  stampBlock,
   uniqueColors,
   type PixelBlock,
 } from './region';
@@ -178,6 +180,16 @@ export class Editor {
   private clipboard: PixelBlock | null = null;
   private stroke: Stroke | null = null;
   /** Color adjustment in progress: the original pixels of the layers being adjusted. */
+  /** Resizing by the handles: the content being resized and how to put it back. */
+  private scaling: {
+    layer: Layer;
+    base: Uint32Array;
+    baseOutside: Outside | undefined;
+    from: Rect;
+    block: PixelBlock;
+    /** With a selection: the layer with the selection emptied, to stamp the resized block on. */
+    cleared?: Uint32Array;
+  } | null = null;
   private adjusting: {
     layers: { id: string; base: Uint32Array }[];
     rect: Rect;
@@ -313,7 +325,7 @@ export class Editor {
   }
 
   undo(): void {
-    if (this.stroke || this.adjusting) return;
+    if (this.stroke || this.adjusting || this.scaling) return;
     const current = takeSnapshot(this.doc, this.active.selection);
     const prev = this.active.history.undo(current);
     if (prev) {
@@ -327,7 +339,7 @@ export class Editor {
   }
 
   redo(): void {
-    if (this.stroke || this.adjusting) return;
+    if (this.stroke || this.adjusting || this.scaling) return;
     const current = takeSnapshot(this.doc, this.active.selection);
     const next = this.active.history.redo(current);
     if (next) {
@@ -1197,6 +1209,87 @@ export class Editor {
       this.palette = palette;
       this.commit(false);
     } else this.pixelsChanged();
+  }
+
+  /* ------------------------------------------------------------------ resize by the handles */
+
+  /**
+   * Starts resizing the selection's content, or the whole active layer (inside and outside the
+   * canvas). Returns the rectangle being resized, or null when there's nothing to resize.
+   */
+  beginScale(): Rect | null {
+    this.cancelStroke();
+    this.cancelScale();
+    const doc = this.doc;
+    const layer = activeLayer(doc);
+    if (!layer.visible || this.activeLocked()) return null;
+    const base = layer.pixels.slice();
+    const sel = this.active.selection ? clipRect(this.active.selection, doc.width, doc.height) : null;
+    if (sel && sel.w && sel.h) {
+      const block = extractBlock(base, doc.width, doc.height, sel);
+      const cleared = base.slice();
+      fillRect(cleared, doc.width, doc.height, sel, 0);
+      this.checkpoint();
+      this.scaling = { layer, base, baseOutside: layer.outside, from: sel, block, cleared };
+      return { ...sel };
+    }
+    const content = layerContent(base, doc.width, doc.height, layer.outside);
+    if (!content) return null;
+    this.checkpoint();
+    this.scaling = {
+      layer,
+      base,
+      baseOutside: layer.outside,
+      from: content.rect,
+      block: { width: content.rect.w, height: content.rect.h, pixels: content.pixels },
+    };
+    return { ...content.rect };
+  }
+
+  /** Shows the content resized into `rect` (canvas pixels), from the original pixels. */
+  previewScale(rect: Rect): void {
+    const sc = this.scaling;
+    if (!sc) return;
+    const { width, height } = this.doc;
+    const w = Math.max(1, Math.round(rect.w));
+    const h = Math.max(1, Math.round(rect.h));
+    const x = Math.round(rect.x);
+    const y = Math.round(rect.y);
+    const scaled = scaleBlock(sc.block, w, h);
+    if (sc.cleared) {
+      sc.layer.pixels.set(sc.cleared);
+      stampBlock(sc.layer.pixels, width, height, scaled, x, y);
+      this.active.selection = { x, y, w, h };
+    } else {
+      // A whole layer: what lands outside the canvas is kept, like a move.
+      const r = reframe(scaled.pixels, w, h, undefined, x, y, width, height);
+      sc.layer.pixels.set(r.pixels);
+      sc.layer.outside = r.outside;
+    }
+    this.pixelsChanged();
+  }
+
+  /** Commits the resize as one undo step (recorded when it began). */
+  endScale(): void {
+    if (!this.scaling) return;
+    this.scaling = null;
+    this.commit();
+  }
+
+  /** Puts the content back as it was, without an undo step. */
+  cancelScale(): void {
+    const sc = this.scaling;
+    if (!sc) return;
+    sc.layer.pixels.set(sc.base);
+    sc.layer.outside = sc.baseOutside;
+    if (sc.cleared) this.active.selection = sc.from;
+    this.active.history.discardLast();
+    this.scaling = null;
+    this.commit(false);
+  }
+
+  get isScaling(): boolean {
+    return this.scaling !== null;
   }
 
   /** Moves the selection (or the layer) by a few pixels, as one undo step. */

@@ -317,6 +317,54 @@ describe('Editor', () => {
     expect(painted(e)).toBe(0);
   });
 
+  it('resizes the active layer or the selection by its handles', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    drag(e, [
+      [2, 2],
+      [3, 2],
+    ]); // a 2×1 line
+    const from = e.beginScale();
+    expect(from).toEqual({ x: 2, y: 2, w: 2, h: 1 });
+    e.previewScale({ x: 2, y: 2, w: 4, h: 2 }); // ×2
+    e.endScale();
+    expect(painted(e)).toBe(8);
+    expect(layer(e)[3 * 32 + 5]).toBe(RED);
+    // Past the canvas edge, the pixels are kept, like a move.
+    e.beginScale();
+    e.previewScale({ x: 2, y: 2, w: 40, h: 2 });
+    e.endScale();
+    e.beginScale();
+    e.previewScale({ x: 2, y: 2, w: 4, h: 2 });
+    e.endScale();
+    expect(painted(e)).toBe(8);
+    // Each resize is one undo step.
+    e.undo();
+    e.undo();
+    e.undo();
+    expect(painted(e)).toBe(2);
+    // With a selection, only its content is resized.
+    e.setTool('select');
+    drag(e, [
+      [2, 2],
+      [2, 3],
+    ]); // the red pixel at (2, 2) and the empty one under it
+    expect(e.beginScale()).toEqual({ x: 2, y: 2, w: 1, h: 2 });
+    e.previewScale({ x: 2, y: 2, w: 3, h: 3 });
+    e.endScale();
+    expect(layer(e)[2 * 32 + 4]).toBe(RED); // the red pixel, 3 wide now
+    expect(layer(e)[4 * 32 + 2]).toBe(0); // the empty one, at the bottom
+    expect(layer(e)[2 * 32 + 5]).toBe(0);
+    expect(e.getState().selection).toEqual({ x: 2, y: 2, w: 3, h: 3 });
+    // Cancelling gives everything back, without an undo step.
+    e.beginScale();
+    e.previewScale({ x: 0, y: 0, w: 9, h: 9 });
+    e.cancelScale();
+    expect(layer(e)[2 * 32 + 4]).toBe(RED);
+    expect(layer(e)[0]).toBe(0);
+    expect(e.getState().selection).toEqual({ x: 2, y: 2, w: 3, h: 3 });
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

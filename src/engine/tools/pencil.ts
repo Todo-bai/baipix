@@ -1,7 +1,7 @@
 import { ditherSecond } from '../dither';
 import type { Point } from '../math';
 import { isDoubledCorner } from '../raster';
-import { followPointer, inBounds, mirrorsOf, setPixel, stamp, strokeColors } from './paint';
+import { followPointer, mirrorsOf, pixelIndex, setPixel, stamp, strokeColors } from './paint';
 import type { Stroke, Tool } from './types';
 
 /** Paints at `p`; with `fill` (or the lassoFill option), also records the path to fill at the end. */
@@ -13,10 +13,8 @@ function paint(s: Stroke, p: Point, fill = s.options.lassoFill): void {
     if (n >= 2 && isDoubledCorner(s.trail[n - 2], s.trail[n - 1], p)) {
       const corner = s.trail.pop()!;
       for (const m of mirrorsOf(s, corner.x, corner.y)) {
-        if (inBounds(s, m.x, m.y)) {
-          const i = m.y * s.doc.width + m.x;
-          s.layer.pixels[i] = s.base[i];
-        }
+        const i = pixelIndex(s, m.x, m.y);
+        if (i >= 0) s.layer.pixels[i] = s.base[i];
       }
     }
     s.trail.push(p);

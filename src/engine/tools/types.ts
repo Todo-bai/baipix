@@ -123,6 +123,8 @@ export interface Stroke {
   palette: PaletteIndex;
   mirrorX: boolean;
   mirrorY: boolean;
+  /** Tile preview is on: painting wraps around the canvas edges. */
+  wrap: boolean;
   selection: Rect | null;
   /** Per-pixel marks, for tools that must affect each pixel once per stroke. */
   visited: Uint8Array;

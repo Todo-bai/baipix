@@ -1390,6 +1390,7 @@ export class Editor {
       palette: this.paletteIndex,
       mirrorX: this.view.mirrorX,
       mirrorY: this.view.mirrorY,
+      wrap: this.view.tile,
       selection: this.active.selection,
       visited: new Uint8Array(doc.width * doc.height),
       trail: [],

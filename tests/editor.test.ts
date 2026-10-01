@@ -416,6 +416,25 @@ describe('Editor', () => {
     expect(onlyRed()).toBe(true);
   });
 
+  it('wraps strokes around the edges in tile preview', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    const stroke = () =>
+      drag(e, [
+        [29, 5],
+        [34, 5],
+      ]);
+    stroke();
+    expect(painted(e)).toBe(3); // 29, 30, 31: stops at the edge
+    e.undo();
+    e.setView('tile', true);
+    stroke();
+    // Past the right edge it goes on from the left: 29, 30, 31, then 0, 1, 2.
+    expect(painted(e)).toBe(6);
+    expect(layer(e)[5 * 32 + 2]).toBe(RED);
+    expect(layer(e)[5 * 32 + 3]).toBe(0);
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

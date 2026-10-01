@@ -30,6 +30,8 @@ export interface ToolOptions {
   roundTip: boolean;
   /** Semi-transparent colors mix with what's underneath instead of replacing it. */
   blend: boolean;
+  /** Freehand strokes follow the pointer on a string this many pixels long (0: off), to smooth wobbles. */
+  stabilizer: number;
   pixelPerfect: boolean;
   dither: boolean;
   filled: boolean;
@@ -60,6 +62,7 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   size: 1,
   roundTip: false,
   blend: false,
+  stabilizer: 0,
   pixelPerfect: true,
   dither: false,
   filled: false,

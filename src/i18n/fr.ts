@@ -143,6 +143,9 @@ export const fr: Record<MessageKey, string> = {
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Tramage en damier',
   'options.blend': 'Mélanger',
+  'options.stabilizer': 'Stabilisateur',
+  'options.stabilizerHint':
+    "Lisse les traits tremblants : le trait suit le pointeur au bout d'une corde de cette longueur, en pixels. 0 le désactive. Glisse pour ajuster.",
   'options.blendHint':
     "Une couleur semi-transparente se mélange aux pixels dessous, comme de l'aquarelle, au lieu de les remplacer.",
   'options.filled': 'Forme pleine',

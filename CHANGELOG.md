@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- A Stabilizer for the Pencil and the Eraser (0 to 10): the stroke follows the pointer on a string that many pixels long, so shaky hands, a mouse or a stylus give smooth lines. It also smooths Lighten, Shade, Blur, Spray and Jumble. Off by default. (#PR)
 - A Blend option for the Pencil and the Spray: a semi-transparent color mixes with the pixels underneath, like watercolor, instead of replacing them. Going over the same spot again in one stroke doesn't build it up. (#179)
 - A round brush tip, next to the size in the tool options: from 3px it paints a round shape instead of a square, for the Pencil, the Eraser, shapes, Lighten, Shade and Blur. (#178)
 - A Spray tool (A): it drops random pixels in a circle, like a spray can, and keeps spraying while you hold still. Options for size, density and a random opacity per pixel. Works with symmetry and the selection. (#177)

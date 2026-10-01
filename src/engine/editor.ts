@@ -153,6 +153,9 @@ const DEFAULT_LABELS: EditorLabels = {
   pasted: 'Pasted',
 };
 
+/** Freehand tools the stabilizer smooths (shapes, selections and fills don't need it). */
+const STABILIZED_TOOLS: ToolId[] = ['pencil', 'eraser', 'shade', 'lighten', 'blur', 'spray', 'jumble'];
+
 export class Editor {
   private sessions: Session[] = [];
   private active!: Session;
@@ -1284,8 +1287,29 @@ export class Editor {
 
   moveStroke(p: Point, mods: Modifiers): void {
     if (!this.stroke || !this.strokeTool) return;
-    TOOLS[this.strokeTool].onMove(this.stroke, p, mods);
+    TOOLS[this.strokeTool].onMove(this.stroke, this.stabilized(p), mods);
     this.pixelsChanged();
+  }
+
+  /**
+   * The stabilizer: freehand tools follow a point pulled by the pointer on a string of
+   * `stabilizer` pixels. It only moves when the string is tight, so small wobbles of the hand
+   * never reach the drawing.
+   */
+  private stabilized(p: Point): Point {
+    const s = this.stroke!;
+    const length = s.options.stabilizer;
+    if (!length || !STABILIZED_TOOLS.includes(this.strokeTool!)) return p;
+    const at = (s.scratch.string as Point | undefined) ?? { ...s.start };
+    const dx = p.x - at.x;
+    const dy = p.y - at.y;
+    const d = Math.hypot(dx, dy);
+    if (d > length) {
+      at.x += (dx * (d - length)) / d;
+      at.y += (dy * (d - length)) / d;
+    }
+    s.scratch.string = at;
+    return { x: Math.round(at.x), y: Math.round(at.y) };
   }
 
   endStroke(): void {

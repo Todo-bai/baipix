@@ -23,6 +23,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- Layer and file thumbnails follow the drawing's proportions (up to 2:1 either way), so a wide drawing shows as a wide thumbnail instead of a thin strip in a square. (#185)
 - "Adjust colors" becomes the Adjustments panel, ready for more kinds of adjustments. Besides the main menu and Ctrl+U, it opens from a button in the Layer section and from the layer right-click menu, starting on the active layer. (#183)
 - With "Adjust the palette too" checked, the palette now previews the adjustment live, and undoing the adjustment puts back the palette along with the pixels, so they stay in step. (#183)
 - The opacity of the colors can be scrubbed like the canvas fields: drag its ◐ label left or right. For the background, one drag is one undo step. (#181)

@@ -741,6 +741,7 @@ body.is-resizing * {
   width: 20px;
   height: 20px;
   flex: none;
+  object-fit: contain;
   border-radius: 3px;
   image-rendering: pixelated;
   box-shadow: 0 0 0 1px var(--line);

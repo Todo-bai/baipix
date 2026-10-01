@@ -432,9 +432,27 @@ describe('Editor', () => {
     e.applyAdjust(RED_HUE, true);
     expect(layer(e)[1]).toBe(pack(0, 255, 0));
     expect(layer(e)[2]).toBe(RED);
-    expect(e.getState().palette.colors).not.toContain(pack(0x1a, 0x1c, 0x2c));
+    const adapted = e.getState().palette.colors;
+    expect(adapted).not.toContain(pack(0x1a, 0x1c, 0x2c));
+    // Undo puts back the pixels and the palette together, redo both again.
     e.undo();
     expect(layer(e)[1]).toBe(RED);
+    expect(e.getState().palette.colors).toContain(pack(0x1a, 0x1c, 0x2c));
+    e.redo();
+    expect(e.getState().palette.colors).toEqual(adapted);
+  });
+
+  it('previews the adjustment on the palette, and cancelling gives it back', () => {
+    const e = new Editor();
+    const before = e.getState().palette.colors;
+    e.beginAdjust(true);
+    e.previewAdjust({ hue: 90, saturation: 100, brightness: 100 }, true);
+    expect(e.getState().palette.colors).not.toEqual(before);
+    e.previewAdjust({ hue: 90, saturation: 100, brightness: 100 }, false);
+    expect(e.getState().palette.colors).toEqual(before);
+    e.previewAdjust({ hue: 90, saturation: 100, brightness: 100 }, true);
+    e.cancelAdjust();
+    expect(e.getState().palette.colors).toEqual(before);
   });
 
   it('reorders layers to any position, as one undo step', () => {

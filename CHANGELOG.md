@@ -21,6 +21,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 ### Changed
 
 - "Adjust colors" becomes the Adjustments panel, ready for more kinds of adjustments. Besides the main menu and Ctrl+U, it opens from a button in the Layer section and from the layer right-click menu, starting on the active layer. (#183)
+- With "Adapt the palette" checked, the palette now previews the adjustment live, and undoing the adjustment puts back the palette along with the pixels, so they stay in step. (#183)
 - The opacity of the colors can be scrubbed like the canvas fields: drag its ◐ label left or right. For the background, one drag is one undo step. (#181)
 - The Primary and Secondary labels next to the colors are gone, to give the fields more room: hovering the swatch says which is which, and which click paints with it. (#181)
 - The brush outline under the pointer is dark with a white edge, so it shows on black pixels too. (#177)

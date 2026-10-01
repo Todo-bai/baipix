@@ -175,7 +175,12 @@ export class Editor {
   private clipboard: PixelBlock | null = null;
   private stroke: Stroke | null = null;
   /** Color adjustment in progress: the original pixels of the layers being adjusted. */
-  private adjusting: { layers: { id: string; base: Uint32Array }[]; rect: Rect } | null = null;
+  private adjusting: {
+    layers: { id: string; base: Uint32Array }[];
+    rect: Rect;
+    /** The palette before the adjustment, while it's previewed on the palette too. */
+    basePalette?: PaletteState;
+  } | null = null;
   private strokeTool: ToolId | null = null;
   private opacityChange = false;
   private deleted: Deleted | null = null;
@@ -295,6 +300,7 @@ export class Editor {
   }
 
   private restore(snapshot: Snapshot): void {
+    if (snapshot.palette) this.usePalette(snapshot.palette);
     // The reference image isn't part of the history: undo and redo leave it where it is.
     const { reference } = this.active.doc;
     snapshot.doc.reference = reference;
@@ -305,8 +311,11 @@ export class Editor {
 
   undo(): void {
     if (this.stroke || this.adjusting) return;
-    const prev = this.active.history.undo(takeSnapshot(this.doc, this.active.selection));
+    const current = takeSnapshot(this.doc, this.active.selection);
+    const prev = this.active.history.undo(current);
     if (prev) {
+      // A step that changed the palette swaps it back and forth with the pixels.
+      if (prev.palette) current.palette = this.palette.colors;
       this.forgetDeletedLayer();
       this.restore(prev);
       this.touch();
@@ -316,8 +325,10 @@ export class Editor {
 
   redo(): void {
     if (this.stroke || this.adjusting) return;
-    const next = this.active.history.redo(takeSnapshot(this.doc, this.active.selection));
+    const current = takeSnapshot(this.doc, this.active.selection);
+    const next = this.active.history.redo(current);
     if (next) {
+      if (next.palette) current.palette = this.palette.colors;
       this.forgetDeletedLayer();
       this.restore(next);
       this.touch();
@@ -878,10 +889,15 @@ export class Editor {
 
   /** Replaces the palette with custom colors. */
   setPaletteColors(colors: Color[]): void {
+    this.usePalette(colors);
+    this.commit();
+  }
+
+  /** Sets the palette (as a custom one) without publishing the change. */
+  private usePalette(colors: Color[]): void {
     const unique = [...new Set(colors.map(opaque))];
     this.palette = { key: 'custom', colors: unique, custom: unique };
     this.paletteIndex = new PaletteIndex(unique);
-    this.commit();
   }
 
   addToPalette(color: Color = this.primary): void {
@@ -1097,26 +1113,51 @@ export class Editor {
     }
   }
 
-  previewAdjust(adj: ColorAdjustment): void {
+  previewAdjust(adj: ColorAdjustment, palette = false): void {
     if (!this.adjusting) return;
     this.writeAdjustment(adj);
+    // The palette previews the adjustment too when it will be adapted.
+    const a = this.adjusting;
+    if (palette) {
+      a.basePalette ??= this.palette;
+      this.palette = {
+        ...a.basePalette,
+        colors: a.basePalette.colors.map((c) => adjustColor(c, adj)),
+      };
+      this.commit(false);
+    } else if (a.basePalette) {
+      this.palette = a.basePalette;
+      delete a.basePalette;
+      this.commit(false);
+    }
     this.pixelsChanged();
   }
 
   /** Commits the adjustment as one undo step; `palette` also adjusts the palette colors. */
+  /** One undo step; with `palette`, the palette is adapted too, in the same step. */
   applyAdjust(adj: ColorAdjustment, palette: boolean): void {
     if (!this.adjusting) return;
+    const base = this.adjusting.basePalette ?? this.palette;
+    this.palette = base;
     this.writeAdjustment(null);
-    this.edit(() => this.writeAdjustment(adj));
+    this.checkpoint();
+    if (palette) this.active.history.top()!.palette = base.colors;
+    this.writeAdjustment(adj);
     this.adjusting = null;
-    if (palette) this.setPaletteColors(this.palette.colors.map((c) => adjustColor(c, adj)));
+    if (palette) this.usePalette(base.colors.map((c) => adjustColor(c, adj)));
+    this.commit();
   }
 
   cancelAdjust(): void {
     if (!this.adjusting) return;
     this.writeAdjustment(null);
+    const palette = this.adjusting.basePalette;
     this.adjusting = null;
-    this.pixelsChanged();
+    // Only a previewed palette needs the panels to update; pixels just need a redraw.
+    if (palette) {
+      this.palette = palette;
+      this.commit(false);
+    } else this.pixelsChanged();
   }
 
   /** Moves the selection (or the layer) by a few pixels, as one undo step. */

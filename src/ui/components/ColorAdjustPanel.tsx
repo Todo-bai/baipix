@@ -41,7 +41,7 @@ function Panel() {
     editor.beginAdjust(allLayers);
     return () => editor.cancelAdjust();
   }, [editor, allLayers]);
-  useEffect(() => editor.previewAdjust(adj), [editor, adj, allLayers]);
+  useEffect(() => editor.previewAdjust(adj, palette), [editor, adj, allLayers, palette]);
   // Switching files cancels the adjustment in the editor: close the panel too.
   useEffect(() => editor.subscribe(() => !editor.isAdjusting && close()), [editor]);
 

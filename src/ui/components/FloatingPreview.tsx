@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
 import { alpha, toCss } from '../../engine/color';
 import { flatten } from '../../engine/composite';
 import type { Point } from '../../engine/math';
@@ -77,6 +84,11 @@ function Window({ preview }: { preview: PreviewWindow }) {
     window.addEventListener('pointerup', up);
   };
 
+  const zoomTo = useCallback((z: number | null, c: Point | null) => {
+    setPreview({ zoom: z });
+    setCenter(c);
+  }, []);
+
   const zoomMenu = (anchor: HTMLElement) =>
     openMenu(anchor, [
       {
@@ -130,6 +142,7 @@ function Window({ preview }: { preview: PreviewWindow }) {
               setPreview({ zoom: null });
               setCenter(null);
             }}
+            onZoom={zoomTo}
           />
           <div
             className="floating-preview-resize"
@@ -148,19 +161,22 @@ function PreviewCanvas({
   onCenter,
   onLabel,
   onFit,
+  onZoom,
 }: {
   zoom: number | null;
   center: Point | null;
   onCenter: (c: Point) => void;
   onLabel: (label: string) => void;
   onFit: () => void;
+  onZoom: (zoom: number | null, center: Point | null) => void;
 }) {
   const t = useT();
   const editor = useEditor();
   const ref = useRef<HTMLCanvasElement>(null);
   const view = useRef({ zoom, center });
-  // CSS pixels per art pixel as last drawn, for panning.
+  // CSS pixels per art pixel as last drawn, for panning, and the fitted scale, for the wheel.
   const scale = useRef(1);
+  const fitScale = useRef(1);
   view.current = { zoom, center };
 
   useEffect(() => {
@@ -187,6 +203,7 @@ function PreviewCanvas({
       const fitted = fit >= 1 ? Math.floor(fit) : fit;
       const f = z === null ? fitted : fitted * (z / 100);
       scale.current = f / dpr;
+      fitScale.current = fitted / dpr;
       const at = c ?? { x: doc.width / 2, y: doc.height / 2 };
       const w = doc.width * f;
       const h = doc.height * f;
@@ -257,6 +274,35 @@ function PreviewCanvas({
       cancelAnimationFrame(frame);
     };
   }, [editor, t, onLabel, zoom, center]);
+
+  // The wheel (or a trackpad pinch) zooms toward the pointer, from the fit up to 1000%.
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const { doc } = editor.getLive();
+      const { zoom: z, center: c } = view.current;
+      const current = z ?? 100;
+      const next = Math.min(1000, current * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.002)));
+      if (next <= 101) return onZoom(null, null);
+      // Keep the pixel under the pointer where it is.
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left - r.width / 2;
+      const my = e.clientY - r.top - r.height / 2;
+      const at = c ?? { x: doc.width / 2, y: doc.height / 2 };
+      const before = fitScale.current * (current / 100);
+      const after = fitScale.current * (next / 100);
+      const px = at.x + mx / before;
+      const py = at.y + my / before;
+      onZoom(Math.round(next), {
+        x: Math.max(0, Math.min(doc.width, px - mx / after)),
+        y: Math.max(0, Math.min(doc.height, py - my / after)),
+      });
+    };
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', onWheel);
+  }, [editor, onZoom]);
 
   /** Zoomed in: drag to look around. */
   const pan = (e: ReactPointerEvent<HTMLCanvasElement>) => {

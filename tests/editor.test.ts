@@ -197,6 +197,49 @@ describe('Editor', () => {
     expect(older.getState().view.tileOpacity).toBe(DEFAULT_TILE_OPACITY);
   });
 
+  it('sprays random pixels inside its circle', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    e.setTool('spray');
+    e.setOption('spraySize', 8);
+    e.setOption('sprayDensity', 100);
+    e.beginStroke({ x: 16, y: 16 }, false, { shift: false });
+    for (let k = 0; k < 20; k++) e.moveStroke({ x: 16, y: 16 }, { shift: false }); // holding still
+    e.endStroke();
+    const px = layer(e);
+    let n = 0;
+    for (let i = 0; i < px.length; i++) {
+      if (!px[i]) continue;
+      n++;
+      const x = i % 32;
+      const y = Math.floor(i / 32);
+      expect(Math.hypot(x - 16, y - 16)).toBeLessThanOrEqual(4.5);
+    }
+    expect(n).toBeGreaterThan(5);
+    e.undo();
+    expect(painted(e)).toBe(0);
+  });
+
+  it('jumbles the pixels under the brush without adding colors', () => {
+    const e = new Editor();
+    const BLUE = pack(0, 0, 255);
+    e.setTool('pencil');
+    e.setOption('size', 8);
+    e.setColor('primary', RED);
+    drag(e, [[12, 12]]);
+    e.setColor('primary', BLUE);
+    drag(e, [[18, 12]]);
+    const original = [...layer(e)];
+    e.setTool('jumble');
+    e.setOption('jumbleSize', 12);
+    e.beginStroke({ x: 15, y: 12 }, false, { shift: false });
+    for (let k = 0; k < 30; k++) e.moveStroke({ x: 15, y: 12 }, { shift: false });
+    e.endStroke();
+    // Same colors in the same amounts, some of them in other places.
+    expect([...layer(e)].sort()).toEqual([...original].sort());
+    expect([...layer(e)].filter((c, i) => c !== original[i]).length).toBeGreaterThan(0);
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

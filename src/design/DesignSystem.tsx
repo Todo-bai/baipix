@@ -476,6 +476,22 @@ function SurfacesBlock() {
           </div>
         </Specimen>
         <Specimen
+          label="Floating window"
+          use="A small tool window over the canvas (the preview): drag it by its title, fold or close it, resize it by its corner."
+        >
+          <div className="floating-preview ds-static ds-window" role="dialog" aria-label="Preview">
+            <div className="floating-preview-header">
+              <span className="floating-preview-title">Preview</span>
+              <button type="button" className="select-plain floating-preview-zoom">
+                Fit ▾
+              </button>
+              <IconButton icon="up" label="Fold" />
+              <IconButton icon="close" label="Close" />
+            </div>
+            <div className="preview floating-preview-body" />
+          </div>
+        </Specimen>
+        <Specimen
           label="Tabs"
           use="Kinds of content in one panel (Design / Export, the Adjustments). The current one is underlined in blue."
         >

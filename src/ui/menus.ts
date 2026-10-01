@@ -21,16 +21,35 @@ export function fileMenu(editor: Editor, actions: Actions, file: FileInfo): Menu
   ];
 }
 
-export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
+/**
+ * The files menu of the left panel's header: the most recent files (the current one checked),
+ * the current file's actions, and the home screen with all of them.
+ */
+export function filesMenu(editor: Editor, actions: Actions): MenuItem[] {
   const s = editor.getState();
+  const current = s.files.find((f) => f.id === s.activeId)!;
+  const recent = [...s.files].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 8);
   return [
-    { label: t('menu.home'), onSelect: () => uiStore.set({ home: true }) },
+    ...recent.map((f) => ({
+      label: f.name,
+      checked: f.id === s.activeId,
+      onSelect: () => editor.switchFile(f.id),
+    })),
+    '-',
+    ...fileMenu(editor, actions, current),
     '-',
     { label: t('menu.newFile'), onSelect: () => openDialog({ type: 'newFile' }) },
     { label: t('menu.open'), shortcut: 'Ctrl+O', onSelect: () => void actions.openDocument() },
-    { label: t('menu.saveAs'), onSelect: () => void actions.saveDocument() },
     { label: t('menu.importImage'), onSelect: () => void actions.importImage() },
     '-',
+    { label: t('file.allFiles'), onSelect: () => uiStore.set({ home: true }) },
+  ];
+}
+
+export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
+  const s = editor.getState();
+  return [
+    // Files live in the files menu (next to the file name); this one is for the app and the drawing.
     {
       label: t('menu.export'),
       shortcut: 'Ctrl+E',
@@ -70,6 +89,11 @@ export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
       shortcut: 'Shift+T',
       checked: s.view.tile,
       onSelect: () => editor.toggleView('tile'),
+    },
+    {
+      label: t('menu.preview'),
+      checked: uiStore.get().preview.open,
+      onSelect: () => uiStore.set((u) => ({ preview: { ...u.preview, open: !u.preview.open } })),
     },
     {
       label: t('menu.hideUi'),

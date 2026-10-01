@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { flatten } from '../../engine/composite';
 import { useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
 import { useEditor, useEditorState } from '../EditorContext';
@@ -8,9 +7,8 @@ import { IconButton } from '../components/IconButton';
 import { openMenu } from '../components/Menu';
 import { Section } from '../components/Section';
 import { Thumbnail } from '../components/Thumbnail';
-import { fileMenu, mainMenu } from '../menus';
-import { openAdjust, openDialog } from '../uiStore';
-import { PreviewSection } from './PreviewSection';
+import { filesMenu, mainMenu } from '../menus';
+import { openAdjust } from '../uiStore';
 
 /** Inline rename on double-click, used by files and layers. */
 function EditableName({
@@ -113,59 +111,15 @@ function FileHeader() {
         />
         <span className="muted">{t('file.size', { w: doc.width, h: doc.height })}</span>
       </div>
+      {/* The files, now that the home screen lists them: recent ones, this one's actions, all files. */}
+      <IconButton
+        icon="caret"
+        className="icon-btn files-button"
+        label={t('file.recent')}
+        aria-haspopup="menu"
+        onClick={(e) => openMenu(e.currentTarget, filesMenu(editor, actions))}
+      />
     </div>
-  );
-}
-
-function FilesSection() {
-  const t = useT();
-  const editor = useEditor();
-  const actions = useActions();
-  const files = useEditorState((s) => s.files);
-  const activeId = useEditorState((s) => s.activeId);
-  const revision = useEditorState((s) => s.revision);
-  const docs = editor.getDocuments();
-  return (
-    <Section
-      title={t('section.files')}
-      aside={<IconButton icon="plus" label={t('file.new')} onClick={() => openDialog({ type: 'newFile' })} />}
-    >
-      <div className="item-list files-list">
-        {files.map((f) => {
-          const doc = docs.find((d) => d.id === f.id)!;
-          return (
-            <div
-              key={f.id}
-              className={`item${f.id === activeId ? ' is-active' : ''}`}
-              onClick={() => editor.switchFile(f.id)}
-            >
-              <Thumbnail
-                pixels={() => flatten(doc)}
-                width={f.width}
-                height={f.height}
-                version={f.id === activeId ? revision : 0}
-              />
-              <EditableName value={f.name} onRename={(v) => editor.renameFile(f.id, v)} />
-              <span className="muted">
-                {f.width}×{f.height}
-              </span>
-              <span className="item-actions">
-                <IconButton
-                  icon="more"
-                  className="icon-btn item-action"
-                  label={t('file.actions')}
-                  aria-haspopup="menu"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openMenu(e.currentTarget, fileMenu(editor, actions, f));
-                  }}
-                />
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </Section>
   );
 }
 
@@ -450,9 +404,7 @@ export function LeftPanel() {
   return (
     <aside className="panel panel-left" aria-label={t('panel.left')}>
       <FileHeader />
-      <FilesSection />
       <LayersSection />
-      <PreviewSection />
     </aside>
   );
 }

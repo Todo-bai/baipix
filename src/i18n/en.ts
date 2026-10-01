@@ -154,15 +154,12 @@ export const en = {
   'options.tipRound': 'Round tip',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Checkerboard dithering',
-  'options.lassoFill': 'Fill the shape',
-  'options.lassoFillHint':
-    'When the stroke ends, it closes back to its start and the shape it draws is filled: the fastest way to block in flat areas.',
-  'options.blend': 'Blend',
+  'options.lassoFillMenu': 'Fill the shape when the stroke ends',
+  'options.blendMenu': 'Blend semi-transparent colors',
+  'options.more': 'More options',
   'options.stabilizer': 'Stabilizer',
   'options.stabilizerHint':
     'Smooths shaky strokes: the line follows the pointer on a string this many pixels long. 0 is off. Drag to adjust.',
-  'options.blendHint':
-    'A semi-transparent color mixes with the pixels underneath, like watercolor, instead of replacing them.',
   'options.filled': 'Filled shape',
   'options.radius': 'Radius',
   'options.contiguous': 'Contiguous area only',

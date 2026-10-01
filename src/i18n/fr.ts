@@ -155,15 +155,12 @@ export const fr: Record<MessageKey, string> = {
   'options.tipRound': 'Pointe ronde',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Tramage en damier',
-  'options.lassoFill': 'Remplir la forme',
-  'options.lassoFillHint':
-    "À la fin du trait, il se referme jusqu'à son départ et la forme dessinée est remplie : le plus rapide pour poser des aplats.",
-  'options.blend': 'Mélanger',
+  'options.lassoFillMenu': 'Remplir la forme à la fin du trait',
+  'options.blendMenu': 'Mélanger les couleurs semi-transparentes',
+  'options.more': "Plus d'options",
   'options.stabilizer': 'Stabilisateur',
   'options.stabilizerHint':
     "Lisse les traits tremblants : le trait suit le pointeur au bout d'une corde de cette longueur, en pixels. 0 le désactive. Glisse pour ajuster.",
-  'options.blendHint':
-    "Une couleur semi-transparente se mélange aux pixels dessous, comme de l'aquarelle, au lieu de les remplacer.",
   'options.filled': 'Forme pleine',
   'options.radius': 'Rayon',
   'options.contiguous': 'Zone contiguë uniquement',

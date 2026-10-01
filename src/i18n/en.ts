@@ -185,8 +185,6 @@ export const en = {
   'color.primary': 'Primary color',
   'color.secondary': 'Secondary color',
   'color.background': 'Background',
-  'color.primaryShort': 'Primary',
-  'color.secondaryShort': 'Secondary',
   'color.leftClick': 'Left click',
   'color.rightClick': 'Right click',
   'color.swap': 'Swap colors',

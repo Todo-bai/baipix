@@ -247,6 +247,9 @@ body {
 .ds-field {
   width: 120px;
 }
+.ds-color {
+  width: 220px;
+}
 
 /* Icons */
 .ds-icons {

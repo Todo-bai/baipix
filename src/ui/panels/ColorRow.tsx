@@ -2,27 +2,27 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { alpha, fromHex, toCss, toHex, withAlpha, type Color } from '../../engine/color';
 import { clamp } from '../../engine/math';
 import { useT } from '../../i18n';
+import { NumberField } from '../components/NumberField';
 import { uiStore, type ColorSlot } from '../uiStore';
 
 interface ColorRowProps {
   slot: ColorSlot;
   color: Color;
-  onChange: (color: Color) => void;
-  /** Extra controls on the right (role label, visibility…). */
+  /** `done` is false while the opacity is being scrubbed, true when the change is final. */
+  onChange: (color: Color, done?: boolean) => void;
+  /** What this color is for ("Primary color · Left click"): the swatch's tooltip and label. */
+  role?: string;
+  /** Extra controls on the right (visibility…). */
   trailing?: ReactNode;
   dimmed?: boolean;
 }
 
 /** Fill row: swatch (opens the picker) + hex + opacity. */
-export function ColorRow({ slot, color, onChange, trailing, dimmed }: ColorRowProps) {
+export function ColorRow({ slot, color, onChange, role, trailing, dimmed }: ColorRowProps) {
   const t = useT();
   const editing = uiStore.use((s) => s.picker?.slot === slot);
   const [hex, setHex] = useState('');
-  const [opacity, setOpacity] = useState('');
-  useEffect(() => {
-    setHex(toHex(color).slice(1).toUpperCase());
-    setOpacity(String(Math.round(alpha(color) / 2.55)));
-  }, [color]);
+  useEffect(() => setHex(toHex(color).slice(1).toUpperCase()), [color]);
 
   return (
     <div className={`color-row${dimmed ? ' is-dimmed' : ''}`}>
@@ -30,7 +30,8 @@ export function ColorRow({ slot, color, onChange, trailing, dimmed }: ColorRowPr
         <button
           type="button"
           className="color-chip"
-          aria-label={t('color.choose')}
+          aria-label={role ? `${role}. ${t('color.choose')}` : t('color.choose')}
+          data-tip={role}
           onClick={(e) =>
             uiStore.set((s) => ({
               picker:
@@ -54,22 +55,20 @@ export function ColorRow({ slot, color, onChange, trailing, dimmed }: ColorRowPr
           onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
         />
       </div>
-      <label className="field opacity-field">
-        <input
-          type="number"
+      {/* Like the canvas fields: drag the label left or right to scrub the opacity, or type it. */}
+      <div className="opacity-field">
+        <NumberField
+          value={Math.round(alpha(color) / 2.55)}
           min={0}
           max={100}
-          value={opacity}
-          aria-label={t('common.opacity')}
-          onChange={(e) => {
-            setOpacity(e.target.value);
-            if (e.target.value !== '')
-              onChange(withAlpha(color, Math.round(clamp(Number(e.target.value), 0, 100) * 2.55)));
-          }}
-          onBlur={() => setOpacity(String(Math.round(alpha(color) / 2.55)))}
+          label="◐"
+          suffix="%"
+          ariaLabel={t('common.opacity')}
+          scrubHint={t('common.dragToAdjust')}
+          sensitivity={2}
+          onChange={(v, final) => onChange(withAlpha(color, Math.round(clamp(v, 0, 100) * 2.55)), final)}
         />
-        <span className="field-suffix">%</span>
-      </label>
+      </div>
       {trailing}
     </div>
   );

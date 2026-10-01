@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
 import { alpha, opaque, pack } from '../../engine/color';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
 import { PALETTE_PRESETS } from '../../engine/palette';
@@ -78,21 +78,13 @@ function ColorsSection() {
         slot="primary"
         color={primary}
         onChange={(c) => editor.setColor('primary', c)}
-        trailing={
-          <span className="color-role" data-tip={t('color.leftClick')}>
-            {t('color.primaryShort')}
-          </span>
-        }
+        role={`${t('color.primary')} · ${t('color.leftClick')}`}
       />
       <ColorRow
         slot="secondary"
         color={secondary}
         onChange={(c) => editor.setColor('secondary', c)}
-        trailing={
-          <span className="color-role" data-tip={t('color.rightClick')}>
-            {t('color.secondaryShort')}
-          </span>
-        }
+        role={`${t('color.secondary')} · ${t('color.rightClick')}`}
       />
       {recent.length > 0 && (
         <div className="recent-colors" role="group" aria-label={t('color.recent')}>
@@ -278,6 +270,7 @@ function CanvasSection() {
   const doc = useEditorState((s) => s.doc);
   useEditorState((s) => s.revision);
   const hasBg = doc.background !== 0;
+  const scrubbingBackground = useRef(false);
   return (
     <Section
       id="canvas"
@@ -340,7 +333,12 @@ function CanvasSection() {
           slot="background"
           color={doc.background}
           dimmed={!doc.backgroundVisible}
-          onChange={(c) => editor.setBackground(c, doc.backgroundVisible)}
+          onChange={(c, done = true) => {
+            // One undo step per gesture: the first change records it, the rest of a scrub previews.
+            if (!scrubbingBackground.current) editor.setBackground(c, doc.backgroundVisible);
+            else editor.previewBackground(c);
+            scrubbingBackground.current = !done;
+          }}
           trailing={
             <>
               <IconButton

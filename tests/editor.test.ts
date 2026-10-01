@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { pack } from '../src/engine/color';
-import { Editor } from '../src/engine/editor';
+import { DEFAULT_TILE_OPACITY, Editor } from '../src/engine/editor';
 import { documentFromJson, documentToJson } from '../src/storage/fileFormat';
 
 const RED = pack(255, 0, 0);
@@ -183,6 +183,18 @@ describe('Editor', () => {
     e.flip(true);
     move(5);
     expect(layer(e)[5 * 32 + 1]).toBe(RED);
+  });
+
+  it('remembers the tile opacity, and gives older saves the default', () => {
+    const e = new Editor();
+    e.setView('tileOpacity', 1);
+    const saved = e.getPreferences();
+    const f = new Editor();
+    f.setPreferences(saved);
+    expect(f.getState().view.tileOpacity).toBe(1);
+    const older = new Editor();
+    older.setPreferences({ view: { grid: true, tile: true, mirrorX: false, mirrorY: false } as never });
+    expect(older.getState().view.tileOpacity).toBe(DEFAULT_TILE_OPACITY);
   });
 
   it('moves a selection', () => {

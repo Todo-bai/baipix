@@ -40,9 +40,16 @@ import { strokeColors } from './tools/paint';
 export interface ViewSettings {
   grid: boolean;
   tile: boolean;
+  /** Tile preview: how visible the 8 copies around the drawing are, 0 to 1 (1: as the drawing). */
+  tileOpacity: number;
   mirrorX: boolean;
   mirrorY: boolean;
 }
+
+/** View settings that are switched on and off. */
+type ViewToggle = 'grid' | 'tile' | 'mirrorX' | 'mirrorY';
+
+export const DEFAULT_TILE_OPACITY = 0.65;
 
 export interface PaletteState {
   /** Preset key, or 'custom'. */
@@ -155,7 +162,13 @@ export class Editor {
   private secondary: Color;
   private palette: PaletteState;
   private paletteIndex: PaletteIndex;
-  private view: ViewSettings = { grid: true, tile: false, mirrorX: false, mirrorY: false };
+  private view: ViewSettings = {
+    grid: true,
+    tile: false,
+    tileOpacity: DEFAULT_TILE_OPACITY,
+    mirrorX: false,
+    mirrorY: false,
+  };
   private clipboard: PixelBlock | null = null;
   private stroke: Stroke | null = null;
   /** Color adjustment in progress: the original pixels of the layers being adjusted. */
@@ -933,7 +946,7 @@ export class Editor {
     this.commit();
   }
 
-  toggleView(key: keyof ViewSettings): void {
+  toggleView(key: ViewToggle): void {
     this.setView(key, !this.view[key]);
   }
 
@@ -955,8 +968,15 @@ export class Editor {
     if (typeof p.primary === 'number') this.primary = p.primary >>> 0;
     if (typeof p.secondary === 'number') this.secondary = p.secondary >>> 0;
     if (p.view) {
-      const { grid, tile, mirrorX, mirrorY } = { ...this.view, ...p.view };
-      this.view = { grid, tile, mirrorX, mirrorY }; // older saves also had showGap
+      const { grid, tile, tileOpacity, mirrorX, mirrorY } = { ...this.view, ...p.view };
+      // Older saves also had showGap, and no tileOpacity.
+      this.view = {
+        grid,
+        tile,
+        tileOpacity: typeof tileOpacity === 'number' ? clamp(tileOpacity, 0, 1) : DEFAULT_TILE_OPACITY,
+        mirrorX,
+        mirrorY,
+      };
     }
     if (Array.isArray(p.recent))
       this.recent = p.recent.filter((c) => typeof c === 'number').slice(0, RECENT_COLORS);

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  brush,
   constrainAngle,
   ellipseFilled,
   ellipseOutline,
@@ -118,5 +119,25 @@ describe('shapes', () => {
     const tri = trianglePoints(0, 0, 8, 8);
     expect(tri[0]).toEqual({ x: 4, y: 0 });
     expect(tri[2]).toEqual({ x: 8, y: 8 });
+  });
+});
+
+describe('round brush tip', () => {
+  const cells = (size: number, round: boolean) => {
+    const out: string[] = [];
+    brush(0, 0, size, (x, y) => out.push(`${x},${y}`), round);
+    return out;
+  };
+
+  it('rounds the corners from size 3', () => {
+    expect(cells(3, true).sort()).toEqual(['-1,0', '0,-1', '0,0', '0,1', '1,0'].sort());
+    expect(cells(4, true)).toHaveLength(12);
+    expect(cells(8, true).length).toBeLessThan(64);
+  });
+
+  it('leaves sizes 1 and 2, and square tips, as they were', () => {
+    expect(cells(1, true)).toEqual(cells(1, false));
+    expect(cells(2, true)).toEqual(cells(2, false));
+    expect(cells(5, false)).toHaveLength(25);
   });
 });

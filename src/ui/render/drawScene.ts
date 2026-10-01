@@ -22,6 +22,8 @@ export interface BrushPreview {
   color: Color | null;
   /** Spray: diameter of the circle the pixels land in, outlined around the pointer. */
   circle?: number;
+  /** Round brush tip. */
+  round?: boolean;
 }
 
 /** The reference image, under the layers. `rect` is in art pixels. */
@@ -280,29 +282,38 @@ export function drawScene(
     }
   } else if (scene.brush) {
     const { at, size, color } = scene.brush;
+    const round = !!scene.brush.round && size > 2;
     const cell = gap ? s - gap : s;
     const o = Math.floor((size - 1) / 2);
     const axes = mirrorAxes(doc);
     for (const m of mirrored(at.x - o, at.y - o, axes.x, axes.y, view.mirrorX, view.mirrorY, size)) {
-      brush(m.x + o, m.y + o, size, (x, y) => {
-        const rx = X + x * s;
-        const ry = Y + y * s;
-        if (color !== null && alpha(color)) {
-          ctx.fillStyle = toCss(color);
-          ctx.globalAlpha = 0.6;
-          ctx.fillRect(rx, ry, cell, cell);
-          ctx.globalAlpha = 1;
-        }
-        if (gap || size === 1) {
-          ctx.beginPath();
-          ctx.rect(rx + lw / 2, ry + lw / 2, cell - lw, cell - lw);
-          strokeTwoTone(ctx, lw, theme);
-        }
-      });
+      brush(
+        m.x + o,
+        m.y + o,
+        size,
+        (x, y) => {
+          const rx = X + x * s;
+          const ry = Y + y * s;
+          if (color !== null && alpha(color)) {
+            ctx.fillStyle = toCss(color);
+            ctx.globalAlpha = 0.6;
+            ctx.fillRect(rx, ry, cell, cell);
+            ctx.globalAlpha = 1;
+          }
+          if (gap || size === 1) {
+            ctx.beginPath();
+            ctx.rect(rx + lw / 2, ry + lw / 2, cell - lw, cell - lw);
+            strokeTwoTone(ctx, lw, theme);
+          }
+        },
+        round,
+      );
       if (!gap && size > 1) {
         const w = size * s;
         ctx.beginPath();
-        ctx.rect(X + m.x * s + lw / 2, Y + m.y * s + lw / 2, w - lw, w - lw);
+        // A round tip is outlined by its circle, a square one by its square.
+        if (round) ctx.arc(X + m.x * s + w / 2, Y + m.y * s + w / 2, w / 2, 0, Math.PI * 2);
+        else ctx.rect(X + m.x * s + lw / 2, Y + m.y * s + lw / 2, w - lw, w - lw);
         strokeTwoTone(ctx, lw, theme);
       }
     }

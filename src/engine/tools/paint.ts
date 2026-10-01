@@ -32,10 +32,16 @@ export function stamp(
   dither = false,
   size = s.options.size,
 ): void {
-  brush(cx, cy, size, (x, y) => {
-    const color = dither && (x + y) & 1 ? c2 : c1;
-    for (const m of mirrorsOf(s, x, y)) setPixel(s, m.x, m.y, color);
-  });
+  brush(
+    cx,
+    cy,
+    size,
+    (x, y) => {
+      const color = dither && (x + y) & 1 ? c2 : c1;
+      for (const m of mirrorsOf(s, x, y)) setPixel(s, m.x, m.y, color);
+    },
+    s.options.roundTip,
+  );
 }
 
 /** Calls `paint` for every pixel between the previous pointer position and `p` (excluding the previous one). */
@@ -58,15 +64,21 @@ export function forEachBrushPixelOnce(
   p: Point,
   visit: (index: number, x: number, y: number) => void,
 ): void {
-  brush(p.x, p.y, s.options.size, (bx, by) => {
-    for (const { x, y } of mirrorsOf(s, bx, by)) {
-      if (!inBounds(s, x, y) || !rectContains(s.selection, x, y)) continue;
-      const i = y * s.doc.width + x;
-      if (s.visited[i]) continue;
-      s.visited[i] = 1;
-      visit(i, x, y);
-    }
-  });
+  brush(
+    p.x,
+    p.y,
+    s.options.size,
+    (bx, by) => {
+      for (const { x, y } of mirrorsOf(s, bx, by)) {
+        if (!inBounds(s, x, y) || !rectContains(s.selection, x, y)) continue;
+        const i = y * s.doc.width + x;
+        if (s.visited[i]) continue;
+        s.visited[i] = 1;
+        visit(i, x, y);
+      }
+    },
+    s.options.roundTip,
+  );
 }
 
 export const strokeColors = (s: Stroke): [Color, Color] =>

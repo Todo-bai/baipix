@@ -6,7 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
-- Lasso fill: with "Fill the shape" in the Pencil options, a stroke closes back to its start when it ends and the shape it draws is filled, with the current color, dithering and symmetry. One undo step. (#PR)
+- Lasso fill: with "Fill the shape" in the Pencil options, a stroke closes back to its start when it ends and the shape it draws is filled, with the current color, dithering and symmetry. One undo step. (#186)
 - A Remap tab in the Adjustments panel, to move a drawing to another palette or clean it up: pick a preset or the file's palette, match colors to the nearest one or by lightness (darkest to darkest, which recolors and keeps shadows and highlights), reduce how many colors are used, and optionally replace the file's palette. Live preview, one undo step. (#184)
 - A Stabilizer for the Pencil and the Eraser (0 to 10): the stroke follows the pointer on a string that many pixels long, so shaky hands, a mouse or a stylus give smooth lines. It also smooths Lighten, Shade, Blur, Spray and Jumble. Off by default. (#182)
 - A Blend option for the Pencil and the Spray: a semi-transparent color mixes with the pixels underneath, like watercolor, instead of replacing them. Going over the same spot again in one stroke doesn't build it up. (#179)

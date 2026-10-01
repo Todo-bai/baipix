@@ -62,6 +62,7 @@ export const SHORTCUT_GROUPS: { title: MessageKey; items: [MessageKey, string][]
       ['shortcuts.mirror', 'Shift+X / Shift+Y'],
       ['menu.preview', 'Shift+P'],
       ['menu.hideUi', 'Tab / @'],
+      ['menu.commandPalette', 'Ctrl+K'],
       ['menu.open', 'Ctrl+O'],
       ['menu.renameFile', 'F2'],
       ['menu.export', 'Ctrl+E'],

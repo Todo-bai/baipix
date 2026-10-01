@@ -336,6 +336,11 @@ export const MENU_BAR: MenuBarMenu[] = [
   {
     id: 'help',
     items: () => [
+      {
+        label: t('menu.commandPalette'),
+        shortcut: 'Ctrl+K',
+        onSelect: () => uiStore.set({ commandPalette: true }),
+      },
       { label: t('menu.shortcuts'), shortcut: '?', onSelect: () => openDialog({ type: 'shortcuts' }) },
       { label: t('menu.github'), onSelect: () => window.open(GITHUB_URL, '_blank', 'noopener') },
       '-',

@@ -49,6 +49,8 @@ export interface UiState {
   hiddenPalettes: string[];
   /** The home screen covers the editor. */
   home: boolean;
+  /** The command palette (Ctrl+K) is open. */
+  commandPalette: boolean;
 }
 
 export const PANEL_LIMITS = {
@@ -72,6 +74,7 @@ export const uiStore = createStore<UiState>({
   exportBackground: true,
   hiddenPalettes: [],
   home: false,
+  commandPalette: false,
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });

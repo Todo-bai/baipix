@@ -55,6 +55,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
             );
           if (key === 'o') return (void actions.openDocument(), true);
           if (key === 'u') return (openAdjust('all'), true);
+          if (key === 'k') return (uiStore.set({ commandPalette: true }), true);
           // The browser's own zoom keys zoom the canvas instead.
           if (e.key === '=' || e.key === '+') return (viewport.step(1), true);
           if (e.key === '-') return (viewport.step(-1), true);

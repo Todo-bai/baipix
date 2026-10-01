@@ -331,3 +331,7 @@ body {
   width: 100%;
   border: 1px solid var(--line);
 }
+/* The command palette specimen: as in the app, a bit narrower. */
+.command-palette.ds-static {
+  width: min(520px, 100%);
+}

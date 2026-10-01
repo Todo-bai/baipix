@@ -1,0 +1,314 @@
+/* The design system page: a plain scrolling document around the editor's own components. */
+html,
+body,
+#root {
+  height: auto;
+}
+body {
+  overflow: auto;
+}
+.ds {
+  min-height: 100vh;
+  font-size: 12px;
+  line-height: 18px;
+}
+.ds code {
+  font:
+    500 11px ui-monospace,
+    'SF Mono',
+    Menlo,
+    monospace;
+}
+.ds-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  background: var(--panel);
+  box-shadow: 0 2px 0 var(--line);
+}
+.ds-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.ds-theme {
+  display: flex;
+  gap: 6px;
+}
+.ds-body {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.ds-nav {
+  position: sticky;
+  top: 60px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 24px 16px;
+}
+.ds-nav a {
+  padding: 4px 8px;
+  color: inherit;
+  text-decoration: none;
+}
+.ds-nav a:hover {
+  background: var(--glow);
+  color: var(--glow-ink);
+}
+.ds-main {
+  min-width: 0;
+  padding: 8px 24px 80px;
+}
+.ds-block {
+  padding: 32px 0;
+  scroll-margin-top: 60px;
+  border-bottom: 2px solid var(--line);
+}
+.ds-block h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 28px;
+}
+.ds-block h3 {
+  margin: 20px 0 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.ds-intro {
+  max-width: 640px;
+  margin: 0 0 20px;
+  color: var(--muted);
+}
+.ds-note {
+  max-width: 640px;
+  margin-top: 20px;
+}
+.ds-rules {
+  max-width: 640px;
+  margin: 20px 0 0;
+  padding-left: 18px;
+}
+.ds-rules li + li {
+  margin-top: 4px;
+}
+
+/* Logo */
+.ds-logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.ds-logo-tile {
+  width: 176px;
+  height: 176px;
+  display: grid;
+  place-items: center;
+  clip-path: var(--notch);
+}
+.ds-logo-tile.is-light {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.ds-logo-tile.is-dark {
+  background: #141414;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.ds-logo-tile.is-blue {
+  background: #1f1f1f;
+  color: #66c4ff;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.ds-lockup {
+  width: auto;
+  padding: 0 32px;
+  display: flex;
+  gap: 16px;
+  background: var(--panel);
+  font: 700 40px var(--font);
+}
+.ds-downloads {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+.ds-download {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ds-download strong {
+  width: 48px;
+}
+.ds-download-swatch {
+  width: 16px;
+  height: 16px;
+  box-shadow: inset 0 0 0 1px var(--swatch-edge-strong);
+  clip-path: var(--notch);
+}
+
+/* Colors */
+.ds-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.ds-swatch {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.ds-swatch-pair {
+  display: flex;
+}
+.ds-chip {
+  flex: 1;
+  height: 40px;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px var(--swatch-edge);
+}
+.ds-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+/* Type, shapes */
+.ds-type {
+  display: grid;
+  gap: 12px;
+}
+.ds-shapes,
+.ds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+.ds-specimen {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.ds-stage {
+  min-height: 96px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  background: var(--panel);
+  clip-path: var(--notch);
+}
+.ds-caption {
+  display: grid;
+  gap: 2px;
+}
+.ds-notch {
+  width: 64px;
+  height: 32px;
+  background: var(--input);
+  clip-path: var(--notch);
+}
+.ds-surface {
+  width: 96px;
+  height: 48px;
+  margin: 2px 6px 6px 2px;
+  background: var(--canvas);
+  box-shadow:
+    0 -2px 0 0 var(--canvas),
+    0 2px 0 0 var(--canvas),
+    -2px 0 0 0 var(--canvas),
+    2px 0 0 0 var(--canvas),
+    4px 6px 0 0 var(--hard-shadow);
+}
+.ds-toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--canvas);
+}
+.ds-field {
+  width: 120px;
+}
+
+/* Icons */
+.ds-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.ds-icon {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 12px 8px;
+  background: var(--panel);
+  clip-path: var(--notch);
+}
+.ds-icon-sizes {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Lists, surfaces */
+.ds-list {
+  max-width: 280px;
+  margin: 0;
+  padding: 8px;
+  background: var(--panel);
+}
+.ds-static {
+  position: static !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* Accessibility */
+.ds-table {
+  border-collapse: collapse;
+}
+.ds-table th,
+.ds-table td {
+  padding: 6px 16px 6px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.ds-table .is-pass {
+  color: inherit;
+}
+.ds-table .is-fail {
+  color: #e5484d;
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .ds-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ds-nav {
+    display: none;
+  }
+  .ds-header,
+  .ds-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

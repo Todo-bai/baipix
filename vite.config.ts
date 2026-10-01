@@ -21,6 +21,8 @@ const analytics = (): Plugin => ({
 export default defineConfig(({ mode }) => ({
   plugins: mode === 'single' ? [react(), viteSingleFile()] : [react(), analytics()],
   base: './',
+  // The design system page (design.html) is built next to the editor, except in the single-file build.
+  build: mode === 'single' ? {} : { rollupOptions: { input: { main: 'index.html', design: 'design.html' } } },
   // Shown in the main menu, next to the link to the changelog.
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   test: { environment: 'node', include: ['tests/**/*.test.ts'] },

@@ -1864,7 +1864,9 @@ body.is-dragging-swatch * {
 :root {
   --glow: #66c4ff;
   --glow-ink: #1a1a1a;
-  --glow-line: light-dark(#2ea8f5, #66c4ff);
+  /* Muted text on blue (a hovered row): dark enough for 4.5:1. */
+  --glow-muted: rgba(0, 0, 0, 0.62);
+  --glow-line: light-dark(#1b93dd, #66c4ff);
   /* The side of a blue key. */
   --glow-side: light-dark(#3a93d6, #3b86bd);
 }
@@ -1895,7 +1897,7 @@ body.is-dragging-swatch * {
 .tool-caret:hover,
 .item:hover:not(.is-active):not(.is-selected) {
   --text: var(--glow-ink);
-  --muted: rgba(0, 0, 0, 0.55);
+  --muted: var(--glow-muted);
   background: var(--glow);
   color: var(--glow-ink);
 }

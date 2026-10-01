@@ -23,19 +23,36 @@ export function ToolOptionsBar() {
       editor.setOption(k, v);
 
   const size = (
-    <Row label={t('options.size')}>
-      <NumberField
-        value={options.size}
-        min={1}
-        max={16}
-        label="⇔"
-        suffix="px"
-        ariaLabel={t('options.size')}
-        scrubHint={t('common.dragToAdjust')}
-        sensitivity={8}
-        onChange={(v) => editor.setOption('size', v)}
-      />
-    </Row>
+    <>
+      <Row label={t('options.size')}>
+        <NumberField
+          value={options.size}
+          min={1}
+          max={16}
+          label="⇔"
+          suffix="px"
+          ariaLabel={t('options.size')}
+          scrubHint={t('common.dragToAdjust')}
+          sensitivity={8}
+          onChange={(v) => editor.setOption('size', v)}
+        />
+      </Row>
+      {/* The tip's shape, next to its size: it only shows from 3px. */}
+      <div className="button-group" role="group" aria-label={t('options.tip')}>
+        <IconButton
+          icon="rect"
+          label={t('options.tipSquare')}
+          pressed={!options.roundTip}
+          onClick={() => editor.setOption('roundTip', false)}
+        />
+        <IconButton
+          icon="ellipse"
+          label={t('options.tipRound')}
+          pressed={options.roundTip}
+          onClick={() => editor.setOption('roundTip', true)}
+        />
+      </div>
+    </>
   );
   // Help texts go in a tooltip on the tool name, to keep the bar short.
   let info: string | undefined;

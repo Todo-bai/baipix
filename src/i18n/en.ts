@@ -136,6 +136,9 @@ export const en = {
   'export.gap': '{gap} px gap',
 
   'options.size': 'Size',
+  'options.tip': 'Brush tip',
+  'options.tipSquare': 'Square tip',
+  'options.tipRound': 'Round tip',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Checkerboard dithering',
   'options.filled': 'Filled shape',

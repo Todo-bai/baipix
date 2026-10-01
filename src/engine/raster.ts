@@ -235,9 +235,17 @@ export function starPoints(x0: number, y0: number, x1: number, y1: number): Poin
 }
 
 /** Top-left aligned square brush footprint. Odd sizes are centered on (cx, cy). */
-export function brush(cx: number, cy: number, size: number, plot: PlotFn): void {
+export function brush(cx: number, cy: number, size: number, plot: PlotFn, round = false): void {
   const o = Math.floor((size - 1) / 2);
-  for (let dy = 0; dy < size; dy++) for (let dx = 0; dx < size; dx++) plot(cx - o + dx, cy - o + dy);
+  // A round tip keeps the cells within a radius a bit under half the size, so 3 gives a plus and
+  // 4 a rounded square. Sizes 1 and 2 stay square: there's nothing to round.
+  const c = (size - 1) / 2;
+  const r2 = (size / 2 - 0.25) ** 2;
+  for (let dy = 0; dy < size; dy++)
+    for (let dx = 0; dx < size; dx++) {
+      if (round && size > 2 && (dx - c) ** 2 + (dy - c) ** 2 > r2) continue;
+      plot(cx - o + dx, cy - o + dy);
+    }
 }
 
 /**

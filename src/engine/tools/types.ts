@@ -26,6 +26,8 @@ export type ToolId =
 
 export interface ToolOptions {
   size: number;
+  /** Round brush tip instead of a square one (sizes 3 and up). */
+  roundTip: boolean;
   pixelPerfect: boolean;
   dither: boolean;
   filled: boolean;
@@ -54,6 +56,7 @@ export interface ToolOptions {
 
 export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   size: 1,
+  roundTip: false,
   pixelPerfect: true,
   dither: false,
   filled: false,

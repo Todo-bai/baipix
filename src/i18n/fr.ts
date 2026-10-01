@@ -137,6 +137,9 @@ export const fr: Record<MessageKey, string> = {
   'export.gap': 'espacement {gap} px',
 
   'options.size': 'Taille',
+  'options.tip': 'Pointe du pinceau',
+  'options.tipSquare': 'Pointe carrée',
+  'options.tipRound': 'Pointe ronde',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Tramage en damier',
   'options.filled': 'Forme pleine',

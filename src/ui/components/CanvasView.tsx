@@ -233,7 +233,12 @@ export function CanvasView() {
             ? { at: hover, size: 1, color: null, circle: state.options.spraySize }
             : tool === 'jumble'
               ? { at: hover, size: state.options.jumbleSize, color: null }
-              : { at: hover, size: state.options.size, color: paints ? state.primary : null };
+              : {
+                  at: hover,
+                  size: state.options.size,
+                  color: paints ? state.primary : null,
+                  round: state.options.roundTip,
+                };
       }
       const { doc } = live;
       let loupe = null;

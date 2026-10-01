@@ -239,6 +239,14 @@ body.is-resizing * {
   white-space: nowrap;
   flex: none;
 }
+/* Grey like the site's links, in the text color when hovered or open. */
+.menubar-title {
+  color: var(--muted);
+}
+.menubar-title:hover,
+.menubar-title[aria-expanded='true'] {
+  color: var(--text);
+}
 .menubar-logo {
   padding: 0 6px;
   margin-right: 4px;

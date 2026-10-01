@@ -323,3 +323,11 @@ body {
     padding-right: 16px;
   }
 }
+.ds-wide {
+  grid-column: 1 / -1;
+}
+/* The menu bar specimen sits in a card, not across a window. */
+.menubar.ds-static {
+  width: 100%;
+  border: 1px solid var(--line);
+}

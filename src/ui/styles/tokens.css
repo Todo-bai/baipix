@@ -11,6 +11,9 @@
   --canvas: light-dark(#f5f5f5, #141414);
   --panel: light-dark(#ffffff, #1f1f1f);
   --line: light-dark(#e6e6e6, #333333);
+  /* The menu bar: between the workspace and the panels, so it recedes behind what floats. */
+  --menubar: light-dark(#f9f9f9, #191919);
+  --menubar-line: light-dark(#ececec, #262626);
   --text: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
   --muted: light-dark(rgba(0, 0, 0, 0.56), rgba(255, 255, 255, 0.55));
   --input: light-dark(#f5f5f5, #2a2a2a);

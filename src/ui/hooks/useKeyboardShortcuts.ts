@@ -3,6 +3,7 @@ import type { Editor } from '../../engine/editor';
 import { t } from '../../i18n';
 import type { Actions } from '../actions';
 import { isMenuOpen } from '../components/Menu';
+import { renameFile, togglePreview } from '../menus';
 import { keyState } from '../keyState';
 import { TOOL_LIST } from '../tools';
 import { openAdjust, openDialog, toast, uiStore } from '../uiStore';
@@ -54,6 +55,10 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
             );
           if (key === 'o') return (void actions.openDocument(), true);
           if (key === 'u') return (openAdjust('all'), true);
+          // The browser's own zoom keys zoom the canvas instead.
+          if (e.key === '=' || e.key === '+') return (viewport.step(1), true);
+          if (e.key === '-') return (viewport.step(-1), true);
+          if (e.code === 'Digit0' || e.code === 'Numpad0') return (viewport.fit(editor.getState().doc), true);
           return false;
         })();
         if (handled) e.preventDefault();
@@ -68,12 +73,38 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
         return;
       }
       if (e.key === '?') return openDialog({ type: 'shortcuts' });
+      if (e.key === 'F2') return (e.preventDefault(), renameFile());
+      // Tab hides the interface, like in Photoshop, unless it's moving the focus along the buttons.
+      if (e.key === 'Tab' && !e.shiftKey && !e.altKey) {
+        const focus = document.activeElement;
+        if (focus && focus !== document.body && !focus.closest('.workspace')) return;
+        e.preventDefault();
+        return uiStore.set((s) => ({ uiHidden: !s.uiHidden }));
+      }
       if (e.shiftKey && e.code === 'Digit1') return viewport.fit(editor.getState().doc);
       if (e.shiftKey && e.code === 'Digit0') return viewport.zoomTo(1);
       if (e.shiftKey) {
         const toggles = { g: 'grid', t: 'tile', x: 'mirrorX', y: 'mirrorY' } as const;
         const view = toggles[key as keyof typeof toggles];
         if (view) return editor.toggleView(view);
+        const { doc } = editor.getState();
+        const command = {
+          p: togglePreview,
+          n: () => editor.addLayer(),
+          d: () => editor.duplicateLayer(),
+          m: () => doc.activeLayer > 0 && editor.mergeDown(),
+          h: () => editor.flip(true),
+          v: () => editor.flip(false),
+          r: () => editor.rotate(),
+        }[key];
+        if (command) return (e.preventDefault(), command());
+      }
+      if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault();
+        const { doc } = editor.getState();
+        if (e.key === 'ArrowUp' && doc.activeLayer < doc.layers.length - 1) editor.moveLayer(1);
+        if (e.key === 'ArrowDown' && doc.activeLayer > 0) editor.moveLayer(-1);
+        return;
       }
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();

@@ -47,6 +47,7 @@ export const en = {
   'tool.blur': 'Blur',
   'tool.spray': 'Spray',
   'tool.jumble': 'Jumble',
+  'tool.liquify': 'Liquify',
   'tool.picker': 'Eyedropper',
 
   'section.files': 'Files',
@@ -195,6 +196,12 @@ export const en = {
     'Drops random pixels in a circle, like a spray can. Hold still to keep spraying. Right-click sprays the secondary color.',
   'hint.jumble':
     'Shuffles the pixels under the brush, without adding any color: texture for foliage, rock or noise. Hold still to keep going.',
+  'hint.liquify':
+    'Warps the drawing without adding colors: Push drags pixels along, Expand and Shrink make a part bigger or smaller (hold still to keep going).',
+  'liquify.push': 'Push',
+  'liquify.expand': 'Expand',
+  'liquify.shrink': 'Shrink',
+  'liquify.mode': 'Mode',
   'hint.picker': 'Left click for the primary color, right click for the secondary.',
   'hint.select': 'Ctrl+C, Ctrl+X, Ctrl+V. Delete clears the selection.',
   'hint.moveSelection': 'Drag to move the selection. Arrow keys for 1 px, Shift for 8 px.',

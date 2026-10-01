@@ -347,6 +347,54 @@ export function ToolOptionsBar() {
         </>
       );
       break;
+    case 'liquify':
+      info = t('hint.liquify');
+      body = (
+        <>
+          <div className="chips" role="radiogroup" aria-label={t('liquify.mode')}>
+            {(['push', 'expand', 'shrink'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                className="chip"
+                role="radio"
+                aria-checked={options.liquifyMode === m}
+                aria-pressed={options.liquifyMode === m}
+                onClick={() => editor.setOption('liquifyMode', m)}
+              >
+                {t(`liquify.${m}`)}
+              </button>
+            ))}
+          </div>
+          <Row label={t('options.size')}>
+            <NumberField
+              value={options.liquifySize}
+              min={2}
+              max={64}
+              label="⇔"
+              suffix="px"
+              ariaLabel={t('options.size')}
+              scrubHint={t('common.dragToAdjust')}
+              sensitivity={4}
+              onChange={(v) => editor.setOption('liquifySize', v)}
+            />
+          </Row>
+          <Row label={t('options.strength')}>
+            <NumberField
+              value={options.liquifyStrength}
+              min={1}
+              max={100}
+              label="◐"
+              suffix="%"
+              ariaLabel={t('options.strength')}
+              scrubHint={t('common.dragToAdjust')}
+              sensitivity={2}
+              onChange={(v) => editor.setOption('liquifyStrength', v)}
+            />
+          </Row>
+        </>
+      );
+      break;
     case 'picker':
       info = t('hint.picker');
       body = null;

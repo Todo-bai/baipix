@@ -41,6 +41,7 @@ export const TOOL_GROUPS: ToolMeta[][] = [
     { id: 'blur', icon: 'blur', label: 'tool.blur', shortcut: 'F' },
     { id: 'spray', icon: 'spray', label: 'tool.spray', shortcut: 'A' },
     { id: 'jumble', icon: 'jumble', label: 'tool.jumble', shortcut: 'J' },
+    { id: 'liquify', icon: 'liquify', label: 'tool.liquify', shortcut: 'W' },
     { id: 'picker', icon: 'picker', label: 'tool.picker', shortcut: 'I' },
   ],
 ];
@@ -59,4 +60,5 @@ export const BRUSH_TOOLS: ToolId[] = [
   'blur',
   'spray',
   'jumble',
+  'liquify',
 ];

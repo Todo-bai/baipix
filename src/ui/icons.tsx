@@ -38,6 +38,7 @@ import {
   Trash,
   Undo,
   Unlock,
+  Waves,
 } from 'pixelarticons/react';
 
 type PixelGlyph = (props: SVGProps<SVGSVGElement>) => JSX.Element;
@@ -163,6 +164,7 @@ export const ICONS = {
   spray: SprayCan,
   lassoFill: Lasso,
   jumble: Shuffle,
+  liquify: Waves,
   blur: Drop,
   picker: Pipette,
   undo: Undo,

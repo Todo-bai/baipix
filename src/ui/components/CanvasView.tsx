@@ -283,6 +283,7 @@ export function CanvasView() {
           brush,
           moveTarget: editor.isStroking ? null : moveTargetAt(hover, lastMods),
           layerBox: activeLayerBox(),
+          sizeNote: scaleNote,
           loupe,
           label: renamingRef.current ? '' : live.doc.name,
         },
@@ -420,6 +421,64 @@ export function CanvasView() {
      * With the Move tool, the active layer is framed like a selected object: the bounds of its
      * pixels, live while it's being moved, cached otherwise.
      */
+    // Resizing by a corner handle (Move tool): the rectangle it started from and the corner held.
+    let scaleDrag: { from: Rect; corner: number } | null = null;
+    let scaleNote: string | null = null;
+    /** Corners of a rectangle, in the order top-left, top-right, bottom-left, bottom-right. */
+    const cornersOf = (r: Rect): Point[] => [
+      { x: r.x, y: r.y },
+      { x: r.x + r.w, y: r.y },
+      { x: r.x, y: r.y + r.h },
+      { x: r.x + r.w, y: r.y + r.h },
+    ];
+    /** The handle under the pointer: a corner of the selection, or of the framed active layer. */
+    const handleAt = (l: { x: number; y: number }): { rect: Rect; corner: number } | null => {
+      const state = editor.getState();
+      if (state.tool !== 'move' || state.referenceSelected || editor.isStroking) return null;
+      const rect = state.selection ?? activeLayerBox();
+      if (!rect) return null;
+      const p = artPoint(l);
+      const reach = (7 * viewport.dpr) / viewport.scale;
+      const corner = cornersOf(rect).findIndex(
+        (c) => Math.abs(c.x - p.x) <= reach && Math.abs(c.y - p.y) <= reach,
+      );
+      return corner < 0 ? null : { rect, corner };
+    };
+    /**
+     * The rectangle while dragging a corner: the opposite corner stays (the center with Alt), Shift
+     * keeps the proportions, and sizes snap to whole multiples (×2, ×3, ×½…) unless Cmd/Ctrl is held.
+     */
+    const scaleRect = (
+      from: Rect,
+      corner: number,
+      l: { x: number; y: number },
+      mods: { shiftKey: boolean; altKey: boolean; metaKey: boolean; ctrlKey: boolean },
+    ): Rect => {
+      const p = artPoint(l);
+      const center = { x: from.x + from.w / 2, y: from.y + from.h / 2 };
+      const anchor = mods.altKey ? center : cornersOf(from)[3 - corner];
+      const span = mods.altKey ? 2 : 1;
+      let fx = (Math.abs(p.x - anchor.x) * span) / from.w;
+      let fy = (Math.abs(p.y - anchor.y) * span) / from.h;
+      if (mods.shiftKey) fx = fy = Math.max(fx, fy);
+      const reach = (6 * viewport.dpr) / viewport.scale;
+      const snap = (f: number, size: number) => {
+        if (mods.metaKey || mods.ctrlKey) return f;
+        const candidates = [1, 2, 3, 4, 5, 6, 8, 1 / 2, 1 / 3, 1 / 4];
+        const best = candidates.reduce((a, c) => (Math.abs(c - f) < Math.abs(a - f) ? c : a));
+        return Math.abs(best - f) * size <= reach ? best : f;
+      };
+      fx = snap(fx, from.w);
+      fy = mods.shiftKey ? fx : snap(fy, from.h);
+      const w = Math.max(1, Math.round(from.w * fx));
+      const h = Math.max(1, Math.round(from.h * fy));
+      const fmt = (f: number) => (f >= 1 ? `×${+f.toFixed(2)}` : `×1/${Math.round(1 / f)}`);
+      const exact = (f: number) => [1, 2, 3, 4, 5, 6, 8, 1 / 2, 1 / 3, 1 / 4].includes(f);
+      scaleNote = exact(fx) && exact(fy) ? (fx === fy ? fmt(fx) : `${fmt(fx)} · ${fmt(fy)}`) : null;
+      const x = mods.altKey ? center.x - w / 2 : p.x < anchor.x ? anchor.x - w : anchor.x;
+      const y = mods.altKey ? center.y - h / 2 : p.y < anchor.y ? anchor.y - h : anchor.y;
+      return { x: Math.round(x), y: Math.round(y), w, h };
+    };
     let activeBoxCache: { key: string; rect: Rect | null } | null = null;
     const activeLayerBox = (): Rect | null => {
       const state = editor.getState();
@@ -428,7 +487,7 @@ export function CanvasView() {
       const { doc } = editor.getLive();
       const layer = doc.layers[doc.activeLayer];
       if (!layer?.visible) return null;
-      if (editor.isStroking) return pixelBounds(layer.pixels, doc.width, doc.height);
+      if (editor.isStroking || editor.isScaling) return pixelBounds(layer.pixels, doc.width, doc.height);
       const key = `${layer.id}:${state.revision}`;
       if (activeBoxCache?.key !== key)
         activeBoxCache = { key, rect: pixelBounds(layer.pixels, doc.width, doc.height) };
@@ -477,6 +536,14 @@ export function CanvasView() {
       const p = viewport.toPixel(l.x, l.y);
       updateHover(p);
       if (e.button === 0 && beginRefDrag(l, e.metaKey || e.ctrlKey)) return;
+      if (e.button === 0) {
+        const handle = handleAt(l);
+        const from = handle && editor.beginScale();
+        if (handle && from) {
+          scaleDrag = { from, corner: handle.corner };
+          return;
+        }
+      }
       const tool = editor.getState().tool;
       const override = e.altKey && DRAWING_TOOLS.includes(tool) ? 'picker' : undefined;
       const started = editor.beginStroke(
@@ -524,6 +591,11 @@ export function CanvasView() {
         dragRef(local(e), false);
         return;
       }
+      if (scaleDrag) {
+        editor.previewScale(scaleRect(scaleDrag.from, scaleDrag.corner, local(e), e));
+        request();
+        return;
+      }
       const onAxis = editor.isStroking ? null : axisAt(local(e));
       canvas.classList.toggle('on-axis-x', onAxis === 'x');
       canvas.classList.toggle('on-axis-y', onAxis === 'y');
@@ -538,6 +610,10 @@ export function CanvasView() {
       if (!editor.isStroking) canvas.classList.toggle('on-label', onLabel(local(e)));
       lastMods = { metaKey: e.metaKey, ctrlKey: e.ctrlKey };
       lastLocal = local(e);
+      // Over a corner handle, the cursor says it resizes.
+      const handle = editor.isStroking ? null : handleAt(lastLocal);
+      canvas.classList.toggle('on-handle-nwse', !!handle && (handle.corner === 0 || handle.corner === 3));
+      canvas.classList.toggle('on-handle-nesw', !!handle && (handle.corner === 1 || handle.corner === 2));
       // Alt picks a color with drawing tools: show the eyedropper while it is held.
       canvas.classList.toggle('alt-pick', e.altKey && DRAWING_TOOLS.includes(editor.getState().tool));
       request();
@@ -568,6 +644,13 @@ export function CanvasView() {
         refDrag = null;
         return;
       }
+      if (scaleDrag) {
+        editor.endScale();
+        scaleDrag = null;
+        scaleNote = null;
+        request();
+        return;
+      }
       editor.endStroke();
     };
 
@@ -580,6 +663,9 @@ export function CanvasView() {
       axisDrag = null;
       if (refDrag) editor.updateReference(refDrag.rect);
       refDrag = null;
+      if (scaleDrag) editor.cancelScale();
+      scaleDrag = null;
+      scaleNote = null;
     };
 
     const onLeave = (e: PointerEvent) => {

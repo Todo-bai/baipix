@@ -120,3 +120,18 @@ export function pixelBounds(pixels: Uint32Array, width: number, height: number):
   }
   return maxX < 0 ? null : { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
 }
+
+/** Resizes a block with nearest-neighbor sampling, so pixel art stays sharp. */
+export function scaleBlock(block: PixelBlock, width: number, height: number): PixelBlock {
+  const w = Math.max(1, Math.round(width));
+  const h = Math.max(1, Math.round(height));
+  const out = new Uint32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    const sy = Math.min(block.height - 1, Math.floor(((y + 0.5) * block.height) / h));
+    for (let x = 0; x < w; x++) {
+      const sx = Math.min(block.width - 1, Math.floor(((x + 0.5) * block.width) / w));
+      out[y * w + x] = block.pixels[sy * block.width + sx];
+    }
+  }
+  return { width: w, height: h, pixels: out };
+}

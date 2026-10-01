@@ -92,6 +92,9 @@ export function ToolOptionsBar() {
             label={t('options.pixelPerfect')}
           />
           <Checkbox checked={options.dither} onChange={set('dither')} label={t('options.dither')} />
+          <span data-tip={t('options.blendHint')}>
+            <Checkbox checked={options.blend} onChange={set('blend')} label={t('options.blend')} />
+          </span>
         </>
       );
       break;
@@ -248,6 +251,9 @@ export function ToolOptionsBar() {
             onChange={set('sprayOpacity')}
             label={t('options.sprayOpacity')}
           />
+          <span data-tip={t('options.blendHint')}>
+            <Checkbox checked={options.blend} onChange={set('blend')} label={t('options.blend')} />
+          </span>
         </>
       );
       break;

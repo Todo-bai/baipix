@@ -240,6 +240,28 @@ describe('Editor', () => {
     expect([...layer(e)].filter((c, i) => c !== original[i]).length).toBeGreaterThan(0);
   });
 
+  it('blends semi-transparent colors with the option', () => {
+    const e = new Editor();
+    const HALF_BLUE = pack(0, 0, 255, 128);
+    e.setColor('primary', RED);
+    drag(e, [[1, 1]]);
+    e.setColor('primary', HALF_BLUE);
+    drag(e, [[1, 1]]);
+    expect(layer(e)[32 + 1]).toBe(HALF_BLUE); // replaced
+    e.undo();
+    e.setOption('blend', true);
+    // Twice over the same pixel in one stroke: it mixes once, from the pixel before the stroke.
+    drag(e, [
+      [1, 1],
+      [2, 1],
+      [1, 1],
+    ]);
+    const mixed = layer(e)[32 + 1];
+    expect(mixed >>> 24).toBe(255);
+    expect(mixed & 0xff).toBeGreaterThan(100); // still part red
+    expect((mixed >> 16) & 0xff).toBeGreaterThan(100); // and part blue
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

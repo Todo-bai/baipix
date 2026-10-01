@@ -326,6 +326,16 @@ function ButtonsBlock() {
   );
 }
 
+function SegmentedDemo() {
+  const [round, setRound] = useState(false);
+  return (
+    <div className="button-group" role="group" aria-label="Brush tip">
+      <IconButton icon="rect" label="Square tip" pressed={!round} onClick={() => setRound(false)} />
+      <IconButton icon="ellipse" label="Round tip" pressed={round} onClick={() => setRound(true)} />
+    </div>
+  );
+}
+
 function FieldsBlock() {
   const [n, setN] = useState(64);
   const [checked, setChecked] = useState(true);
@@ -339,6 +349,12 @@ function FieldsBlock() {
         </Specimen>
         <Specimen label="Checkbox" use="On/off settings. A notched square with a pixel tick.">
           <Checkbox checked={checked} onChange={setChecked} label="Pixel grid" />
+        </Specimen>
+        <Specimen
+          label="Segmented icon buttons"
+          use="One choice among a few, shown as icons (the brush tip: square or round). The chosen one is held down."
+        >
+          <SegmentedDemo />
         </Specimen>
         <Specimen label="Chip" use="Quick presets, like canvas sizes.">
           <div className="chips">

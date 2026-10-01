@@ -6,7 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
-- A round brush tip, next to the size in the tool options: from 3px it paints a round shape instead of a square, for the Pencil, the Eraser, shapes, Lighten, Shade and Blur. (#PR)
+- A round brush tip, next to the size in the tool options: from 3px it paints a round shape instead of a square, for the Pencil, the Eraser, shapes, Lighten, Shade and Blur. (#178)
 - A Spray tool (A): it drops random pixels in a circle, like a spray can, and keeps spraying while you hold still. Options for size, density and a random opacity per pixel. Works with symmetry and the selection. (#177)
 - A Jumble tool (J): it shuffles the pixels under the brush without adding any color, for texture on foliage, rock or noise, and keeps going while you hold still. Options for size and strength. (#177)
 - The opacity of the copies in tile preview can be set, under the Tile preview box: at 100% they look exactly like the drawing, to see the pattern as it will repeat. (#176)

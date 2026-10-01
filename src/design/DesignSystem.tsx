@@ -309,6 +309,17 @@ function ButtonsBlock() {
           <IconButton icon="trash" label="Delete" />
           <IconButton icon="more" label="More" />
         </Specimen>
+        <Specimen
+          label="More options"
+          use="Less common on/off options of a bar, in a … menu. A blue dot says one of them is on."
+        >
+          <IconButton icon="more" className="icon-btn options-more" label="More options" />
+          <IconButton
+            icon="more"
+            className="icon-btn options-more has-active"
+            label="More options (one is on)"
+          />
+        </Specimen>
         <Specimen label="Tool button" use="The toolbar. The active tool is a key held down.">
           <div className="ds-toolbar">
             <IconButton className="tool-btn" icon="move" iconSize={24} label="Move" shortcut="V" />

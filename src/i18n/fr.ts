@@ -17,6 +17,7 @@ export const fr: Record<MessageKey, string> = {
   'default.layer': 'Calque {n}',
   'default.copyOf': '{name} copie',
   'default.pasted': 'Collage',
+  'default.brush': 'Pinceau {n}',
   'default.pastedImage': 'Image collée',
   'default.image': 'Image',
 
@@ -167,6 +168,11 @@ export const fr: Record<MessageKey, string> = {
   'options.lassoFillMenu': 'Remplir la forme à la fin du trait',
   'options.blendMenu': 'Mélanger les couleurs semi-transparentes',
   'options.more': "Plus d'options",
+  'brush.normal': 'Pinceau : pointe normale',
+  'brush.item': 'Pinceau : {name} ({w}×{h})',
+  'brush.fromSelection': 'Créer un pinceau à partir de la sélection',
+  'brush.ownColors': 'Peindre avec les couleurs du pinceau',
+  'brush.delete': 'Supprimer {name}',
   'options.stabilizer': 'Stabilisateur',
   'options.stabilizerHint':
     "Lisse les traits tremblants : le trait suit le pointeur au bout d'une corde de cette longueur, en pixels. 0 le désactive. Glisse pour ajuster.",

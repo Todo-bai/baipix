@@ -1,6 +1,7 @@
 import type { Color } from '../color';
 import type { Layer, PixelDoc } from '../document';
 import type { Outside } from '../outside';
+import type { PixelBlock } from '../region';
 import type { DitherPattern } from '../dither';
 import type { LiquifyMode } from './liquify';
 import type { Point, Rect } from '../math';
@@ -38,6 +39,10 @@ export interface ToolOptions {
   stabilizer: number;
   /** Pencil: when the stroke ends, close it and fill the shape it draws (lasso fill). */
   lassoFill: boolean;
+  /** Pencil: id of the custom brush to paint with, or null for the normal tip. */
+  customBrush: string | null;
+  /** Custom brush: paint with its own colors (true) or as a stencil in the current color. */
+  brushOwnColors: boolean;
   /** Liquify: push pixels along, or expand or shrink them around the brush's center. */
   liquifyMode: LiquifyMode;
   /** Liquify: diameter of the brush, in pixels. */
@@ -78,6 +83,8 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   blend: false,
   stabilizer: 0,
   lassoFill: false,
+  customBrush: null,
+  brushOwnColors: true,
   liquifyMode: 'push',
   liquifySize: 12,
   liquifyStrength: 50,
@@ -125,6 +132,8 @@ export interface Stroke {
   mirrorY: boolean;
   /** Tile preview is on: painting wraps around the canvas edges. */
   wrap: boolean;
+  /** The custom brush the Pencil paints with, if any. */
+  customBrush: PixelBlock | null;
   selection: Rect | null;
   /** Per-pixel marks, for tools that must affect each pixel once per stroke. */
   visited: Uint8Array;

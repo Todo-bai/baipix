@@ -1,4 +1,5 @@
 import { ditherSecond } from '../dither';
+import type { Color } from '../color';
 import type { Point } from '../math';
 import { isDoubledCorner } from '../raster';
 import { followPointer, mirrorsOf, pixelIndex, setPixel, stamp, strokeColors } from './paint';
@@ -7,7 +8,7 @@ import type { Stroke, Tool } from './types';
 /** Paints at `p`; with `fill` (or the lassoFill option), also records the path to fill at the end. */
 function paint(s: Stroke, p: Point, fill = s.options.lassoFill): void {
   const [c1, c2] = strokeColors(s);
-  if (s.options.pixelPerfect && s.options.size === 1) {
+  if (s.options.pixelPerfect && s.options.size === 1 && !s.customBrush) {
     const n = s.trail.length;
     if (n && s.trail[n - 1].x === p.x && s.trail[n - 1].y === p.y) return;
     if (n >= 2 && isDoubledCorner(s.trail[n - 2], s.trail[n - 1], p)) {
@@ -19,8 +20,32 @@ function paint(s: Stroke, p: Point, fill = s.options.lassoFill): void {
     }
     s.trail.push(p);
   }
-  stamp(s, p.x, p.y, c1, c2, s.options.dither);
+  if (s.customBrush) stampBrush(s, p, c1, c2);
+  else stamp(s, p.x, p.y, c1, c2, s.options.dither);
   if (fill) ((s.scratch.path as Point[] | undefined) ?? (s.scratch.path = [])).push(p);
+}
+
+/**
+ * A custom brush, centered on `p`: its own colors, or its shape in the stroke's colors (stencil),
+ * mirrored pixel by pixel like any stroke.
+ */
+function stampBrush(s: Stroke, p: Point, c1: Color, c2: Color): void {
+  const b = s.customBrush!;
+  const ox = Math.floor((b.width - 1) / 2);
+  const oy = Math.floor((b.height - 1) / 2);
+  for (let by = 0; by < b.height; by++)
+    for (let bx = 0; bx < b.width; bx++) {
+      const c = b.pixels[by * b.width + bx];
+      if (!(c >>> 24)) continue;
+      const x = p.x - ox + bx;
+      const y = p.y - oy + by;
+      const color = s.options.brushOwnColors
+        ? c
+        : s.options.dither && ditherSecond(s.options.ditherPattern, x, y)
+          ? c2
+          : c1;
+      for (const m of mirrorsOf(s, x, y)) setPixel(s, m.x, m.y, color);
+    }
 }
 
 /**

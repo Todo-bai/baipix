@@ -435,6 +435,40 @@ describe('Editor', () => {
     expect(layer(e)[5 * 32 + 3]).toBe(0);
   });
 
+  it('paints with a custom brush made from a selection', () => {
+    const e = new Editor();
+    const BLUE = pack(0, 0, 255);
+    e.setColor('primary', RED);
+    drag(e, [[2, 2]]);
+    e.setColor('primary', BLUE);
+    drag(e, [[3, 2]]); // a red-blue pair at (2, 2)
+    e.setTool('select');
+    drag(e, [
+      [0, 0],
+      [6, 6],
+    ]);
+    expect(e.brushFromSelection()).toBe(true);
+    // Trimmed to what's drawn: 2×1. The Pencil now paints with it.
+    expect(e.getState().brushes[0]).toMatchObject({ width: 2, height: 1 });
+    expect(e.getState().tool).toBe('pencil');
+    e.deselect();
+    drag(e, [[20, 20]]);
+    expect(layer(e)[20 * 32 + 20]).toBe(RED);
+    expect(layer(e)[20 * 32 + 21]).toBe(BLUE);
+    // As a stencil, in the current color.
+    e.setOption('brushOwnColors', false);
+    e.setColor('primary', pack(0, 255, 0));
+    drag(e, [[20, 25]]);
+    expect(layer(e)[25 * 32 + 21]).toBe(pack(0, 255, 0));
+    // Saved with the preferences.
+    const f = new Editor();
+    f.setPreferences(e.getPreferences());
+    expect(f.getState().brushes).toHaveLength(1);
+    // Deleting it goes back to the normal tip.
+    e.deleteBrush(e.getState().brushes[0].id);
+    expect(e.getState().options.customBrush).toBeNull();
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

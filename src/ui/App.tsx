@@ -34,6 +34,7 @@ const editorLabels = () => ({
   copyOf: (name: string) => t('default.copyOf', { name }),
   untitled: (n: number) => (n > 1 ? t('default.untitledN', { n }) : t('default.untitled')),
   pasted: t('default.pasted'),
+  brush: (n: number) => t('default.brush', { n }),
 });
 
 /** Restores the saved workspace (or imports the prototype's drawings) before enabling autosave. */

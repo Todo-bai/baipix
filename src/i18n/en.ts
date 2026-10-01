@@ -16,6 +16,7 @@ export const en = {
   'default.layer': 'Layer {n}',
   'default.copyOf': '{name} copy',
   'default.pasted': 'Pasted',
+  'default.brush': 'Brush {n}',
   'default.pastedImage': 'Pasted image',
   'default.image': 'Image',
 
@@ -166,6 +167,11 @@ export const en = {
   'options.lassoFillMenu': 'Fill the shape when the stroke ends',
   'options.blendMenu': 'Blend semi-transparent colors',
   'options.more': 'More options',
+  'brush.normal': 'Brush: normal tip',
+  'brush.item': 'Brush: {name} ({w}×{h})',
+  'brush.fromSelection': 'Make a brush from the selection',
+  'brush.ownColors': "Paint with the brush's own colors",
+  'brush.delete': 'Delete {name}',
   'options.stabilizer': 'Stabilizer',
   'options.stabilizerHint':
     'Smooths shaky strokes: the line follows the pointer on a string this many pixels long. 0 is off. Drag to adjust.',

@@ -1,4 +1,5 @@
-import type { Color } from '../color';
+import { alpha, type Color } from '../color';
+import { blendOver } from '../composite';
 import { rectContains, type Point } from '../math';
 import { mirrorAxes } from '../document';
 import { brush, line, mirrored } from '../raster';
@@ -7,10 +8,15 @@ import type { Stroke } from './types';
 export const inBounds = (s: Stroke, x: number, y: number): boolean =>
   x >= 0 && y >= 0 && x < s.doc.width && y < s.doc.height;
 
-/** Writes a pixel if it lies on the canvas and inside the selection. */
+/**
+ * Writes a pixel if it lies on the canvas and inside the selection. With the `blend` option, a
+ * semi-transparent color mixes with the pixel as it was when the stroke started, so going over the
+ * same spot twice in one stroke doesn't build it up.
+ */
 export function setPixel(s: Stroke, x: number, y: number, color: Color): void {
   if (!inBounds(s, x, y) || !rectContains(s.selection, x, y)) return;
-  s.layer.pixels[y * s.doc.width + x] = color;
+  const i = y * s.doc.width + x;
+  s.layer.pixels[i] = s.options.blend && alpha(color) < 255 ? blendOver(color, s.base[i]) : color;
 }
 
 /** Every mirrored copy of a single pixel. */

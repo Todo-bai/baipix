@@ -10,13 +10,15 @@ interface ColorRowProps {
   color: Color;
   /** `done` is false while the opacity is being scrubbed, true when the change is final. */
   onChange: (color: Color, done?: boolean) => void;
-  /** Extra controls on the right (role label, visibility…). */
+  /** What this color is for ("Primary color · Left click"): the swatch's tooltip and label. */
+  role?: string;
+  /** Extra controls on the right (visibility…). */
   trailing?: ReactNode;
   dimmed?: boolean;
 }
 
 /** Fill row: swatch (opens the picker) + hex + opacity. */
-export function ColorRow({ slot, color, onChange, trailing, dimmed }: ColorRowProps) {
+export function ColorRow({ slot, color, onChange, role, trailing, dimmed }: ColorRowProps) {
   const t = useT();
   const editing = uiStore.use((s) => s.picker?.slot === slot);
   const [hex, setHex] = useState('');
@@ -28,7 +30,8 @@ export function ColorRow({ slot, color, onChange, trailing, dimmed }: ColorRowPr
         <button
           type="button"
           className="color-chip"
-          aria-label={t('color.choose')}
+          aria-label={role ? `${role}. ${t('color.choose')}` : t('color.choose')}
+          data-tip={role}
           onClick={(e) =>
             uiStore.set((s) => ({
               picker:

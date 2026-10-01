@@ -78,21 +78,13 @@ function ColorsSection() {
         slot="primary"
         color={primary}
         onChange={(c) => editor.setColor('primary', c)}
-        trailing={
-          <span className="color-role" data-tip={t('color.leftClick')}>
-            {t('color.primaryShort')}
-          </span>
-        }
+        role={`${t('color.primary')} · ${t('color.leftClick')}`}
       />
       <ColorRow
         slot="secondary"
         color={secondary}
         onChange={(c) => editor.setColor('secondary', c)}
-        trailing={
-          <span className="color-role" data-tip={t('color.rightClick')}>
-            {t('color.secondaryShort')}
-          </span>
-        }
+        role={`${t('color.secondary')} · ${t('color.rightClick')}`}
       />
       {recent.length > 0 && (
         <div className="recent-colors" role="group" aria-label={t('color.recent')}>

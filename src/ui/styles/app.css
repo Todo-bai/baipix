@@ -569,17 +569,9 @@ body.is-resizing * {
 .hex-field input {
   padding-left: 6px;
 }
+/* Wide enough for the ◐ handle, three digits and the % sign. */
 .opacity-field {
-  flex: 0 0 60px;
-}
-.color-role {
-  width: 62px;
-  flex: none;
-  overflow: hidden;
-  color: var(--muted);
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 0 0 72px;
 }
 .color-chip {
   position: relative;

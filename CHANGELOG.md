@@ -19,6 +19,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 ### Changed
 
 - The opacity of the colors can be scrubbed like the canvas fields: drag its ◐ label left or right. For the background, one drag is one undo step. (#181)
+- The Primary and Secondary labels next to the colors are gone, to give the fields more room: hovering the swatch says which is which, and which click paints with it. (#181)
 - The brush outline under the pointer is dark with a white edge, so it shows on black pixels too. (#177)
 - Moving a layer off the canvas keeps its pixels: move it back, or make the canvas bigger, and they come back. Making the canvas smaller keeps what it cuts off too. The part outside is saved with the drawing in the browser, not in .baipix files, and is never exported. (#154)
 - The Move tool takes the layer under the pointer: drag any pixel to move its layer, with its outline shown on hover. Cmd/Ctrl keeps the active layer. The tool has a pixel arrow as icon and cursor. (#148)

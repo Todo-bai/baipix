@@ -184,8 +184,6 @@ export const fr: Record<MessageKey, string> = {
   'color.primary': 'Couleur principale',
   'color.secondary': 'Couleur secondaire',
   'color.background': 'Fond',
-  'color.primaryShort': 'Principale',
-  'color.secondaryShort': 'Secondaire',
   'color.leftClick': 'Clic gauche',
   'color.rightClick': 'Clic droit',
   'color.swap': 'Permuter les couleurs',

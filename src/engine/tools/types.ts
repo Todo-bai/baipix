@@ -32,6 +32,8 @@ export interface ToolOptions {
   blend: boolean;
   /** Freehand strokes follow the pointer on a string this many pixels long (0: off), to smooth wobbles. */
   stabilizer: number;
+  /** Pencil: when the stroke ends, close it and fill the shape it draws (lasso fill). */
+  lassoFill: boolean;
   pixelPerfect: boolean;
   dither: boolean;
   filled: boolean;
@@ -63,6 +65,7 @@ export const DEFAULT_TOOL_OPTIONS: ToolOptions = {
   roundTip: false,
   blend: false,
   stabilizer: 0,
+  lassoFill: false,
   pixelPerfect: true,
   dither: false,
   filled: false,

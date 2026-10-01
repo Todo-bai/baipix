@@ -107,6 +107,13 @@ export function ToolOptionsBar() {
             label={t('options.pixelPerfect')}
           />
           <Checkbox checked={options.dither} onChange={set('dither')} label={t('options.dither')} />
+          <span data-tip={t('options.lassoFillHint')}>
+            <Checkbox
+              checked={options.lassoFill}
+              onChange={set('lassoFill')}
+              label={t('options.lassoFill')}
+            />
+          </span>
           <span data-tip={t('options.blendHint')}>
             <Checkbox checked={options.blend} onChange={set('blend')} label={t('options.blend')} />
           </span>

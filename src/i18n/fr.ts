@@ -155,6 +155,9 @@ export const fr: Record<MessageKey, string> = {
   'options.tipRound': 'Pointe ronde',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Tramage en damier',
+  'options.lassoFill': 'Remplir la forme',
+  'options.lassoFillHint':
+    "À la fin du trait, il se referme jusqu'à son départ et la forme dessinée est remplie : le plus rapide pour poser des aplats.",
   'options.blend': 'Mélanger',
   'options.stabilizer': 'Stabilisateur',
   'options.stabilizerHint':

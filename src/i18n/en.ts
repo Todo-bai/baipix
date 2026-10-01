@@ -154,6 +154,9 @@ export const en = {
   'options.tipRound': 'Round tip',
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Checkerboard dithering',
+  'options.lassoFill': 'Fill the shape',
+  'options.lassoFillHint':
+    'When the stroke ends, it closes back to its start and the shape it draws is filled: the fastest way to block in flat areas.',
   'options.blend': 'Blend',
   'options.stabilizer': 'Stabilizer',
   'options.stabilizerHint':

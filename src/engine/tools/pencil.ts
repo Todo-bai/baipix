@@ -1,6 +1,6 @@
 import type { Point } from '../math';
 import { isDoubledCorner } from '../raster';
-import { followPointer, inBounds, mirrorsOf, stamp, strokeColors } from './paint';
+import { followPointer, inBounds, mirrorsOf, setPixel, stamp, strokeColors } from './paint';
 import type { Stroke, Tool } from './types';
 
 function paint(s: Stroke, p: Point): void {
@@ -20,6 +20,43 @@ function paint(s: Stroke, p: Point): void {
     s.trail.push(p);
   }
   stamp(s, p.x, p.y, c1, c2, s.options.dither);
+  if (s.options.lassoFill) ((s.scratch.path as Point[] | undefined) ?? (s.scratch.path = [])).push(p);
+}
+
+/**
+ * Lasso fill: closes the stroke back to its start and fills the pixels whose centers lie inside
+ * (even-odd rule), with the stroke's colors and dithering, mirrored like the stroke.
+ */
+function fillPath(s: Stroke): void {
+  const path = s.scratch.path as Point[] | undefined;
+  if (!path || path.length < 3) return;
+  const [c1, c2] = strokeColors(s);
+  const paintAt = (x: number, y: number) => {
+    const color = s.options.dither && (x + y) & 1 ? c2 : c1;
+    for (const m of mirrorsOf(s, x, y)) setPixel(s, m.x, m.y, color);
+  };
+  // The outline itself, corners included (pixel-perfect removes some while drawing): a solid shape.
+  for (const q of path) paintAt(q.x, q.y);
+  const ys = path.map((q) => q.y);
+  const top = Math.max(0, Math.min(...ys));
+  const bottom = Math.min(s.doc.height - 1, Math.max(...ys));
+  for (let y = top; y <= bottom; y++) {
+    const cy = y + 0.5;
+    const xs: number[] = [];
+    for (let i = 0; i < path.length; i++) {
+      const a = path[i];
+      const b = path[(i + 1) % path.length];
+      const ay = a.y + 0.5;
+      const by = b.y + 0.5;
+      if (ay <= cy !== by <= cy) xs.push(a.x + 0.5 + ((cy - ay) * (b.x - a.x)) / (by - ay));
+    }
+    xs.sort((a, b) => a - b);
+    for (let k = 0; k + 1 < xs.length; k += 2) {
+      const from = Math.max(0, Math.ceil(xs[k] - 0.5));
+      const to = Math.min(s.doc.width - 1, Math.floor(xs[k + 1] - 0.5));
+      for (let x = from; x <= to; x++) paintAt(x, y);
+    }
+  }
 }
 
 export const pencil: Tool = {
@@ -28,4 +65,5 @@ export const pencil: Tool = {
   paintsColor: true,
   onDown: (s, p) => paint(s, p),
   onMove: (s, p) => followPointer(s, p, (q) => paint(s, q)),
+  onUp: (s) => fillPath(s),
 };

@@ -292,6 +292,31 @@ describe('Editor', () => {
     expect(layer(e)[20 * 32 + 20]).toBe(RED);
   });
 
+  it('fills the shape a stroke draws with lasso fill', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    const square: [number, number][] = [
+      [4, 4],
+      [12, 4],
+      [12, 12],
+      [4, 12],
+      [4, 5],
+    ];
+    drag(e, square);
+    const outline = painted(e);
+    expect(layer(e)[8 * 32 + 8]).toBe(0);
+    e.undo();
+    e.setOption('lassoFill', true);
+    drag(e, square);
+    expect(layer(e)[8 * 32 + 8]).toBe(RED);
+    expect(painted(e)).toBe(81); // the 9×9 square, outline included
+    expect(painted(e)).toBeGreaterThan(outline);
+    expect(layer(e)[2 * 32 + 2]).toBe(0);
+    // One undo step for the stroke and its fill.
+    e.undo();
+    expect(painted(e)).toBe(0);
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

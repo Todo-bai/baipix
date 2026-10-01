@@ -46,9 +46,20 @@ function Block({
 }
 
 /** A component shown with a caption saying when to use it. */
-function Specimen({ label, use, children }: { label: string; use: string; children: ReactNode }) {
+function Specimen({
+  label,
+  use,
+  wide = false,
+  children,
+}: {
+  label: string;
+  use: string;
+  /** Takes the whole row, for something as wide as a window. */
+  wide?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <div className="ds-specimen">
+    <div className={`ds-specimen${wide ? ' ds-wide' : ''}`}>
       <div className="ds-stage">{children}</div>
       <div className="ds-caption">
         <strong>{label}</strong>
@@ -453,8 +464,45 @@ function SurfacesBlock() {
   return (
     <Block id="surfaces" title="Surfaces">
       <div className="ds-grid">
-        <Specimen label="Menu" use="Right-click and … menus. Blue on hover.">
+        <Specimen
+          wide
+          label="Menu bar"
+          use="Across the top: the menus, the file name in the middle, the zoom on the right. Hovering a title opens it once a menu is open; ←/→ move along. Folds into ☰ under 1000px."
+        >
+          <header className="menubar ds-static">
+            <div className="menubar-start">
+              <span className="menubar-logo">
+                <Icon name="logo" size={16} />
+              </span>
+              <nav className="menubar-menus">
+                <button type="button" className="menubar-title" aria-expanded="true">
+                  File
+                </button>
+                <button type="button" className="menubar-title">
+                  Edit
+                </button>
+                <button type="button" className="menubar-title">
+                  View
+                </button>
+              </nav>
+            </div>
+            <div className="menubar-file">
+              <input defaultValue="Knight" size={6} aria-label="File name" />
+              <span className="muted">16 × 16 px</span>
+            </div>
+            <div className="menubar-end">
+              <button type="button" className="zoom-button">
+                800 %<span className="caret">▾</span>
+              </button>
+            </div>
+          </header>
+        </Specimen>
+        <Specimen label="Menu" use="Menu bar, right-click and … menus. Blue on hover; › opens a submenu.">
           <div className="menu ds-static" role="menu">
+            <button type="button" className="menu-item has-submenu" role="menuitem">
+              <span>Recent</span>
+              <span className="menu-chevron" />
+            </button>
             <button type="button" className="menu-item" role="menuitem">
               Duplicate
             </button>

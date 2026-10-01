@@ -86,13 +86,15 @@ body.is-resizing * {
   height: 100%;
   display: grid;
   grid-template-columns: var(--left-width, 240px) minmax(0, 1fr) var(--right-width, 248px);
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
 }
 .app.ui-hidden {
   /* Hidden panels leave the grid, so the workspace becomes the only (full-width) column. */
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 .app.ui-hidden .panel,
+.app.ui-hidden .menubar,
 .app.ui-hidden .toolbar,
 .app.ui-hidden .tool-options,
 .app.ui-hidden .coordinates,
@@ -195,61 +197,99 @@ body.is-resizing * {
   flex-direction: column;
   flex: 1 0 auto;
 }
-.panel-header {
+/* ---------- Menu bar ---------- */
+/* Menus on the left, the file in the middle (centered while there's room), the zoom on the right. */
+.menubar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  position: relative;
+  z-index: 20;
+  height: 40px;
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.menubar-start,
+.menubar-menus,
+.menubar-end {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 48px;
-  padding: 8px 12px 8px 8px;
-  border-bottom: 1px solid var(--line);
-  flex: none;
+  gap: 2px;
 }
-
-.logo-button,
+.menubar-end {
+  justify-content: flex-end;
+}
+.menubar-logo,
+.menubar-title,
 .zoom-button {
-  height: 32px;
-  padding: 0 6px;
+  height: 28px;
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 0 8px;
   border: 0;
   border-radius: var(--radius);
   background: transparent;
+  color: var(--text);
+  font: inherit;
+  white-space: nowrap;
   flex: none;
 }
-.zoom-button {
-  height: 28px;
-  padding: 0 6px 0 8px;
+.menubar-logo {
+  padding: 0 6px;
+  margin-right: 4px;
 }
-.logo-button:hover,
-.logo-button[aria-expanded='true'],
+.menubar-logo:hover,
+.menubar-title:hover,
+.menubar-title[aria-expanded='true'],
 .zoom-button:hover,
 .zoom-button[aria-expanded='true'] {
   background: var(--hover);
 }
-.file-name {
-  display: grid;
-  flex: 1;
+.menubar .menubar-burger {
+  display: none;
+}
+/* Not enough room for every menu: they fold into ☰. */
+@media (max-width: 1000px) {
+  .menubar-menus {
+    display: none;
+  }
+  .menubar .menubar-burger {
+    display: inline-flex;
+  }
+}
+.menubar-file {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   min-width: 0;
 }
-.file-name input {
-  height: 22px;
-  min-width: 0;
+.menubar-file input {
+  height: 24px;
+  max-width: 240px;
   padding: 0 4px;
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
   font-weight: 600;
+  text-align: center;
+  text-overflow: ellipsis;
 }
-.file-name input:hover {
+.menubar-file input:hover {
   border-color: var(--line);
 }
-.file-name input:focus {
+.menubar-file input:focus {
   border-color: var(--accent);
   outline: none;
+  text-align: left;
 }
-.file-name .muted {
-  padding-left: 5px;
+.menubar-file .muted {
+  margin-left: 6px;
+  white-space: nowrap;
 }
 
 /* ---------- Sections ---------- */
@@ -1309,6 +1349,18 @@ body.is-dragging-swatch * {
   color: inherit;
   opacity: 0.85;
 }
+/* A submenu: › at the end, kept highlighted while its menu is open. */
+.menu-chevron {
+  width: 6px;
+  height: 6px;
+  margin: 0 2px 0 auto;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+.menu-item.has-submenu[aria-expanded='true']:not(:hover) {
+  background: var(--menu-line);
+}
 .menu-separator {
   height: 1px;
   margin: 8px -8px;
@@ -1531,6 +1583,10 @@ body.is-dragging-swatch * {
   .app,
   .app.ui-hidden {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .menubar {
+    display: none;
   }
   .workspace {
     grid-column: 1;
@@ -1747,6 +1803,8 @@ body.is-dragging-swatch * {
 .field,
 .select-plain,
 .zoom-button,
+.menubar-title,
+.menubar-logo,
 .item,
 .chip,
 .menu-item,
@@ -1799,12 +1857,15 @@ body.is-dragging-swatch * {
 @media (min-width: 821px) {
   .workspace {
     grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .app.ui-hidden .workspace {
     grid-row: 1;
   }
   .panel {
     position: relative;
     z-index: 10;
-    grid-row: 1;
+    grid-row: 2;
     border: 0;
     box-shadow:
       0 -2px 0 0 var(--panel),

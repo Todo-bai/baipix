@@ -2,12 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
 import { useEditor, useEditorState } from '../EditorContext';
-import { Icon } from '../components/Icon';
 import { IconButton } from '../components/IconButton';
 import { openMenu } from '../components/Menu';
 import { Section } from '../components/Section';
 import { Thumbnail } from '../components/Thumbnail';
-import { filesMenu, mainMenu } from '../menus';
 import { openAdjust } from '../uiStore';
 
 /** Inline rename on double-click, used by files and layers. */
@@ -68,58 +66,6 @@ function EditableName({
         }}
       />
     </span>
-  );
-}
-
-function FileHeader() {
-  const t = useT();
-  const editor = useEditor();
-  const actions = useActions();
-  const doc = useEditorState((s) => s.doc);
-  // Renames mutate the document in place, so select the name itself to re-render on change.
-  const docName = useEditorState((s) => s.doc.name);
-  const [name, setName] = useState(docName);
-  useEffect(() => setName(docName), [docName, doc.id]);
-  return (
-    <div className="panel-header">
-      <button
-        type="button"
-        className="logo-button"
-        aria-label={t('menu.main')}
-        data-tip={t('menu.main')}
-        aria-haspopup="menu"
-        onClick={(e) => openMenu(e.currentTarget, mainMenu(editor, actions))}
-      >
-        <Icon name="logo" size={16} />
-        <span className="caret">▾</span>
-      </button>
-      <div className="file-name">
-        <input
-          value={name}
-          aria-label={t('file.name')}
-          spellCheck={false}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={(e) => {
-            // Back to the start of a long name, which stays scrolled to its end after typing.
-            e.currentTarget.scrollLeft = 0;
-            if (name.trim()) editor.renameFile(doc.id, name);
-            else setName(docName);
-          }}
-          onKeyDown={(e) =>
-            (e.key === 'Enter' || e.key === 'Escape') && (e.target as HTMLInputElement).blur()
-          }
-        />
-        <span className="muted">{t('file.size', { w: doc.width, h: doc.height })}</span>
-      </div>
-      {/* The files, now that the home screen lists them: recent ones, this one's actions, all files. */}
-      <IconButton
-        icon="caret"
-        className="icon-btn files-button"
-        label={t('file.recent')}
-        aria-haspopup="menu"
-        onClick={(e) => openMenu(e.currentTarget, filesMenu(editor, actions))}
-      />
-    </div>
   );
 }
 
@@ -403,7 +349,6 @@ export function LeftPanel() {
   const t = useT();
   return (
     <aside className="panel panel-left" aria-label={t('panel.left')}>
-      <FileHeader />
       <LayersSection />
     </aside>
   );

@@ -1,12 +1,15 @@
+import { alpha, pack } from '../engine/color';
 import type { Editor, FileInfo } from '../engine/editor';
 import { LOCALES, getLocale, setLocale, t } from '../i18n';
 import type { Actions } from './actions';
 import type { MenuItem } from './components/Menu';
 import { getTheme, setTheme, type ThemePreference } from './theme';
-import { openAdjust, openDialog, uiStore } from './uiStore';
+import { openAdjust, openDialog, toast, uiStore } from './uiStore';
 
-const CHANGELOG_URL = 'https://github.com/baipix/baipix/blob/main/CHANGELOG.md';
 import { viewport } from './viewport';
+
+const GITHUB_URL = 'https://github.com/baipix/baipix';
+const CHANGELOG_URL = `${GITHUB_URL}/blob/main/CHANGELOG.md`;
 
 /** A file's "…" menu, in the Files list and on the home screen cards. */
 export function fileMenu(editor: Editor, actions: Actions, file: FileInfo): MenuItem[] {
@@ -46,79 +49,314 @@ export function filesMenu(editor: Editor, actions: Actions): MenuItem[] {
   ];
 }
 
+const isLast = (editor: Editor) => {
+  const { doc } = editor.getState();
+  return doc.activeLayer >= doc.layers.length - 1;
+};
+
+/** Puts the Design tab's Canvas section in view, open, then runs `then` once it's rendered. */
+function revealCanvas(then: () => void) {
+  uiStore.set((u) => ({ rightTab: 'design', collapsed: u.collapsed.filter((x) => x !== 'canvas') }));
+  requestAnimationFrame(then);
+}
+
+/** Pastes the system clipboard's image if the browser lets us read it, else what was copied here. */
+async function paste(editor: Editor, actions: Actions) {
+  try {
+    const files: File[] = [];
+    for (const item of await navigator.clipboard.read()) {
+      const type = item.types.find((x) => x.startsWith('image/'));
+      if (type) files.push(new File([await item.getType(type)], 'clipboard', { type }));
+    }
+    if (await actions.pasteFromClipboard(files)) return;
+  } catch {
+    /* no permission to read the clipboard: fall back to our own */
+  }
+  if (editor.hasClipboard()) editor.paste();
+}
+
+export interface MenuBarMenu {
+  id: 'file' | 'edit' | 'image' | 'layer' | 'select' | 'view' | 'help';
+  items: (editor: Editor, actions: Actions) => MenuItem[];
+}
+
+/** The menu bar's menus, in order. Built when opened, so they show the current state. */
+export const MENU_BAR: MenuBarMenu[] = [
+  {
+    id: 'file',
+    items: (editor, actions) => {
+      const s = editor.getState();
+      const current = s.files.find((f) => f.id === s.activeId)!;
+      const recent = [...s.files].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 8);
+      return [
+        { label: t('menu.newFile'), onSelect: () => openDialog({ type: 'newFile' }) },
+        { label: t('menu.open'), shortcut: 'Ctrl+O', onSelect: () => void actions.openDocument() },
+        {
+          label: t('menu.recent'),
+          items: [
+            ...recent.map((f) => ({
+              label: f.name,
+              checked: f.id === s.activeId,
+              onSelect: () => editor.switchFile(f.id),
+            })),
+            '-',
+            { label: t('file.allFiles'), onSelect: () => uiStore.set({ home: true }) },
+          ],
+        },
+        { label: t('menu.importImage'), onSelect: () => void actions.importImage() },
+        { label: t('menu.reference'), onSelect: () => void actions.addReference() },
+        '-',
+        { label: t('menu.duplicateFile'), onSelect: () => editor.duplicateFile(current.id) },
+        {
+          label: t('menu.renameFile'),
+          shortcut: 'F2',
+          onSelect: () => requestAnimationFrame(renameFile),
+        },
+        { label: t('file.download'), onSelect: () => void actions.saveDocument() },
+        '-',
+        {
+          label: t('menu.export'),
+          shortcut: 'Ctrl+E',
+          onSelect: () =>
+            void actions.exportImage(uiStore.get().exportFormat, uiStore.get().exportActiveLayer),
+        },
+        '-',
+        { label: t('menu.deleteFile'), onSelect: () => actions.deleteFile(current.id, current.name) },
+      ];
+    },
+  },
+  {
+    id: 'edit',
+    items: (editor, actions) => {
+      const s = editor.getState();
+      return [
+        { label: t('menu.undo'), shortcut: 'Ctrl+Z', disabled: !s.canUndo, onSelect: () => editor.undo() },
+        {
+          label: t('menu.redo'),
+          shortcut: 'Ctrl+Shift+Z',
+          disabled: !s.canRedo,
+          onSelect: () => editor.redo(),
+        },
+        '-',
+        { label: t('menu.cut'), shortcut: 'Ctrl+X', onSelect: () => editor.cut() && toast(t('toast.cut')) },
+        {
+          label: t('menu.copy'),
+          shortcut: 'Ctrl+C',
+          onSelect: () =>
+            editor.copy() && toast(t(s.selection ? 'toast.selectionCopied' : 'toast.layerCopied')),
+        },
+        { label: t('menu.paste'), shortcut: 'Ctrl+V', onSelect: () => void paste(editor, actions) },
+        { label: t('menu.copyPng'), onSelect: () => void actions.copyPng() },
+        { label: t('menu.copySvg'), shortcut: 'Ctrl+Shift+C', onSelect: () => void actions.copySvg() },
+        '-',
+        {
+          label: s.selection ? t('menu.fillSelection') : t('menu.fillLayer'),
+          shortcut: 'Shift+Del',
+          onSelect: () => editor.fill(),
+        },
+        {
+          label: s.selection ? t('menu.clearSelection') : t('menu.clearLayer'),
+          shortcut: 'Del',
+          onSelect: () => editor.clearSelection(),
+        },
+        '-',
+        { label: t('color.swap'), shortcut: 'X', onSelect: () => editor.swapColors() },
+      ];
+    },
+  },
+  {
+    id: 'image',
+    items: (editor) => [
+      {
+        label: t('menu.canvasSize'),
+        onSelect: () =>
+          revealCanvas(() =>
+            document.querySelector<HTMLInputElement>(`input[aria-label="${t('canvas.width')}"]`)?.select(),
+          ),
+      },
+      {
+        label: t('menu.background'),
+        onSelect: () =>
+          revealCanvas(() => {
+            const s = editor.getState();
+            if (!s.doc.background)
+              editor.setBackground(alpha(s.secondary) ? s.secondary : pack(255, 255, 255), true);
+            const width = document.querySelector(`input[aria-label="${t('canvas.width')}"]`);
+            const row = width?.closest('.section')?.querySelector('.subsection-title');
+            uiStore.set({ picker: { slot: 'background', top: row?.getBoundingClientRect().top ?? 120 } });
+          }),
+      },
+      '-',
+      { label: t('menu.flipH'), shortcut: 'Shift+H', onSelect: () => editor.flip(true) },
+      { label: t('menu.flipV'), shortcut: 'Shift+V', onSelect: () => editor.flip(false) },
+      { label: t('menu.rotate'), shortcut: 'Shift+R', onSelect: () => editor.rotate() },
+      '-',
+      { label: t('menu.adjustColors'), shortcut: 'Ctrl+U', onSelect: () => openAdjust('all') },
+    ],
+  },
+  {
+    id: 'layer',
+    items: (editor, actions) => {
+      const { doc, referenceSelected } = editor.getState();
+      const layer = doc.layers[doc.activeLayer];
+      const disabled = referenceSelected;
+      return [
+        { label: t('layer.new'), shortcut: 'Shift+N', onSelect: () => editor.addLayer() },
+        {
+          label: t('layer.duplicate'),
+          shortcut: 'Shift+D',
+          disabled,
+          onSelect: () => editor.duplicateLayer(),
+        },
+        {
+          label: t('layer.delete'),
+          disabled: disabled || doc.layers.length < 2,
+          onSelect: () => actions.deleteLayers(),
+        },
+        '-',
+        {
+          label: t('layer.mergeDown'),
+          shortcut: 'Shift+M',
+          disabled: disabled || doc.activeLayer === 0,
+          onSelect: () => editor.mergeDown(),
+        },
+        {
+          label: t('menu.layerUp'),
+          shortcut: 'Alt+↑',
+          disabled: disabled || isLast(editor),
+          onSelect: () => editor.moveLayer(1),
+        },
+        {
+          label: t('menu.layerDown'),
+          shortcut: 'Alt+↓',
+          disabled: disabled || doc.activeLayer === 0,
+          onSelect: () => editor.moveLayer(-1),
+        },
+        '-',
+        {
+          label: layer.visible ? t('menu.hideLayer') : t('menu.showLayer'),
+          disabled,
+          onSelect: () => editor.setLayerVisible(doc.activeLayer, !layer.visible),
+        },
+        {
+          label: layer.locked ? t('menu.unlockLayer') : t('menu.lockLayer'),
+          disabled,
+          onSelect: () => editor.setLayerLocked(doc.activeLayer, !layer.locked),
+        },
+      ];
+    },
+  },
+  {
+    id: 'select',
+    items: (editor) => {
+      const s = editor.getState();
+      return [
+        { label: t('menu.selectAll'), shortcut: 'Ctrl+A', onSelect: () => editor.selectAll() },
+        {
+          label: t('menu.deselect'),
+          shortcut: 'Ctrl+D',
+          disabled: !s.selection,
+          onSelect: () => editor.deselect(),
+        },
+        '-',
+        {
+          label: t('brush.fromSelection'),
+          disabled: !s.selection,
+          onSelect: () => editor.brushFromSelection(),
+        },
+      ];
+    },
+  },
+  {
+    id: 'view',
+    items: (editor) => {
+      const s = editor.getState();
+      return [
+        {
+          label: t('menu.grid'),
+          shortcut: 'Shift+G',
+          checked: s.view.grid,
+          onSelect: () => editor.toggleView('grid'),
+        },
+        {
+          label: t('menu.tile'),
+          shortcut: 'Shift+T',
+          checked: s.view.tile,
+          onSelect: () => editor.toggleView('tile'),
+        },
+        {
+          label: t('display.mirrorX'),
+          shortcut: 'Shift+X',
+          checked: s.view.mirrorX,
+          onSelect: () => editor.toggleView('mirrorX'),
+        },
+        {
+          label: t('display.mirrorY'),
+          shortcut: 'Shift+Y',
+          checked: s.view.mirrorY,
+          onSelect: () => editor.toggleView('mirrorY'),
+        },
+        {
+          label: t('menu.preview'),
+          shortcut: 'Shift+P',
+          checked: uiStore.get().preview.open,
+          onSelect: togglePreview,
+        },
+        '-',
+        { label: t('zoom.in'), shortcut: 'Ctrl+=', onSelect: () => viewport.step(1) },
+        { label: t('zoom.out'), shortcut: 'Ctrl+-', onSelect: () => viewport.step(-1) },
+        { label: t('zoom.fit'), shortcut: 'Shift+1', onSelect: () => viewport.fit(s.doc) },
+        { label: t('zoom.to', { value: 100 }), shortcut: 'Shift+0', onSelect: () => viewport.zoomTo(1) },
+        '-',
+        {
+          label: t('menu.hideUi'),
+          shortcut: 'Tab',
+          onSelect: () => uiStore.set((u) => ({ uiHidden: !u.uiHidden })),
+        },
+        '-',
+        {
+          label: t('menu.theme'),
+          items: (['system', 'light', 'dark'] as ThemePreference[]).map((theme) => ({
+            label: t(`theme.${theme}`),
+            checked: getTheme() === theme,
+            onSelect: () => setTheme(theme),
+          })),
+        },
+        {
+          label: t('menu.language'),
+          items: LOCALES.map((l) => ({
+            label: l.label,
+            checked: getLocale() === l.id,
+            onSelect: () => setLocale(l.id),
+          })),
+        },
+      ];
+    },
+  },
+  {
+    id: 'help',
+    items: () => [
+      { label: t('menu.shortcuts'), shortcut: '?', onSelect: () => openDialog({ type: 'shortcuts' }) },
+      { label: t('menu.github'), onSelect: () => window.open(GITHUB_URL, '_blank', 'noopener') },
+      '-',
+      {
+        label: t('menu.version', { version: __APP_VERSION__ }),
+        onSelect: () => window.open(CHANGELOG_URL, '_blank', 'noopener'),
+      },
+    ],
+  },
+];
+
+export const togglePreview = () => uiStore.set((u) => ({ preview: { ...u.preview, open: !u.preview.open } }));
+
+/** Starts editing the file name in the menu bar. */
+export function renameFile() {
+  document.querySelector<HTMLInputElement>('.menubar-file input')?.select();
+}
+
+/** The menu bar's menus as submenus: the ☰ button on narrow windows and phones. */
 export function mainMenu(editor: Editor, actions: Actions): MenuItem[] {
-  const s = editor.getState();
-  return [
-    // Files live in the files menu (next to the file name); this one is for the app and the drawing.
-    {
-      label: t('menu.export'),
-      shortcut: 'Ctrl+E',
-      onSelect: () => void actions.exportImage(uiStore.get().exportFormat, uiStore.get().exportActiveLayer),
-    },
-    { label: t('menu.copySvg'), shortcut: 'Ctrl+Shift+C', onSelect: () => void actions.copySvg() },
-    { label: t('menu.copyPng'), onSelect: () => void actions.copyPng() },
-    '-',
-    { label: t('menu.undo'), shortcut: 'Ctrl+Z', disabled: !s.canUndo, onSelect: () => editor.undo() },
-    { label: t('menu.redo'), shortcut: 'Ctrl+Shift+Z', disabled: !s.canRedo, onSelect: () => editor.redo() },
-    '-',
-    { label: t('menu.selectAll'), shortcut: 'Ctrl+A', onSelect: () => editor.selectAll() },
-    {
-      label: t('menu.deselect'),
-      shortcut: 'Ctrl+D',
-      disabled: !s.selection,
-      onSelect: () => editor.deselect(),
-    },
-    {
-      label: s.selection ? t('menu.fillSelection') : t('menu.fillLayer'),
-      shortcut: 'Shift+Del',
-      onSelect: () => editor.fill(),
-    },
-    { label: t('menu.flipH'), onSelect: () => editor.flip(true) },
-    { label: t('menu.flipV'), onSelect: () => editor.flip(false) },
-    { label: t('menu.rotate'), onSelect: () => editor.rotate() },
-    { label: t('menu.adjustColors'), shortcut: 'Ctrl+U', onSelect: () => openAdjust('all') },
-    '-',
-    {
-      label: t('menu.grid'),
-      shortcut: 'Shift+G',
-      checked: s.view.grid,
-      onSelect: () => editor.toggleView('grid'),
-    },
-    {
-      label: t('menu.tile'),
-      shortcut: 'Shift+T',
-      checked: s.view.tile,
-      onSelect: () => editor.toggleView('tile'),
-    },
-    {
-      label: t('menu.preview'),
-      checked: uiStore.get().preview.open,
-      onSelect: () => uiStore.set((u) => ({ preview: { ...u.preview, open: !u.preview.open } })),
-    },
-    {
-      label: t('menu.hideUi'),
-      shortcut: '@',
-      onSelect: () => uiStore.set((u) => ({ uiHidden: !u.uiHidden })),
-    },
-    '-',
-    ...(['system', 'light', 'dark'] as ThemePreference[]).map((theme) => ({
-      label: t(`theme.${theme}`),
-      checked: getTheme() === theme,
-      onSelect: () => setTheme(theme),
-    })),
-    '-',
-    ...LOCALES.map((l) => ({
-      label: l.label,
-      checked: getLocale() === l.id,
-      onSelect: () => setLocale(l.id),
-    })),
-    '-',
-    { label: t('menu.shortcuts'), shortcut: '?', onSelect: () => openDialog({ type: 'shortcuts' }) },
-    {
-      label: t('menu.version', { version: __APP_VERSION__ }),
-      onSelect: () => window.open(CHANGELOG_URL, '_blank', 'noopener'),
-    },
-  ];
+  return MENU_BAR.map((m) => ({ label: t(`menu.${m.id}`), items: m.items(editor, actions) }));
 }
 
 export function zoomMenu(editor: Editor): MenuItem[] {

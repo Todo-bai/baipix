@@ -1,4 +1,4 @@
-import { useRef, useSyncExternalStore } from 'react';
+import { useRef } from 'react';
 import { alpha, opaque, pack } from '../../engine/color';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
 import { PALETTE_PRESETS } from '../../engine/palette';
@@ -11,31 +11,11 @@ import { openMenu } from '../components/Menu';
 import { NumberField } from '../components/NumberField';
 import { PaletteGrid } from '../components/PaletteGrid';
 import { Row, Section } from '../components/Section';
-import { zoomMenu } from '../menus';
 import { openAdjust, openDialog, uiStore } from '../uiStore';
-import { viewport } from '../viewport';
 import { ColorRow } from './ColorRow';
 import { ExportPreview } from './ExportPreview';
 
 const PIXEL_SIZES = [1, 2, 4, 8, 16, 32];
-
-function TopBar() {
-  const editor = useEditor();
-  const zoom = useSyncExternalStore(viewport.subscribe, () => viewport.pixelZoom);
-  return (
-    <div className="panel-header">
-      <button
-        type="button"
-        className="zoom-button"
-        aria-haspopup="menu"
-        onClick={(e) => openMenu(e.currentTarget, zoomMenu(editor))}
-        onDoubleClick={() => viewport.fit(editor.getState().doc)}
-      >
-        {Math.round(zoom * 100)} %<span className="caret">▾</span>
-      </button>
-    </div>
-  );
-}
 
 function RenderSection() {
   const t = useT();
@@ -521,7 +501,6 @@ export function RightPanel() {
   const tab = uiStore.use((s) => s.rightTab);
   return (
     <aside className="panel panel-right" aria-label={t('panel.right')}>
-      <TopBar />
       <PanelTabs />
       <div
         id="panel-tab-body"

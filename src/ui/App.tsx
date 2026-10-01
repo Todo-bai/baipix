@@ -11,6 +11,7 @@ import { FloatingPreview } from './components/FloatingPreview';
 import { ColorAdjustPanel } from './components/ColorAdjustPanel';
 import { Coordinates } from './components/Coordinates';
 import { IconButton } from './components/IconButton';
+import { MenuBar } from './components/MenuBar';
 import { MenuHost } from './components/Menu';
 import { MobileBar } from './components/MobileBar';
 import { MobileColors } from './components/MobileColors';
@@ -135,6 +136,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
     <EditorContext.Provider value={editor}>
       <ActionsContext.Provider value={actions}>
         <div className={classes} style={style}>
+          <MenuBar />
           <LeftPanel />
           <main className="workspace">
             <CanvasView />

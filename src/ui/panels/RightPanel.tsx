@@ -12,7 +12,7 @@ import { NumberField } from '../components/NumberField';
 import { PaletteGrid } from '../components/PaletteGrid';
 import { Row, Section } from '../components/Section';
 import { zoomMenu } from '../menus';
-import { openDialog, uiStore } from '../uiStore';
+import { openAdjust, openDialog, uiStore } from '../uiStore';
 import { viewport } from '../viewport';
 import { ColorRow } from './ColorRow';
 import { ExportPreview } from './ExportPreview';
@@ -242,7 +242,12 @@ function LayerSection() {
     <Section
       id="layer"
       title={t('section.layer')}
-      aside={<span className="muted truncate">{layer.name}</span>}
+      aside={
+        <>
+          <span className="muted truncate">{layer.name}</span>
+          <IconButton icon="panel" label={t('adjust.open')} onClick={() => openAdjust('layer')} />
+        </>
+      }
     >
       <div className="two-columns">
         <NumberField

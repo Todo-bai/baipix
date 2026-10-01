@@ -19,6 +19,8 @@ export interface UiState {
   sheet: 'left' | 'right' | null;
   /** Color adjustment panel open. */
   adjust: boolean;
+  /** What the Adjustments panel starts on: the active layer (from the Layer section) or all layers. */
+  adjustScope: 'layer' | 'all';
   panelWidths: { left: number; right: number };
   uiHidden: boolean;
   exportFormat: 'png' | 'svg';
@@ -45,6 +47,7 @@ export const uiStore = createStore<UiState>({
   picker: null,
   sheet: null,
   adjust: false,
+  adjustScope: 'all',
   panelWidths: { left: PANEL_LIMITS.left.default, right: PANEL_LIMITS.right.default },
   uiHidden: false,
   exportFormat: 'png',
@@ -57,6 +60,9 @@ export const uiStore = createStore<UiState>({
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });
+/** Opens the Adjustments panel, on the active layer or on all layers. */
+export const openAdjust = (scope: 'layer' | 'all' = 'all'): void =>
+  uiStore.set({ adjust: true, adjustScope: scope });
 export const closeDialog = (): void => uiStore.set({ dialog: null });
 
 /** Pixel under the cursor, for the coordinates badge (updated often, kept separate). */

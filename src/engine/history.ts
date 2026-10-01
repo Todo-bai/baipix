@@ -1,9 +1,15 @@
+import type { Color } from './color';
 import { cloneDocument, type PixelDoc } from './document';
 import type { Rect } from './math';
 
 export interface Snapshot {
   doc: PixelDoc;
   selection: Rect | null;
+  /**
+   * The palette, only for steps that change it along with the pixels (an adjustment applied to
+   * the palette too): undoing it restores both, so they stay in step.
+   */
+  palette?: Color[];
 }
 
 export const takeSnapshot = (doc: PixelDoc, selection: Rect | null): Snapshot => ({
@@ -39,6 +45,11 @@ export class History {
     while (this.undoStack.length > 12 && total > this.budgetBytes) {
       total -= snapshotBytes(this.undoStack.shift()!);
     }
+  }
+
+  /** The last recorded state, to attach more to it. */
+  top(): Snapshot | undefined {
+    return this.undoStack[this.undoStack.length - 1];
   }
 
   /** Drops the last recorded state (e.g. a stroke that changed nothing). */

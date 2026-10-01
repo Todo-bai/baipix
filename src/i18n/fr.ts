@@ -231,6 +231,7 @@ export const fr: Record<MessageKey, string> = {
 
   'display.grid': 'Grille de pixels',
   'display.tile': 'Mosaïque (aperçu de tuile)',
+  'display.tileOpacity': 'Copies',
   'display.mirrorX': 'Symétrie gauche-droite',
   'display.mirrorY': 'Symétrie haut-bas',
 

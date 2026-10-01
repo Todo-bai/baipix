@@ -93,7 +93,8 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
       const digit = /^(Digit|Numpad)([1-9])$/.exec(e.code);
       if (digit && !e.shiftKey) return editor.setOption('size', Number(digit[2]));
       if (key === 'x' && !e.shiftKey) return editor.swapColors();
-      const tool = TOOL_LIST.find((x) => x.shortcut.toLowerCase() === key);
+      // Tools without a shortcut have an empty one: never match it (some keys have no name).
+      const tool = key ? TOOL_LIST.find((x) => x.shortcut && x.shortcut.toLowerCase() === key) : undefined;
       if (tool && !e.shiftKey && !e.altKey) editor.setTool(tool.id);
     };
     const release = () => {

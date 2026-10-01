@@ -228,6 +228,7 @@ export const en = {
 
   'display.grid': 'Pixel grid',
   'display.tile': 'Tile preview',
+  'display.tileOpacity': 'Copies',
   'display.mirrorX': 'Left-right symmetry',
   'display.mirrorY': 'Top-bottom symmetry',
 

@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- The opacity of the copies in tile preview can be set, under the Tile preview box: at 100% they look exactly like the drawing, to see the pattern as it will repeat. (#176)
 - With the Move tool, the active layer is framed like a selected object: a blue frame around its pixels with white corner handles and its size in pixels under it, following the layer while it moves. (#156)
 - With the Move tool, a click beside every layer drops the active layer's frame, like clicking an empty spot in a design tool, instead of moving the active layer. A hole inside the frame still moves it, and so does Cmd/Ctrl. (#159)
 - A reference image to trace over. It shows at the bottom of the Layers panel and works like a layer: select it, hide it, lock it, set its opacity, drag it with the Move tool (which takes it where no layer has a pixel) and resize it by the corners. It always stays under the layers and is never exported. Add one with the image button of the Layers panel, from the new file dialog, or with "Use as reference" after pasting or dropping an image. It's saved with the drawing in the browser, not in .baipix files. (#151)
@@ -22,6 +23,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Fixed
 
+- A key with no name could switch to the rounded rectangle, because tools without a shortcut matched it. (#176)
 - In the light theme, muted text, menu shortcuts and the blue focus lines now meet the contrast minimum (4.5:1 for text, 3:1 for lines). (#175)
 - Long file and layer names no longer make the left panel scroll sideways: they're cut with an ellipsis, with the full name on hover. Names and sizes now use the whole row, and the action icons show over the end of it on hover. (#153)
 - On iPhone, editing a file name or any field no longer zooms the whole interface. (#149)

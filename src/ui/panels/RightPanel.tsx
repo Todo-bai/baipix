@@ -372,6 +372,22 @@ function DisplaySection() {
     <Section id="display" title={t('section.display')}>
       <Checkbox checked={view.grid} onChange={(v) => editor.setView('grid', v)} label={t('display.grid')} />
       <Checkbox checked={view.tile} onChange={(v) => editor.setView('tile', v)} label={t('display.tile')} />
+      {view.tile && (
+        // How visible the copies are: 100% shows the pattern as it will repeat.
+        <Row label={t('display.tileOpacity')}>
+          <NumberField
+            value={Math.round(view.tileOpacity * 100)}
+            min={0}
+            max={100}
+            label="◐"
+            suffix="%"
+            ariaLabel={t('display.tileOpacity')}
+            scrubHint={t('common.dragToAdjust')}
+            sensitivity={2}
+            onChange={(v) => editor.setView('tileOpacity', v / 100)}
+          />
+        </Row>
+      )}
       <Checkbox
         checked={view.mirrorX}
         onChange={(v) => editor.setView('mirrorX', v)}

@@ -173,11 +173,15 @@ export function drawScene(
         ctx.restore();
         ctx.drawImage(scene.composite, x, y, cw, ch);
       }
-    ctx.save();
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = theme.canvas;
-    ctx.fillRect(X - cw, Y - ch, cw * 3, ch * 3);
-    ctx.restore();
+    // The copies are dimmed so the editable one stands out, as much as the tile opacity says.
+    const dim = 1 - view.tileOpacity;
+    if (dim > 0) {
+      ctx.save();
+      ctx.globalAlpha = dim;
+      ctx.fillStyle = theme.canvas;
+      ctx.fillRect(X - cw, Y - ch, cw * 3, ch * 3);
+      ctx.restore();
+    }
   }
 
   ctx.save();

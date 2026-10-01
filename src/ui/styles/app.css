@@ -210,8 +210,8 @@ body.is-resizing * {
   align-items: center;
   gap: 12px;
   padding: 0 8px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
+  border-bottom: 1px solid var(--menubar-line);
+  background: var(--menubar);
 }
 .menubar-start,
 .menubar-menus,
@@ -256,7 +256,7 @@ body.is-resizing * {
 .menubar-title[aria-expanded='true'],
 .zoom-button:hover,
 .zoom-button[aria-expanded='true'] {
-  background: var(--hover);
+  background: var(--selected);
 }
 .menubar .menubar-burger {
   display: none;

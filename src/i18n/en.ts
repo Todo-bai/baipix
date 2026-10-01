@@ -142,6 +142,9 @@ export const en = {
   'options.pixelPerfect': 'Pixel perfect',
   'options.dither': 'Checkerboard dithering',
   'options.blend': 'Blend',
+  'options.stabilizer': 'Stabilizer',
+  'options.stabilizerHint':
+    'Smooths shaky strokes: the line follows the pointer on a string this many pixels long. 0 is off. Drag to adjust.',
   'options.blendHint':
     'A semi-transparent color mixes with the pixels underneath, like watercolor, instead of replacing them.',
   'options.filled': 'Filled shape',

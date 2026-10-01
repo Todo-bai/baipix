@@ -54,6 +54,20 @@ export function ToolOptionsBar() {
       </div>
     </>
   );
+  const stabilizer = (
+    <Row label={t('options.stabilizer')}>
+      <NumberField
+        value={options.stabilizer}
+        min={0}
+        max={10}
+        label="≈"
+        ariaLabel={t('options.stabilizer')}
+        scrubHint={t('options.stabilizerHint')}
+        sensitivity={10}
+        onChange={(v) => editor.setOption('stabilizer', v)}
+      />
+    </Row>
+  );
   // Help texts go in a tooltip on the tool name, to keep the bar short.
   let info: string | undefined;
   const flips = (
@@ -86,6 +100,7 @@ export function ToolOptionsBar() {
       body = (
         <>
           {size}
+          {stabilizer}
           <Checkbox
             checked={options.pixelPerfect}
             onChange={set('pixelPerfect')}
@@ -100,7 +115,12 @@ export function ToolOptionsBar() {
       break;
     case 'eraser':
       info = t('hint.eraser');
-      body = <>{size}</>;
+      body = (
+        <>
+          {size}
+          {stabilizer}
+        </>
+      );
       break;
     case 'line':
       info = t('hint.line');

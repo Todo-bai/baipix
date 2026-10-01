@@ -262,6 +262,36 @@ describe('Editor', () => {
     expect((mixed >> 16) & 0xff).toBeGreaterThan(100); // and part blue
   });
 
+  it('stabilizes freehand strokes on a string', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    e.setOption('stabilizer', 4);
+    // Wobbles shorter than the string never reach the drawing: only the starting pixel is painted.
+    drag(e, [
+      [10, 10],
+      [12, 11],
+      [9, 12],
+      [11, 9],
+    ]);
+    expect(painted(e)).toBe(1);
+    e.undo();
+    // A long stroke stops one string length behind the pointer.
+    drag(e, [
+      [2, 20],
+      [20, 20],
+    ]);
+    expect(layer(e)[20 * 32 + 16]).toBe(RED);
+    expect(layer(e)[20 * 32 + 17]).toBe(0);
+    // Off, the stroke goes all the way.
+    e.undo();
+    e.setOption('stabilizer', 0);
+    drag(e, [
+      [2, 20],
+      [20, 20],
+    ]);
+    expect(layer(e)[20 * 32 + 20]).toBe(RED);
+  });
+
   it('moves a selection', () => {
     const e = new Editor();
     drag(e, [[0, 0]]);

@@ -6,10 +6,18 @@ import { toolMeta } from '../tools';
 import { Checkbox } from './Checkbox';
 import { Icon } from './Icon';
 import { IconButton } from './IconButton';
+import { openMenu } from './Menu';
 import { NumberField } from './NumberField';
 import { Row } from './Section';
 
 /** Options of the active tool, in a small bar right above the toolbar. Hidden for tools without any. */
+/** Options of the "…" menu, with labels that say what they do on their own. */
+const MORE_LABELS = {
+  dither: 'options.dither',
+  lassoFill: 'options.lassoFillMenu',
+  blend: 'options.blendMenu',
+} as const;
+
 export function ToolOptionsBar() {
   const t = useT();
   const editor = useEditor();
@@ -68,6 +76,31 @@ export function ToolOptionsBar() {
       />
     </Row>
   );
+  /**
+   * Less common on/off options go in a "…" menu, to keep the bar short. A dot on the button says
+   * one of them is on, so it's never forgotten.
+   */
+  const more = (keys: ('dither' | 'lassoFill' | 'blend')[]) => {
+    const anyOn = keys.some((k) => options[k]);
+    return (
+      <IconButton
+        icon="more"
+        className={`icon-btn options-more${anyOn ? ' has-active' : ''}`}
+        label={t('options.more')}
+        aria-haspopup="menu"
+        onClick={(e) =>
+          openMenu(
+            e.currentTarget,
+            keys.map((k) => ({
+              label: t(MORE_LABELS[k]),
+              checked: options[k],
+              onSelect: () => editor.setOption(k, !options[k]),
+            })),
+          )
+        }
+      />
+    );
+  };
   // Help texts go in a tooltip on the tool name, to keep the bar short.
   let info: string | undefined;
   const flips = (
@@ -106,10 +139,7 @@ export function ToolOptionsBar() {
             onChange={set('pixelPerfect')}
             label={t('options.pixelPerfect')}
           />
-          <Checkbox checked={options.dither} onChange={set('dither')} label={t('options.dither')} />
-          <span data-tip={t('options.blendHint')}>
-            <Checkbox checked={options.blend} onChange={set('blend')} label={t('options.blend')} />
-          </span>
+          {more(['dither', 'lassoFill', 'blend'])}
         </>
       );
       break;
@@ -271,9 +301,7 @@ export function ToolOptionsBar() {
             onChange={set('sprayOpacity')}
             label={t('options.sprayOpacity')}
           />
-          <span data-tip={t('options.blendHint')}>
-            <Checkbox checked={options.blend} onChange={set('blend')} label={t('options.blend')} />
-          </span>
+          {more(['blend'])}
         </>
       );
       break;

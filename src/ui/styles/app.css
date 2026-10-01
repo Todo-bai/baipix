@@ -884,6 +884,19 @@ body.is-panning .canvas {
   white-space: nowrap;
   scrollbar-width: none;
 }
+/* The "…" of the tool options shows a blue dot when one of its options is on. */
+.options-more {
+  position: relative;
+}
+.options-more.has-active::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 4px;
+  height: 4px;
+  background: var(--glow-line);
+}
 .tool-options > * {
   flex: none;
 }

@@ -303,3 +303,68 @@ export function hueShiftedRamp(base: Color): Color[] {
 
 export const sortByLightness = (colors: Color[]): Color[] =>
   [...colors].sort((x, y) => toOklab(x)[0] - toOklab(y)[0]);
+
+export type RemapMode = 'nearest' | 'lightness';
+
+/**
+ * How to remap a drawing to another palette, color by color (opaque colors; alpha is kept apart).
+ * `used` holds the drawing's colors and how many pixels have each.
+ *
+ * - `nearest`: each color goes to the closest one of the palette (in Oklab), like snapping.
+ * - `lightness`: colors go to palette colors in the same order of lightness, darkest to darkest:
+ *   recoloring that keeps shadows and highlights where they were.
+ *
+ * With `count` below the palette's size, only that many palette colors are used: the ones the
+ * drawing needs most (`nearest`), or evenly spread from dark to light (`lightness`).
+ */
+export function remapTable(
+  used: Map<Color, number>,
+  palette: Color[],
+  mode: RemapMode,
+  count = palette.length,
+): { table: Map<Color, Color>; colors: Color[] } {
+  const table = new Map<Color, Color>();
+  const target = [...new Set(palette.map(opaque))];
+  const sources = [...used.keys()].map(opaque);
+  if (!target.length || !sources.length) return { table, colors: target };
+  const n = Math.max(1, Math.min(count, target.length));
+  const lightness = (c: Color) => toOklab(c)[0];
+
+  if (mode === 'lightness') {
+    const byLight = [...target].sort((a, b) => lightness(a) - lightness(b));
+    const kept =
+      n >= byLight.length
+        ? byLight
+        : Array.from(
+            { length: n },
+            (_, i) => byLight[Math.round((i * (byLight.length - 1)) / Math.max(1, n - 1))],
+          );
+    const ordered = [...new Set(sources)].sort((a, b) => lightness(a) - lightness(b));
+    ordered.forEach((c, i) => {
+      const k =
+        ordered.length > 1
+          ? Math.round((i * (kept.length - 1)) / (ordered.length - 1))
+          : Math.floor((kept.length - 1) / 2);
+      table.set(c, kept[k]);
+    });
+    return { table, colors: [...new Set(kept)] };
+  }
+
+  // Nearest: snap to the whole palette, then keep the n palette colors covering the most pixels.
+  const full = new PaletteIndex(target);
+  let kept = target;
+  if (n < target.length) {
+    const weight = new Map<Color, number>();
+    for (const [c, k] of used) {
+      const t = opaque(full.nearest(c));
+      weight.set(t, (weight.get(t) ?? 0) + k);
+    }
+    kept = [...weight.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([c]) => c);
+  }
+  const index = new PaletteIndex(kept);
+  for (const c of sources) table.set(c, opaque(index.nearest(c)));
+  return { table, colors: kept };
+}

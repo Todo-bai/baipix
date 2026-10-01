@@ -415,6 +415,29 @@ function ListsBlock() {
   );
 }
 
+function TabsDemo() {
+  const [tab, setTab] = useState('colors');
+  return (
+    <div className="panel-tabs ds-tabs" role="tablist" aria-label="Adjustments">
+      {[
+        ['colors', 'Colors'],
+        ['remap', 'Remap'],
+      ].map(([id, label]) => (
+        <button
+          key={id}
+          type="button"
+          role="tab"
+          aria-selected={tab === id}
+          className="panel-tab"
+          onClick={() => setTab(id)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function SurfacesBlock() {
   return (
     <Block id="surfaces" title="Surfaces">
@@ -440,6 +463,12 @@ function SurfacesBlock() {
               Undo
             </button>
           </div>
+        </Specimen>
+        <Specimen
+          label="Tabs"
+          use="Kinds of content in one panel (Design / Export, the Adjustments). The current one is underlined in blue."
+        >
+          <TabsDemo />
         </Specimen>
         <Specimen label="Tooltip" use="On hover of any element with data-tip. Dark in both themes.">
           <button type="button" className="btn" data-tip="A tooltip" data-kbd="⌘K">

@@ -247,6 +247,10 @@ body {
 .ds-field {
   width: 120px;
 }
+.ds-tabs {
+  width: 220px;
+  background: var(--panel);
+}
 .ds-color {
   width: 220px;
 }

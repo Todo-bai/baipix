@@ -156,6 +156,9 @@ const DEFAULT_LABELS: EditorLabels = {
 /** Freehand tools the stabilizer smooths (shapes, selections and fills don't need it). */
 const STABILIZED_TOOLS: ToolId[] = ['pencil', 'eraser', 'shade', 'lighten', 'blur', 'spray', 'jumble'];
 
+/** A color change applied to every pixel, color by color (Adjustments). */
+export type ColorMap = (c: Color) => Color;
+
 export class Editor {
   private sessions: Session[] = [];
   private active!: Session;
@@ -1092,8 +1095,8 @@ export class Editor {
     };
   }
 
-  /** Rewrites the adjusted layers from their original pixels. */
-  private writeAdjustment(adj: ColorAdjustment | null): void {
+  /** Rewrites the adjusted layers from their original pixels, through `map` (none: as they were). */
+  private writeAdjustment(map: ColorMap | null): void {
     const { layers, rect } = this.adjusting!;
     const width = this.doc.width;
     const cache = new Map<Color, Color>();
@@ -1101,29 +1104,63 @@ export class Editor {
       const layer = this.doc.layers.find((l) => l.id === id);
       if (!layer) continue;
       layer.pixels.set(base);
-      if (!adj) continue;
+      if (!map) continue;
       for (let y = rect.y; y < rect.y + rect.h; y++)
         for (let x = rect.x; x < rect.x + rect.w; x++) {
           const i = y * width + x;
           const c = base[i];
           let next = cache.get(c);
-          if (next === undefined) cache.set(c, (next = adjustColor(c, adj)));
+          if (next === undefined) cache.set(c, (next = map(c)));
           layer.pixels[i] = next;
         }
     }
   }
 
+  /**
+   * The colors being adjusted (opaque, from the original pixels of the layers and area being
+   * adjusted) and how many pixels have each: what a remap starts from.
+   */
+  adjustedColors(): Map<Color, number> {
+    const used = new Map<Color, number>();
+    if (!this.adjusting) return used;
+    const { layers, rect } = this.adjusting;
+    const width = this.doc.width;
+    for (const { base } of layers)
+      for (let y = rect.y; y < rect.y + rect.h; y++)
+        for (let x = rect.x; x < rect.x + rect.w; x++) {
+          const c = base[y * width + x];
+          if (alpha(c)) used.set(opaque(c), (used.get(opaque(c)) ?? 0) + 1);
+        }
+    return used;
+  }
+
+  /** Hue, saturation and brightness; with `palette`, the palette previews the change too. */
   previewAdjust(adj: ColorAdjustment, palette = false): void {
+    this.previewMap(
+      (c) => adjustColor(c, adj),
+      palette ? (colors) => colors.map((c) => adjustColor(c, adj)) : null,
+    );
+  }
+
+  /** Hue, saturation and brightness as one undo step; with `palette`, the palette is adapted too. */
+  applyAdjust(adj: ColorAdjustment, palette: boolean): void {
+    this.applyMap(
+      (c) => adjustColor(c, adj),
+      palette ? (colors) => colors.map((c) => adjustColor(c, adj)) : null,
+    );
+  }
+
+  /**
+   * Live preview of any color change on the adjusted pixels. `palette` gives the palette to show
+   * meanwhile (from the palette before the adjustment), or null to leave it as it is.
+   */
+  previewMap(map: ColorMap, palette: ((colors: Color[]) => Color[]) | null): void {
     if (!this.adjusting) return;
-    this.writeAdjustment(adj);
-    // The palette previews the adjustment too when it will be adapted.
+    this.writeAdjustment(map);
     const a = this.adjusting;
     if (palette) {
       a.basePalette ??= this.palette;
-      this.palette = {
-        ...a.basePalette,
-        colors: a.basePalette.colors.map((c) => adjustColor(c, adj)),
-      };
+      this.palette = { ...a.basePalette, colors: palette(a.basePalette.colors) };
       this.commit(false);
     } else if (a.basePalette) {
       this.palette = a.basePalette;
@@ -1133,18 +1170,20 @@ export class Editor {
     this.pixelsChanged();
   }
 
-  /** Commits the adjustment as one undo step; `palette` also adjusts the palette colors. */
-  /** One undo step; with `palette`, the palette is adapted too, in the same step. */
-  applyAdjust(adj: ColorAdjustment, palette: boolean): void {
+  /**
+   * Commits a color change as one undo step. With `palette`, the palette becomes what it returns,
+   * in the same step: undoing it gives back the pixels and the palette together.
+   */
+  applyMap(map: ColorMap, palette: ((colors: Color[]) => Color[]) | null): void {
     if (!this.adjusting) return;
     const base = this.adjusting.basePalette ?? this.palette;
     this.palette = base;
     this.writeAdjustment(null);
     this.checkpoint();
     if (palette) this.active.history.top()!.palette = base.colors;
-    this.writeAdjustment(adj);
+    this.writeAdjustment(map);
     this.adjusting = null;
-    if (palette) this.usePalette(base.colors.map((c) => adjustColor(c, adj)));
+    if (palette) this.usePalette(palette(base.colors));
     this.commit();
   }
 

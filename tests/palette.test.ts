@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { alpha, fromHex, pack, toOklab } from '../src/engine/color';
+import { alpha, fromHex, pack, toOklab, type Color } from '../src/engine/color';
 import {
   hueShiftedRamp,
   PaletteIndex,
@@ -7,6 +7,7 @@ import {
   parseHexList,
   parsePaletteFile,
   presetColors,
+  remapTable,
   shiftLightness,
   toGpl,
   toHexList,
@@ -85,5 +86,32 @@ Columns: 4
     const ramp = hueShiftedRamp(pack(200, 80, 60));
     expect(ramp).toHaveLength(5);
     expect(ramp[2]).toBe(pack(200, 80, 60));
+  });
+});
+
+describe('remapTable', () => {
+  const BLACK = pack(0, 0, 0);
+  const GRAY = pack(128, 128, 128);
+  const WHITE = pack(255, 255, 255);
+  const NAVY = pack(10, 20, 80);
+  const SKY = pack(120, 180, 250);
+  const used = (...cs: Color[]) => new Map(cs.map((c, i) => [c, i + 1]));
+
+  it('snaps each color to the nearest palette color', () => {
+    const { table } = remapTable(used(pack(20, 20, 20), pack(240, 240, 240)), [BLACK, WHITE], 'nearest');
+    expect(table.get(pack(20, 20, 20))).toBe(BLACK);
+    expect(table.get(pack(240, 240, 240))).toBe(WHITE);
+  });
+
+  it('maps by lightness, darkest to darkest, whatever the hue', () => {
+    const { table } = remapTable(used(BLACK, GRAY, WHITE), [SKY, NAVY], 'lightness');
+    expect(table.get(BLACK)).toBe(NAVY);
+    expect(table.get(WHITE)).toBe(SKY);
+  });
+
+  it('uses only as many palette colors as asked', () => {
+    const { table, colors } = remapTable(used(BLACK, GRAY, WHITE), [BLACK, GRAY, WHITE], 'nearest', 2);
+    expect(colors).toHaveLength(2);
+    expect(new Set(table.values()).size).toBeLessThanOrEqual(2);
   });
 });

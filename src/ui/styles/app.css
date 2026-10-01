@@ -204,7 +204,7 @@ body.is-resizing * {
   grid-row: 1;
   position: relative;
   z-index: 20;
-  height: 40px;
+  height: 48px;
   display: grid;
   grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
   align-items: center;
@@ -226,7 +226,7 @@ body.is-resizing * {
 .menubar-logo,
 .menubar-title,
 .zoom-button {
-  height: 28px;
+  height: 32px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2081,7 +2081,7 @@ body.is-dragging-swatch * {
 .home-inner {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 24px 32px calc(48px + env(safe-area-inset-bottom, 0px));
+  padding: 0 32px calc(48px + env(safe-area-inset-bottom, 0px));
 }
 .home-hero {
   display: flex;
@@ -2092,7 +2092,7 @@ body.is-dragging-swatch * {
 }
 /* Nothing to list yet: the welcome sits in the middle of the screen. */
 .home.is-empty .home-inner {
-  min-height: 100%;
+  min-height: calc(100% - 48px);
   display: flex;
   flex-direction: column;
 }
@@ -2100,10 +2100,15 @@ body.is-dragging-swatch * {
   margin: auto 0;
   padding-bottom: 88px;
 }
+/* Same height and logo position as the editor's menu bar, so the logo stays put between the two. */
 .home-top {
+  height: 48px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  padding: 0 14px;
+  /* The menu bar's border, unseen, so the logo lines up to the pixel. */
+  border-bottom: 1px solid transparent;
 }
 .home-brand {
   font-size: 14px;
@@ -2285,7 +2290,7 @@ body.is-dragging-swatch * {
 }
 @media (max-width: 820px) {
   .home-inner {
-    padding: 16px 16px calc(40px + env(safe-area-inset-bottom, 0px));
+    padding: 0 16px calc(40px + env(safe-area-inset-bottom, 0px));
   }
   .home-hero {
     padding: 40px 0 36px;

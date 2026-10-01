@@ -96,12 +96,11 @@ export function HomeScreen() {
         if (file) void importFile(file);
       }}
     >
+      <header className="home-top">
+        <Icon name="logo" size={16} />
+        <span className="home-brand">Baipix</span>
+      </header>
       <div className="home-inner">
-        <header className="home-top">
-          <Icon name="logo" size={24} />
-          <span className="home-brand">Baipix</span>
-        </header>
-
         <section className="home-hero">
           <span className="home-mark">
             <Icon name="pencil" size={60} />

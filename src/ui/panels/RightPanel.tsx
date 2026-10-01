@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
 import { alpha, opaque, pack } from '../../engine/color';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
 import { PALETTE_PRESETS } from '../../engine/palette';
@@ -278,6 +278,7 @@ function CanvasSection() {
   const doc = useEditorState((s) => s.doc);
   useEditorState((s) => s.revision);
   const hasBg = doc.background !== 0;
+  const scrubbingBackground = useRef(false);
   return (
     <Section
       id="canvas"
@@ -340,7 +341,12 @@ function CanvasSection() {
           slot="background"
           color={doc.background}
           dimmed={!doc.backgroundVisible}
-          onChange={(c) => editor.setBackground(c, doc.backgroundVisible)}
+          onChange={(c, done = true) => {
+            // One undo step per gesture: the first change records it, the rest of a scrub previews.
+            if (!scrubbingBackground.current) editor.setBackground(c, doc.backgroundVisible);
+            else editor.previewBackground(c);
+            scrubbingBackground.current = !done;
+          }}
           trailing={
             <>
               <IconButton

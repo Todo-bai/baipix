@@ -1,10 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { pack } from '../engine/color';
 import { Checkbox } from '../ui/components/Checkbox';
 import { Icon } from '../ui/components/Icon';
 import { IconButton } from '../ui/components/IconButton';
 import { NumberField } from '../ui/components/NumberField';
 import { Tooltips } from '../ui/components/Tooltips';
 import { ICONS, type IconName } from '../ui/icons';
+import { ColorRow } from '../ui/panels/ColorRow';
 import { getTheme, setTheme, type ThemePreference } from '../ui/theme';
 import { contrast } from './contrast';
 import { download, LOGO_COLORS, logoPng, logoSvg } from './logo';
@@ -326,6 +328,15 @@ function ButtonsBlock() {
   );
 }
 
+function ColorDemo() {
+  const [color, setColor] = useState(pack(102, 196, 255));
+  return (
+    <div className="ds-color">
+      <ColorRow slot="primary" color={color} onChange={setColor} />
+    </div>
+  );
+}
+
 function FieldsBlock() {
   const [n, setN] = useState(64);
   const [checked, setChecked] = useState(true);
@@ -336,6 +347,12 @@ function FieldsBlock() {
           <div className="ds-field">
             <NumberField value={n} min={1} max={512} label="W" ariaLabel="Width" onChange={(v) => setN(v)} />
           </div>
+        </Specimen>
+        <Specimen
+          label="Color row"
+          use="A color: the swatch opens the picker, then its hex code and its opacity (drag ◐ to scrub)."
+        >
+          <ColorDemo />
         </Specimen>
         <Specimen label="Checkbox" use="On/off settings. A notched square with a pixel tick.">
           <Checkbox checked={checked} onChange={setChecked} label="Pixel grid" />

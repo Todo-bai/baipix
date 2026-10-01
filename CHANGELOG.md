@@ -18,6 +18,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- The opacity of the colors can be scrubbed like the canvas fields: drag its ◐ label left or right. For the background, one drag is one undo step. (#PR)
 - The brush outline under the pointer is dark with a white edge, so it shows on black pixels too. (#177)
 - Moving a layer off the canvas keeps its pixels: move it back, or make the canvas bigger, and they come back. Making the canvas smaller keeps what it cuts off too. The part outside is saved with the drawing in the browser, not in .baipix files, and is never exported. (#154)
 - The Move tool takes the layer under the pointer: drag any pixel to move its layer, with its outline shown on hover. Cmd/Ctrl keeps the active layer. The tool has a pixel arrow as icon and cursor. (#148)
@@ -34,6 +35,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Website
 
+- The design system shows the color row (swatch, hex and opacity). (#PR)
 - A design system page at /app/design.html: the logo with SVG and PNG downloads, every color token in light and dark, type, shapes, icons, the components in their states, and a live contrast check. DESIGN.md sums up the rules for contributors. (#175)
 - The screenshot on the home page and in the README shows the new pixel look, in a pixel frame with notched corners and a solid side like the buttons. (#132)
 

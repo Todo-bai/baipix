@@ -1,4 +1,5 @@
 import type { Color } from '../engine/color';
+import { BLEND_MODES, type BlendMode } from '../engine/composite';
 import { MAX_SIZE, newId, type Layer, type PixelDoc } from '../engine/document';
 import { clamp } from '../engine/math';
 
@@ -16,6 +17,8 @@ export interface BaipixLayer {
   /** Missing in older files: unlocked. */
   locked?: boolean;
   opacity: number;
+  /** Missing in older files, and for normal: normal. A CSS mix-blend-mode name. */
+  blendMode?: string;
   /** Distinct colors as unsigned 32-bit integers (0xAABBGGRR). */
   colors: number[];
   /** Flat list of [colorIndex, runLength] pairs, row-major. */
@@ -96,6 +99,7 @@ export function serializeDocument(doc: PixelDoc): BaipixFile {
       visible: l.visible,
       locked: l.locked,
       opacity: l.opacity,
+      ...(l.blendMode && l.blendMode !== 'normal' && { blendMode: l.blendMode }),
       ...encodePixels(l.pixels),
     })),
   };
@@ -117,6 +121,8 @@ export function deserializeDocument(data: unknown): PixelDoc {
     visible: l.visible !== false,
     locked: l.locked === true,
     opacity: typeof l.opacity === 'number' ? clamp(l.opacity, 0, 1) : 1,
+    ...(BLEND_MODES.includes(l.blendMode as BlendMode) &&
+      l.blendMode !== 'normal' && { blendMode: l.blendMode as BlendMode }),
     pixels: decodePixels(
       Array.isArray(l.colors) ? l.colors : [],
       Array.isArray(l.runs) ? l.runs : [],

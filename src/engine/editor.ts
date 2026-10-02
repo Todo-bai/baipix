@@ -1,5 +1,5 @@
 import { adjustColor, alpha, opaque, withAlpha, type Color, type ColorAdjustment } from './color';
-import { flatten, mergeLayerInto, type FlattenOptions } from './composite';
+import { flatten, mergeLayerInto, type BlendMode, type FlattenOptions } from './composite';
 import {
   activeLayer,
   cloneDocument,
@@ -911,6 +911,16 @@ export class Editor {
   }
 
   /** Opacity drags: one undo step per gesture. Call with `done` on release. */
+  /** The active layer's blend mode, as one undo step. */
+  setLayerBlendMode(mode: BlendMode): void {
+    const layer = activeLayer(this.doc);
+    if ((layer.blendMode ?? 'normal') === mode) return;
+    this.checkpoint();
+    if (mode === 'normal') delete layer.blendMode;
+    else layer.blendMode = mode;
+    this.commit();
+  }
+
   setLayerOpacity(opacity: number, done = false): void {
     if (!this.opacityChange) {
       this.checkpoint();

@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { Fragment, useRef } from 'react';
 import { alpha, opaque, pack } from '../../engine/color';
+import { BLEND_MODE_GROUPS, type BlendMode } from '../../engine/composite';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
 import { PALETTE_PRESETS } from '../../engine/palette';
 import { useT } from '../../i18n';
@@ -225,11 +226,39 @@ function LayerSection() {
       aside={
         <>
           <span className="muted truncate">{layer.name}</span>
+          <IconButton
+            icon={layer.visible ? 'eye' : 'eyeOff'}
+            label={layer.visible ? t('layer.hide') : t('layer.show')}
+            onClick={() => editor.setLayerVisible(index, !layer.visible)}
+          />
           <IconButton icon="panel" label={t('adjust.open')} onClick={() => openAdjust('layer')} />
         </>
       }
     >
       <div className="two-columns">
+        <label className="field">
+          <select
+            value={layer.blendMode ?? 'normal'}
+            aria-label={t('blend.mode')}
+            data-tip={t('blend.mode')}
+            onChange={(e) => editor.setLayerBlendMode(e.target.value as BlendMode)}
+          >
+            {BLEND_MODE_GROUPS.map((group, i) => (
+              <Fragment key={i}>
+                {i > 0 && (
+                  <option disabled aria-hidden="true">
+                    ──────────
+                  </option>
+                )}
+                {group.map((mode) => (
+                  <option key={mode} value={mode}>
+                    {t(`blend.${mode}`)}
+                  </option>
+                ))}
+              </Fragment>
+            ))}
+          </select>
+        </label>
         <NumberField
           value={Math.round(layer.opacity * 100)}
           min={0}
@@ -241,9 +270,6 @@ function LayerSection() {
           sensitivity={2}
           onChange={(v, final) => editor.setLayerOpacity(v / 100, final)}
         />
-        <button type="button" className="btn" onClick={() => editor.setLayerVisible(index, !layer.visible)}>
-          {layer.visible ? t('layer.hide') : t('layer.show')}
-        </button>
       </div>
     </Section>
   );

@@ -1,4 +1,5 @@
 import { alpha, type Color } from './color';
+import type { BlendMode } from './composite';
 import { reframe, type Outside } from './outside';
 
 export const MAX_SIZE = 512;
@@ -11,6 +12,8 @@ export interface Layer {
   locked: boolean;
   /** 0..1 */
   opacity: number;
+  /** How it mixes with the layers under it; missing: normal. */
+  blendMode?: BlendMode;
   /** width × height packed colors, row-major. */
   pixels: Uint32Array;
   /** What was moved off the canvas, kept to bring it back (see outside.ts). */

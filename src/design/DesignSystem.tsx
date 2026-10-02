@@ -564,7 +564,7 @@ function SurfacesBlock() {
         </Specimen>
         <Specimen
           label="Floating window"
-          use="A small tool window over the canvas (the preview): drag it by its title, fold or close it, resize it by its corner."
+          use="A small tool window over the canvas (the preview): drag it by its title, fold or close it, resize it by its corner. Zoomed in on the canvas, a blue frame shows the part in view (a minimap)."
         >
           <div className="floating-preview ds-static ds-window" role="dialog" aria-label="Preview">
             <div className="floating-preview-header">

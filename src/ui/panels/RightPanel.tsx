@@ -1,8 +1,8 @@
 import { Fragment, useRef } from 'react';
-import { alpha, opaque, pack, toHex } from '../../engine/color';
+import { alpha, opaque, pack, toCss, toHex } from '../../engine/color';
 import { BLEND_MODE_GROUPS, type BlendMode } from '../../engine/composite';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
-import { PALETTE_PRESETS } from '../../engine/palette';
+import { PALETTE_PRESETS, presetColors } from '../../engine/palette';
 import { useT } from '../../i18n';
 import { useActions } from '../ActionsContext';
 import { useEditor, useEditorState } from '../EditorContext';
@@ -96,21 +96,48 @@ function PaletteSection() {
       title={t('section.palette')}
       aside={
         <>
-          <select
-            className="select-plain"
-            value={palette.key}
-            onChange={(e) => editor.setPalettePreset(e.target.value)}
+          {/* The palettes with their colors, not just their names. */}
+          <button
+            type="button"
+            className="select-plain palette-picker"
+            aria-haspopup="menu"
             aria-label={t('palette.preset')}
+            data-tip={t('palette.preset')}
+            onClick={(e) =>
+              openMenu(e.currentTarget, [
+                ...Object.entries(PALETTE_PRESETS)
+                  .filter(([key]) => key === palette.key || !hidden.includes(key))
+                  .map(([key, p]) => {
+                    const colors = presetColors(key);
+                    return {
+                      label: p.name,
+                      shortcut: String(colors.length),
+                      checked: key === palette.key,
+                      swatches: colors.map(toCss),
+                      onSelect: () => editor.setPalettePreset(key),
+                    };
+                  }),
+                ...(palette.custom
+                  ? [
+                      {
+                        label: t('palette.custom'),
+                        shortcut: String(palette.custom.length),
+                        checked: palette.key === 'custom',
+                        swatches: palette.custom.map(toCss),
+                        onSelect: () => editor.setPalettePreset('custom'),
+                      },
+                    ]
+                  : []),
+                '-',
+                { label: t('palette.manage'), onSelect: () => openDialog({ type: 'paletteManager' }) },
+              ])
+            }
           >
-            {Object.entries(PALETTE_PRESETS)
-              .filter(([key]) => key === palette.key || !hidden.includes(key))
-              .map(([key, p]) => (
-                <option key={key} value={key}>
-                  {p.name}
-                </option>
-              ))}
-            {palette.custom && <option value="custom">{t('palette.custom')}</option>}
-          </select>
+            <span className="truncate">
+              {palette.key === 'custom' ? t('palette.custom') : PALETTE_PRESETS[palette.key]?.name}
+            </span>
+            <span className="caret">▾</span>
+          </button>
           <IconButton
             icon="more"
             label={t('palette.actions')}

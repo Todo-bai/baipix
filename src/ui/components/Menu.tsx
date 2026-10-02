@@ -17,6 +17,8 @@ export type MenuItem =
       shortcut?: string;
       checked?: boolean;
       disabled?: boolean;
+      /** CSS colors shown as a strip under the label (a palette). */
+      swatches?: string[];
       /** A submenu, opened on hover, click or →. */
       items?: MenuItem[];
       onSelect?: () => void;
@@ -143,7 +145,9 @@ function MenuPanel({
             role="menuitem"
             aria-haspopup={item.items ? 'menu' : undefined}
             aria-expanded={item.items ? open?.index === i : undefined}
-            className={`menu-item${item.checked ? ' is-checked' : ''}${item.items ? ' has-submenu' : ''}`}
+            className={`menu-item${item.checked ? ' is-checked' : ''}${item.items ? ' has-submenu' : ''}${
+              item.swatches ? ' has-swatches' : ''
+            }`}
             disabled={item.disabled}
             onPointerEnter={(e) => {
               if (item.items) openSub(i, e.currentTarget, false);
@@ -159,6 +163,13 @@ function MenuPanel({
             <span>{item.label}</span>
             {item.shortcut && <span className="menu-shortcut">{formatShortcut(item.shortcut)}</span>}
             {item.items && <span className="menu-chevron" aria-hidden="true" />}
+            {item.swatches && (
+              <span className="menu-swatches" aria-hidden="true">
+                {item.swatches.map((c, k) => (
+                  <i key={k} style={{ background: c }} />
+                ))}
+              </span>
+            )}
           </button>
         ),
       )}

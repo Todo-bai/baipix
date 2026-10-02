@@ -63,7 +63,10 @@ export function HomeScreen() {
   const files = useEditorState((s) => s.files);
   const [dropping, setDropping] = useState(false);
   const docs = editor.getDocuments();
-  const shown = files.filter((f) => !isUntouchedStarter(f)).sort((a, b) => b.updatedAt - a.updatedAt);
+  // Neither the blank starter nor a new file left untouched: they'd be empty cards.
+  const shown = files
+    .filter((f) => !isUntouchedStarter(f) && !editor.isFresh(f.id))
+    .sort((a, b) => b.updatedAt - a.updatedAt);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

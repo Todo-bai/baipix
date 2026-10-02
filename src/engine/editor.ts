@@ -255,6 +255,8 @@ export class Editor {
   private opacityChange = false;
   private deleted: Deleted | null = null;
   private recent: Color[] = [];
+  /** New files left untouched so far: any change to one takes it out. */
+  private fresh = new Set<string>();
   private brushes: CustomBrush[] = [];
   private revision = 0;
   private state!: EditorState;
@@ -369,6 +371,7 @@ export class Editor {
   /** Dates the active file's last change. */
   private touch(): void {
     this.doc.updatedAt = Date.now();
+    this.fresh.delete(this.doc.id);
   }
 
   private restore(snapshot: Snapshot): void {
@@ -444,7 +447,30 @@ export class Editor {
     const w = clamp(Math.round(width), 1, MAX_SIZE);
     const h = clamp(Math.round(height), 1, MAX_SIZE);
     this.addSession(createDocument(name, w, h, this.labels.layer(1)));
+    this.dropFresh();
+    this.markFresh();
     this.commit();
+  }
+
+  /**
+   * A new file left as it was created (nothing drawn, renamed or changed since): it isn't worth
+   * keeping, so it goes away once you leave it, and isn't saved.
+   */
+  isFresh(id: string): boolean {
+    const s = this.sessions.find((x) => x.doc.id === id);
+    return !!s && this.fresh.has(id);
+  }
+
+  /** The active file counts as just created, as it is now (once a template has set it up). */
+  markFresh(): void {
+    this.fresh.add(this.doc.id);
+  }
+
+  /** Drops the fresh files other than the active one. */
+  private dropFresh(): void {
+    const stale = this.sessions.filter((s) => s !== this.active && this.isFresh(s.doc.id));
+    for (const s of stale) this.fresh.delete(s.doc.id);
+    this.sessions = this.sessions.filter((s) => !stale.includes(s));
   }
 
   /** Adds an existing document (import, open file). */
@@ -477,6 +503,7 @@ export class Editor {
     this.cancelStroke();
     this.cancelAdjust();
     this.active = target;
+    this.dropFresh();
     this.commit();
   }
 
@@ -486,6 +513,7 @@ export class Editor {
     if (!s || !clean || clean === s.doc.name) return;
     s.doc.name = clean;
     s.doc.updatedAt = Date.now();
+    this.fresh.delete(id);
     this.commit();
   }
 
@@ -676,6 +704,7 @@ export class Editor {
       pixelSize: clamp(render.pixelSize ?? this.doc.render.pixelSize, 1, 64),
       gap: clamp(render.gap ?? this.doc.render.gap, 0, 64),
     };
+    this.touch();
     this.commit();
   }
 

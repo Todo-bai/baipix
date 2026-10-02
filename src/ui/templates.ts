@@ -40,4 +40,6 @@ export function createFromTemplate(editor: Editor, template: Template, name?: st
     for (let y = cells; y < height; y += cells) editor.setGuide('y', null, y);
     editor.setView('rulers', true);
   }
+  // Set up, but still untouched: it goes away if left as it is.
+  editor.markFresh();
 }

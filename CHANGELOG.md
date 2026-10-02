@@ -37,6 +37,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- A new file left untouched (nothing drawn, renamed or changed) goes away when you move to another file or create one, isn't listed on the home screen, and isn't saved. (#206)
 - The palette picker shows each palette's colors and how many there are, instead of a list of names. (#203)
 - The editor starts in English, even when the browser is in French. French is one click away in View › Language, and the choice is remembered. (#198)
 - The left panel is lighter: the Files list is gone (the home screen lists the drawings), and a button next to the file name opens the recent files, this file's actions, a new file and all files. The panel is as tall as its layers, up to the window, and the main menu (the logo) no longer repeats the file commands, which are all in the files menu. On phones, the file name in the top bar opens it. (#193)

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { alpha, opaque, toCss, toHex, type Color } from '../../engine/color';
+import { openMenu, type MenuItem } from './Menu';
 
 interface PaletteGridProps {
   colors: Color[];
@@ -8,9 +9,11 @@ interface PaletteGridProps {
   onPick: (color: Color, secondary: boolean) => void;
   /** Makes the swatches draggable to reorder them. `to` is the color's new index. */
   onMove?: (from: number, to: number) => void;
+  /** A right-click menu for a swatch. Without one, right-click picks the secondary color. */
+  menu?: (color: Color) => MenuItem[];
 }
 
-export function PaletteGrid({ colors, primary, secondary, onPick, onMove }: PaletteGridProps) {
+export function PaletteGrid({ colors, primary, secondary, onPick, onMove, menu }: PaletteGridProps) {
   const isPrimary = (c: Color) => alpha(primary) > 0 && opaque(primary) === c;
   const isSecondary = (c: Color) =>
     secondary !== undefined && alpha(secondary) > 0 && opaque(secondary) === c;
@@ -91,7 +94,8 @@ export function PaletteGrid({ colors, primary, secondary, onPick, onMove }: Pale
             }}
             onContextMenu={(e) => {
               e.preventDefault();
-              onPick(c, true);
+              if (menu) openMenu(e.currentTarget, menu(c));
+              else onPick(c, true);
             }}
           />
         );

@@ -971,3 +971,33 @@ describe('Eraser', () => {
     expect(painted(e)).toBe(0);
   });
 });
+
+describe('replaceColor', () => {
+  it('replaces a color in the drawing and the palette, as one undo step', () => {
+    const e = new Editor();
+    const BLUE = pack(0, 0, 255);
+    e.setPaletteColors([RED, pack(0, 255, 0)]);
+    e.setColor('primary', RED);
+    drag(e, [
+      [0, 0],
+      [2, 0],
+    ]);
+    expect(e.replaceColor(RED, BLUE)).toBe(3);
+    expect([...layer(e)].filter((c) => c === BLUE)).toHaveLength(3);
+    expect(e.getState().palette.colors).toEqual([BLUE, pack(0, 255, 0)]);
+    e.undo();
+    expect([...layer(e)].filter((c) => c === RED)).toHaveLength(3);
+    expect(e.getState().palette.colors).toEqual([RED, pack(0, 255, 0)]);
+    e.redo();
+    expect(e.getState().palette.colors).toEqual([BLUE, pack(0, 255, 0)]);
+  });
+
+  it('leaves locked layers alone', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    drag(e, [[0, 0]]);
+    e.setLayerLocked(0, true);
+    expect(e.replaceColor(RED, pack(0, 0, 255))).toBe(0);
+    expect(layer(e)[0]).toBe(RED);
+  });
+});

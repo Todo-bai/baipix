@@ -54,6 +54,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Website
 
+- New screenshots of the editor on the home page, with the menu bar and the floating preview, and feature cards for what's new: the command palette, Remap, the Lasso fill, Spray and custom brushes, Liquify and Jumble, seamless tiles, the reference image. (#197)
 - The design system shows the tabs. (#184)
 - The design system shows the color row (swatch, hex and opacity). (#181)
 - The design system shows the segmented icon buttons (like the brush tip choice). (#179)

@@ -14,8 +14,8 @@ const clone = 'git clone https://github.com/baipix/baipix.git\ncd baipix\nnpm in
 
 const features = [
   {
-    title: 'Simple, light, familiar',
-    text: "Layers on the left, tools at the bottom, properties on the right. If you use Figma, you'll find your way around right away.",
+    title: 'Familiar from the first click',
+    text: "A menu bar with every shortcut, a command palette on Ctrl+K, layers on the left, properties on the right. If you use Figma, you'll find your way around right away.",
     icon: ['#######', '#.#...#', '#.#...#', '#.#...#', '#.#...#', '#.#...#', '#######'],
   },
   {
@@ -29,8 +29,8 @@ const features = [
     icon: ['#.#.#.#', '.......', '#.#.#.#', '.......', '#.#.#.#', '.......', '#.#.#.#'],
   },
   {
-    title: 'Shading that follows the palette',
-    text: 'Lighten and shade along the ramp of the color, with an optional hue shift, or adjust hue and saturation of the whole drawing in one pass.',
+    title: 'Colors that follow the palette',
+    text: 'Lighten and shade along the ramp of the color. Adjust hue and saturation in one pass, or remap a whole drawing to another palette, matched by nearest color or by lightness.',
     icon: ['......#', '.....##', '....###', '...####', '..#####', '.######', '#######'],
   },
   {
@@ -39,24 +39,24 @@ const features = [
     icon: ['###.###', '###.###', '###.###', '.......', '###.###', '###.#.#', '###.###'],
   },
   {
-    title: 'Pixel-perfect drawing',
-    text: 'A pixel-perfect pencil, dithering, shapes from lines to stars, a fill, and an eyedropper with a loupe that shows the hex code.',
+    title: 'Drawing, pixel by pixel',
+    text: 'A pixel-perfect pencil with a stabilizer, a lasso fill, a spray, dithering patterns, shapes from lines to stars, and brushes made from your own selection.',
     icon: ['...#...', '..###..', '#######', '.#####.', '..###..', '.##.##.', '.#...#.'],
   },
   {
-    title: 'Symmetry, anywhere',
-    text: 'Mirror left-right, top-bottom or both, around axes you drag anywhere on the canvas. Tile preview shows seamless patterns as you draw.',
+    title: 'Rework without new colors',
+    text: 'Liquify pushes, grows or shrinks a part of the drawing, Jumble shuffles pixels for texture, Blur softens edges. All of them stay sharp and inside your palette.',
+    icon: ['#......', '.#.....', '..#.#..', '...#...', '..#.#..', '.....#.', '......#'],
+  },
+  {
+    title: 'Symmetry and seamless tiles',
+    text: 'Mirror left-right, top-bottom or both, around axes you drag anywhere. In tile preview, strokes wrap around the edges, so textures repeat without a seam.',
     icon: ['#..#..#', '##.#.##', '###.###', '###.###', '###.###', '##.#.##', '#..#..#'],
   },
   {
-    title: 'Layers like a design tool',
-    text: 'Lock, hide, show only one, select several with Shift, drag them around, merge or flatten. Deleted by mistake? Undo is right in the toast.',
+    title: 'Layers, reference and preview',
+    text: 'Layers like a design tool, with handles to move and resize them. A reference image to trace over, and a floating preview window with its own zoom.',
     icon: ['#######', '.......', '.#####.', '.......', '..###..', '.......', '...#...'],
-  },
-  {
-    title: 'Private by default',
-    text: 'No account, no upload. Your drawings are saved in your browser as you go, several files at once, and never leave your device.',
-    icon: ['..###..', '.#...#.', '.#...#.', '#######', '###.###', '###.###', '#######'],
   },
 ];
 ---
@@ -113,14 +113,14 @@ const features = [
             src={`${base}screenshot-light.png`}
             width="1440"
             height="900"
-            alt="The Baipix editor with a pixel art sunset: files and layers on the left, tools at the bottom, properties on the right."
+            alt="The Baipix editor with a pixel art sunset: the menu bar on top, layers and a floating preview on the left, tools at the bottom, properties on the right."
           />
           <img
             class="for-dark"
             src={`${base}screenshot-dark.png`}
             width="1440"
             height="900"
-            alt="The Baipix editor with a pixel art sunset: files and layers on the left, tools at the bottom, properties on the right."
+            alt="The Baipix editor with a pixel art sunset: the menu bar on top, layers and a floating preview on the left, tools at the bottom, properties on the right."
             loading="lazy"
           />
           <span class="shot-pixel" aria-hidden="true"></span>

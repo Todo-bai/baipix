@@ -14,6 +14,12 @@ export interface Theme {
   accentInk: string;
   muted: string;
   axis: string;
+  guide: string;
+  /** Rulers: their background, edge, the band over the drawing, and the text. */
+  panel: string;
+  line: string;
+  selected: string;
+  text: string;
   /** Selection corners. */
   handle: string;
 }
@@ -44,6 +50,11 @@ export function readTheme(el: Element = document.documentElement): Theme {
     accentInk: v('--accent-ink'),
     muted: v('--muted'),
     axis: v('--axis'),
+    guide: v('--guide'),
+    panel: v('--menubar'),
+    line: v('--line'),
+    selected: v('--selected'),
+    text: v('--text'),
     handle: v('--handle'),
   };
   probe.remove();

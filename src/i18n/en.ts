@@ -343,6 +343,9 @@ export const en = {
   'display.tile': 'Tile preview',
   'display.tileOpacity': 'Copies',
   'display.mirrorX': 'Left-right symmetry',
+  'display.rulers': 'Rulers and guides',
+  'display.rulersHint':
+    'Drag from a ruler to add a guide. With the Move tool, drag a guide to move it, or back onto its ruler to remove it.',
   'display.mirrorY': 'Top-bottom symmetry',
 
   'export.button': 'Export',

@@ -304,6 +304,11 @@ export const MENU_BAR: MenuBarMenu[] = [
           onSelect: () => editor.toggleView('mirrorY'),
         },
         {
+          label: t('display.rulers'),
+          checked: s.view.rulers,
+          onSelect: () => editor.toggleView('rulers'),
+        },
+        {
           label: t('menu.preview'),
           shortcut: 'Shift+P',
           checked: uiStore.get().preview.open,

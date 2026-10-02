@@ -18,6 +18,9 @@ import {
   labelRect,
   type BrushPreview,
   type SceneReference,
+  drawRulers,
+  guidePosition,
+  RULER,
 } from '../render/drawScene';
 import { readTheme, type Theme } from '../render/theme';
 import { BRUSH_TOOLS, SHAPE_IDS } from '../tools';
@@ -88,6 +91,8 @@ export function CanvasView() {
     let altHeld = false;
     // Dragging a symmetry axis by its grip.
     let axisDrag: 'x' | 'y' | null = null;
+    // Dragging a guide out of a ruler (index null) or an existing one (with the Move tool).
+    let guideDrag: { axis: 'x' | 'y'; index: number | null; at: number } | null = null;
     let sprayTimer = 0;
     // Adjusting the reference image: moving it, or resizing it from a corner (the opposite one stays).
     let refDrag: {
@@ -189,6 +194,37 @@ export function CanvasView() {
       if (view.mirrorY && Math.abs(py - ay) <= near && outsideX) return 'y';
       return null;
     };
+    /** With rulers shown: the ruler under the pointer, by the guides it makes (left: x, top: y). */
+    const rulerAt = (l: { x: number; y: number }): 'x' | 'y' | null => {
+      if (!editor.getState().view.rulers) return null;
+      const c = viewport.covered();
+      if (l.x < c.left || l.x > viewport.width - c.right) return null;
+      if (l.y <= RULER && l.x > c.left + RULER) return 'y';
+      if (l.x <= c.left + RULER && l.y > RULER) return 'x';
+      return null;
+    };
+    /** The guide under the pointer, with the Move tool (the one that moves things). */
+    const guideAt = (l: { x: number; y: number }): { axis: 'x' | 'y'; index: number } | null => {
+      const { doc, view, tool } = editor.getState();
+      if (!view.rulers || tool !== 'move' || !doc.guides) return null;
+      const cam = camera();
+      const near = 4 * cam.dpr;
+      const ix = doc.guides.x.findIndex(
+        (g) => Math.abs(guidePosition(g, cam.originX, cam) - l.x * cam.dpr) <= near,
+      );
+      if (ix >= 0) return { axis: 'x', index: ix };
+      const iy = doc.guides.y.findIndex(
+        (g) => Math.abs(guidePosition(g, cam.originY, cam) - l.y * cam.dpr) <= near,
+      );
+      return iy >= 0 ? { axis: 'y', index: iy } : null;
+    };
+    /** The pixel edge nearest the pointer, along `axis`. */
+    const edgeAt = (axis: 'x' | 'y', l: { x: number; y: number }) => {
+      const cam = camera();
+      const at = axis === 'x' ? l.x * cam.dpr - cam.originX : l.y * cam.dpr - cam.originY;
+      return Math.round((at + cam.gap / 2) / cam.scale);
+    };
+
     const dragAxis = (l: { x: number; y: number }) => {
       const cam = camera();
       if (axisDrag === 'x')
@@ -301,6 +337,24 @@ export function CanvasView() {
         camera(),
         theme,
       );
+      if (live.view.rulers) {
+        const covered = viewport.covered();
+        const guides = { x: [...(live.doc.guides?.x ?? [])], y: [...(live.doc.guides?.y ?? [])] };
+        if (guideDrag) {
+          const list = guides[guideDrag.axis];
+          if (guideDrag.index === null) list.push(guideDrag.at);
+          else list[guideDrag.index] = guideDrag.at;
+        }
+        drawRulers(
+          ctx,
+          canvas.width,
+          canvas.height,
+          live.doc,
+          { ...covered, guides, active: guideDrag && { axis: guideDrag.axis, at: guideDrag.at } },
+          camera(),
+          theme,
+        );
+      }
       if (live.selection && !reduceMotion) frame = requestAnimationFrame(draw);
     };
 
@@ -537,6 +591,14 @@ export function CanvasView() {
       }
       if (e.button !== 0 && e.button !== 2) return;
       const l = local(e);
+      const ruler = e.button === 0 ? rulerAt(l) : null;
+      const guide = e.button === 0 && !ruler ? guideAt(l) : null;
+      if (ruler || guide) {
+        const axis = ruler ?? guide!.axis;
+        guideDrag = { axis, index: guide ? guide.index : null, at: edgeAt(axis, l) };
+        request();
+        return;
+      }
       const axis = e.button === 0 ? axisAt(l) : null;
       if (axis) {
         axisDrag = axis;
@@ -594,6 +656,11 @@ export function CanvasView() {
         });
         return;
       }
+      if (guideDrag) {
+        guideDrag.at = edgeAt(guideDrag.axis, local(e));
+        request();
+        return;
+      }
       if (axisDrag) {
         dragAxis(local(e));
         return;
@@ -607,9 +674,11 @@ export function CanvasView() {
         request();
         return;
       }
-      const onAxis = editor.isStroking ? null : axisAt(local(e));
+      const here = local(e);
+      const onAxis = editor.isStroking ? null : (axisAt(here) ?? guideAt(here)?.axis ?? null);
       canvas.classList.toggle('on-axis-x', onAxis === 'x');
       canvas.classList.toggle('on-axis-y', onAxis === 'y');
+      canvas.classList.toggle('on-ruler', !editor.isStroking && rulerAt(here) !== null);
       const events = editor.isStroking && e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       for (const ev of events.length ? events : [e]) {
         const l = local(ev);
@@ -646,6 +715,16 @@ export function CanvasView() {
         canvas.style.cursor = '';
         return;
       }
+      if (guideDrag) {
+        // Dropped back on its ruler: no guide (a new one is dropped, an existing one removed).
+        const { axis, index, at } = guideDrag;
+        guideDrag = null;
+        if (rulerAt(local(e)) === axis) {
+          if (index !== null) editor.setGuide(axis, index, null);
+        } else editor.setGuide(axis, index, at);
+        request();
+        return;
+      }
       if (axisDrag) {
         axisDrag = null;
         return;
@@ -672,6 +751,7 @@ export function CanvasView() {
       panStart = null;
       pinch = null;
       axisDrag = null;
+      guideDrag = null;
       if (refDrag) editor.updateReference(refDrag.rect);
       refDrag = null;
       if (scaleDrag) editor.cancelScale();

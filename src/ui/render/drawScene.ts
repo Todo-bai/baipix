@@ -522,3 +522,122 @@ function drawLoupe(
   ctx.fillText(loupe.text, bx + pw / 2, by + ph / 2 + 0.5 * dpr);
   ctx.textAlign = 'start';
 }
+
+/** How thick the rulers are, in CSS pixels. */
+export const RULER = 18;
+/** Ruler steps, in art pixels: the first one far enough apart for its labels. */
+const RULER_STEPS = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+
+/** Where a guide on pixel edge `at` is on screen, in device pixels (in the gap's middle, if any). */
+export const guidePosition = (at: number, origin: number, camera: Camera): number =>
+  origin + at * camera.scale - (at > 0 ? camera.gap / 2 : 0);
+
+export interface RulerScene {
+  /** Width hidden by the side panels, in CSS pixels: the rulers run between them. */
+  left: number;
+  right: number;
+  guides: { x: number[]; y: number[] };
+  /** The guide being dragged, labeled with its position on its ruler. */
+  active: { axis: 'x' | 'y'; at: number } | null;
+}
+
+/**
+ * Guides across the workspace, and rulers along its top and left edges (between the side
+ * panels) in art pixels, with the drawing's extent shaded. Drawn over the scene.
+ */
+export function drawRulers(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  doc: PixelDoc,
+  rulers: RulerScene,
+  camera: Camera,
+  theme: Theme,
+): void {
+  const { dpr, scale: s, originX: X, originY: Y } = camera;
+  const lw = Math.max(1, Math.round(dpr));
+  const R = Math.round(RULER * dpr);
+  const L = Math.round(rulers.left * dpr);
+  const right = width - Math.round(rulers.right * dpr);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  ctx.fillStyle = theme.guide;
+  for (const g of rulers.guides.x)
+    ctx.fillRect(Math.round(guidePosition(g, X, camera) - lw / 2), 0, lw, height);
+  for (const g of rulers.guides.y)
+    ctx.fillRect(L, Math.round(guidePosition(g, Y, camera) - lw / 2), right - L, lw);
+
+  // Backgrounds, with the drawing's extent shaded.
+  ctx.fillStyle = theme.panel;
+  ctx.fillRect(L, 0, right - L, R);
+  ctx.fillRect(L, R, R, height - R);
+  ctx.fillStyle = theme.selected;
+  const x0 = Math.max(L + R, X);
+  const x1 = Math.min(right, X + doc.width * s - camera.gap);
+  if (x1 > x0) ctx.fillRect(x0, 0, x1 - x0, R);
+  const y0 = Math.max(R, Y);
+  const y1 = Math.min(height, Y + doc.height * s - camera.gap);
+  if (y1 > y0) ctx.fillRect(L, y0, R, y1 - y0);
+  ctx.fillStyle = theme.line;
+  ctx.fillRect(L, R - lw, right - L, lw);
+  ctx.fillRect(L + R - lw, R, lw, height - R);
+
+  // Ticks every `minor` pixels, numbered every `step`.
+  const step = RULER_STEPS.find((v) => v * s >= 48 * dpr) ?? 1000;
+  const minor =
+    [step / 10, step / 5, step / 2, step].find((v) => Number.isInteger(v) && v * s >= 6 * dpr) ?? step;
+  ctx.font = `500 ${Math.round(9 * dpr)}px ${FONT}`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  const ticks = (
+    from: number,
+    to: number,
+    origin: number,
+    draw: (pos: number, n: number, major: boolean) => void,
+  ) => {
+    const first = Math.ceil((from - origin) / s / minor) * minor;
+    for (let n = first; origin + n * s <= to; n += minor)
+      draw(guidePosition(n, origin, camera), n, n % step === 0);
+  };
+  ctx.fillStyle = theme.muted;
+  ticks(L + R, right, X, (x, n, major) => {
+    const h = major ? R / 2 : R / 4;
+    ctx.fillRect(Math.round(x), R - h, lw, h);
+    if (major) ctx.fillText(String(n), Math.round(x + 3 * dpr), Math.round(R * 0.38));
+  });
+  ticks(R, height, Y, (y, n, major) => {
+    const w = major ? R / 2 : R / 4;
+    ctx.fillRect(L + R - w, Math.round(y), w, lw);
+    if (!major) return;
+    ctx.save();
+    ctx.translate(L + Math.round(R * 0.38), Math.round(y - 3 * dpr));
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(String(n), 0, 0);
+    ctx.restore();
+  });
+
+  // The dragged guide's position, in a tag on its ruler.
+  const a = rulers.active;
+  if (a) {
+    const text = String(a.at);
+    const pad = Math.round(4 * dpr);
+    const tw = Math.round(ctx.measureText(text).width) + pad * 2;
+    const th = R - Math.round(4 * dpr);
+    ctx.fillStyle = theme.guide;
+    if (a.axis === 'x') {
+      const x = Math.round(guidePosition(a.at, X, camera) - tw / 2);
+      ctx.fillRect(x, Math.round(2 * dpr), tw, th);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(text, x + pad, Math.round(R / 2));
+    } else {
+      const y = Math.round(guidePosition(a.at, Y, camera));
+      ctx.save();
+      ctx.translate(L + Math.round(2 * dpr), y + tw / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillRect(0, 0, tw, th);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(text, pad, Math.round(th / 2));
+      ctx.restore();
+    }
+  }
+}

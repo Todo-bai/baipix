@@ -868,6 +868,9 @@ body.is-resizing * {
 .canvas.on-handle-nesw {
   cursor: nesw-resize !important;
 }
+.canvas.on-ruler {
+  cursor: default;
+}
 .canvas.on-axis-x {
   cursor: ew-resize;
 }

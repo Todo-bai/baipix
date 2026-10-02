@@ -47,10 +47,12 @@ export interface ViewSettings {
   tileOpacity: number;
   mirrorX: boolean;
   mirrorY: boolean;
+  /** Rulers along the workspace edges, and the guides dragged out of them. */
+  rulers: boolean;
 }
 
 /** View settings that are switched on and off. */
-type ViewToggle = 'grid' | 'tile' | 'mirrorX' | 'mirrorY';
+type ViewToggle = 'grid' | 'tile' | 'mirrorX' | 'mirrorY' | 'rulers';
 
 export const DEFAULT_TILE_OPACITY = 0.65;
 
@@ -228,6 +230,7 @@ export class Editor {
     tileOpacity: DEFAULT_TILE_OPACITY,
     mirrorX: false,
     mirrorY: false,
+    rulers: false,
   };
   private clipboard: PixelBlock | null = null;
   private stroke: Stroke | null = null;
@@ -370,10 +373,12 @@ export class Editor {
 
   private restore(snapshot: Snapshot): void {
     if (snapshot.palette) this.usePalette(snapshot.palette);
-    // The reference image isn't part of the history: undo and redo leave it where it is.
-    const { reference } = this.active.doc;
+    // The reference image and the guides aren't part of the history: undo and redo leave them.
+    const { reference, guides } = this.active.doc;
     snapshot.doc.reference = reference;
     if (!reference) delete snapshot.doc.reference;
+    snapshot.doc.guides = guides;
+    if (!guides) delete snapshot.doc.guides;
     this.active.doc = snapshot.doc;
     this.active.selection = snapshot.selection;
   }
@@ -644,6 +649,26 @@ export class Editor {
     if (next === size / 2) delete doc[key];
     else doc[key] = next;
     this.commit();
+  }
+
+  /**
+   * Adds a guide (`index` null), moves one, or removes it (`at` null). On pixel edges, so `at` is
+   * rounded. Returns the guide's index (or -1 once removed).
+   */
+  setGuide(axis: 'x' | 'y', index: number | null, at: number | null): number {
+    const guides = this.doc.guides ?? { x: [], y: [] };
+    const list = [...guides[axis]];
+    let i = index ?? list.length;
+    if (at === null) {
+      if (index !== null) list.splice(index, 1);
+      i = -1;
+    } else list[i] = Math.round(at);
+    const next = { ...guides, [axis]: list };
+    if (next.x.length || next.y.length) this.doc.guides = next;
+    else delete this.doc.guides;
+    this.touch();
+    this.commit();
+    return i;
   }
 
   setRender(render: Partial<RenderSettings>): void {
@@ -1098,7 +1123,7 @@ export class Editor {
     if (typeof p.primary === 'number') this.primary = p.primary >>> 0;
     if (typeof p.secondary === 'number') this.secondary = p.secondary >>> 0;
     if (p.view) {
-      const { grid, tile, tileOpacity, mirrorX, mirrorY } = { ...this.view, ...p.view };
+      const { grid, tile, tileOpacity, mirrorX, mirrorY, rulers } = { ...this.view, ...p.view };
       // Older saves also had showGap, and no tileOpacity.
       this.view = {
         grid,
@@ -1106,6 +1131,7 @@ export class Editor {
         tileOpacity: typeof tileOpacity === 'number' ? clamp(tileOpacity, 0, 1) : DEFAULT_TILE_OPACITY,
         mirrorX,
         mirrorY,
+        rulers: rulers === true,
       };
     }
     if (Array.isArray(p.brushes))

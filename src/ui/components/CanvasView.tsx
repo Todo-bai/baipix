@@ -197,10 +197,8 @@ export function CanvasView() {
     /** With rulers shown: the ruler under the pointer, by the guides it makes (left: x, top: y). */
     const rulerAt = (l: { x: number; y: number }): 'x' | 'y' | null => {
       if (!editor.getState().view.rulers) return null;
-      const c = viewport.covered();
-      if (l.x < c.left || l.x > viewport.width - c.right) return null;
-      if (l.y <= RULER && l.x > c.left + RULER) return 'y';
-      if (l.x <= c.left + RULER && l.y > RULER) return 'x';
+      if (l.y <= RULER && l.x > RULER) return 'y';
+      if (l.x <= RULER && l.y > RULER) return 'x';
       return null;
     };
     /** The guide under the pointer, with the Move tool (the one that moves things). */
@@ -338,7 +336,6 @@ export function CanvasView() {
         theme,
       );
       if (live.view.rulers) {
-        const covered = viewport.covered();
         const guides = { x: [...(live.doc.guides?.x ?? [])], y: [...(live.doc.guides?.y ?? [])] };
         if (guideDrag) {
           const list = guides[guideDrag.axis];
@@ -350,7 +347,7 @@ export function CanvasView() {
           canvas.width,
           canvas.height,
           live.doc,
-          { ...covered, guides, active: guideDrag && { axis: guideDrag.axis, at: guideDrag.at } },
+          { guides, active: guideDrag && { axis: guideDrag.axis, at: guideDrag.at } },
           camera(),
           theme,
         );

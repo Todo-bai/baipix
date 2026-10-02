@@ -533,17 +533,14 @@ export const guidePosition = (at: number, origin: number, camera: Camera): numbe
   origin + at * camera.scale - (at > 0 ? camera.gap / 2 : 0);
 
 export interface RulerScene {
-  /** Width hidden by the side panels, in CSS pixels: the rulers run between them. */
-  left: number;
-  right: number;
   guides: { x: number[]; y: number[] };
   /** The guide being dragged, labeled with its position on its ruler. */
   active: { axis: 'x' | 'y'; at: number } | null;
 }
 
 /**
- * Guides across the workspace, and rulers along its top and left edges (between the side
- * panels) in art pixels, with the drawing's extent shaded. Drawn over the scene.
+ * Guides across the workspace, and rulers along its top and left edges in art pixels, with the
+ * drawing's extent shaded. Drawn over the scene; the panels move aside to show them.
  */
 export function drawRulers(
   ctx: CanvasRenderingContext2D,
@@ -557,8 +554,8 @@ export function drawRulers(
   const { dpr, scale: s, originX: X, originY: Y } = camera;
   const lw = Math.max(1, Math.round(dpr));
   const R = Math.round(RULER * dpr);
-  const L = Math.round(rulers.left * dpr);
-  const right = width - Math.round(rulers.right * dpr);
+  const L = 0;
+  const right = width;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 
   ctx.fillStyle = theme.guide;

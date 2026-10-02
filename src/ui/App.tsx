@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import type { Editor } from '../engine/editor';
 import { setLocale, t, useT, type Locale } from '../i18n';
 import { importLegacyWorkspace } from '../io/legacy';
@@ -131,7 +131,11 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
     '--left-width': `${panelWidths.left}px`,
     '--right-width': `${panelWidths.right}px`,
   } as CSSProperties;
-  const classes = ['app', uiHidden && 'ui-hidden', sheet && `sheet-${sheet}`].filter(Boolean).join(' ');
+  // Rulers run along the workspace's top and left edges: the panels make room for them.
+  const rulers = useSyncExternalStore(editor.subscribe, () => editor.getState().view.rulers);
+  const classes = ['app', uiHidden && 'ui-hidden', sheet && `sheet-${sheet}`, rulers && 'has-rulers']
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <EditorContext.Provider value={editor}>

@@ -28,12 +28,14 @@ export function pixelIndex(s: Stroke, x: number, y: number): number {
 /**
  * Writes a pixel if it lies on the canvas and inside the selection. With the `blend` option, a
  * semi-transparent color mixes with the pixel as it was when the stroke started, so going over the
- * same spot twice in one stroke doesn't build it up.
+ * same spot twice in one stroke doesn't build it up. Fully transparent (the Eraser) always clears:
+ * blended, it would leave the pixel as it was.
  */
 export function setPixel(s: Stroke, x: number, y: number, color: Color): void {
   const i = pixelIndex(s, x, y);
   if (i < 0) return;
-  s.layer.pixels[i] = s.options.blend && alpha(color) < 255 ? blendOver(color, s.base[i]) : color;
+  const a = alpha(color);
+  s.layer.pixels[i] = s.options.blend && a > 0 && a < 255 ? blendOver(color, s.base[i]) : color;
 }
 
 /** Every mirrored copy of a single pixel. */

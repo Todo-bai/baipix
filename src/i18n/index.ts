@@ -11,7 +11,8 @@ export const LOCALES: { id: Locale; label: string }[] = [
   { id: 'fr', label: 'Français' },
 ];
 
-let locale: Locale = navigator.language?.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+// English by default, whatever the browser's language; the choice in View › Language is saved.
+let locale: Locale = 'en';
 const listeners = new Set<() => void>();
 
 export const getLocale = (): Locale => locale;

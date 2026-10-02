@@ -9,6 +9,8 @@ import { IconButton } from '../components/IconButton';
 import { openMenu } from '../components/Menu';
 import { isUntouchedStarter, leaveHome } from '../home';
 import { fileMenu } from '../menus';
+import { TemplateCards } from '../components/TemplateCards';
+import { createFromTemplate } from '../templates';
 import { openDialog } from '../uiStore';
 
 const DAY = 86_400_000;
@@ -61,7 +63,10 @@ export function HomeScreen() {
   const files = useEditorState((s) => s.files);
   const [dropping, setDropping] = useState(false);
   const docs = editor.getDocuments();
-  const shown = files.filter((f) => !isUntouchedStarter(f)).sort((a, b) => b.updatedAt - a.updatedAt);
+  // Neither the blank starter nor a new file left untouched: they'd be empty cards.
+  const shown = files
+    .filter((f) => !isUntouchedStarter(f) && !editor.isFresh(f.id))
+    .sort((a, b) => b.updatedAt - a.updatedAt);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -121,6 +126,18 @@ export function HomeScreen() {
             </button>
           </div>
           <p className="home-formats muted">{t('home.formats')}</p>
+          {/* First launch: a click on a template and the canvas is ready, palette and all. */}
+          {shown.length === 0 && (
+            <div className="home-templates">
+              <p className="muted">{t('template.start')}</p>
+              <TemplateCards
+                onPick={(template) => {
+                  createFromTemplate(editor, template, t('default.untitled'));
+                  leaveHome(editor);
+                }}
+              />
+            </div>
+          )}
         </section>
 
         {shown.length > 0 && (

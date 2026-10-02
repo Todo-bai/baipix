@@ -12,6 +12,8 @@ import { useActions } from '../ActionsContext';
 import { hasUntouchedStarter, leaveHome } from '../home';
 import { closeDialog, toast, uiStore } from '../uiStore';
 import { Dialog } from './Dialog';
+import { TemplateCards } from '../components/TemplateCards';
+import { createFromTemplate } from '../templates';
 import { SHORTCUT_GROUPS } from './shortcuts';
 
 const SIZE_PRESETS = [8, 16, 24, 32, 48, 64, 128, 256];
@@ -50,6 +52,17 @@ function NewFileDialog() {
         if (reference) void actions.addReference(reference);
       }}
     >
+      <div className="subsection-title">{t('template.title')}</div>
+      <TemplateCards
+        onPick={(template) => {
+          const name = hasUntouchedStarter(editor) ? t('default.untitled') : undefined;
+          createFromTemplate(editor, template, name);
+          leaveHome(editor);
+          if (reference) void actions.addReference(reference);
+          closeDialog();
+        }}
+      />
+      <div className="subsection-title">{t('template.custom')}</div>
       <div className="chips">
         {SIZE_PRESETS.map((s) => (
           <button

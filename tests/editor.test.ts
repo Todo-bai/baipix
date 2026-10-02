@@ -1001,3 +1001,40 @@ describe('replaceColor', () => {
     expect(layer(e)[0]).toBe(RED);
   });
 });
+
+describe('Fresh files', () => {
+  const ids = (e: Editor) => e.getState().files.map((f) => f.id);
+
+  it('drops a new file left untouched once you leave it', () => {
+    const e = new Editor();
+    const first = e.getState().activeId;
+    e.newFile(16, 16);
+    const fresh = e.getState().activeId;
+    expect(e.isFresh(fresh)).toBe(true);
+    e.switchFile(first);
+    expect(ids(e)).toEqual([first]);
+  });
+
+  it('keeps it once drawn in or renamed', () => {
+    const e = new Editor();
+    const first = e.getState().activeId;
+    e.newFile(16, 16);
+    const drawn = e.getState().activeId;
+    e.setColor('primary', RED);
+    drag(e, [[1, 1]]);
+    e.newFile(8, 8);
+    const renamed = e.getState().activeId;
+    e.renameFile(renamed, 'Kept');
+    e.newFile(8, 8);
+    e.switchFile(first);
+    expect(ids(e)).toEqual([first, drawn, renamed]);
+  });
+
+  it('drops the previous fresh file when another one is created', () => {
+    const e = new Editor();
+    e.newFile(16, 16);
+    const a = e.getState().activeId;
+    e.newFile(32, 32);
+    expect(ids(e)).not.toContain(a);
+  });
+});

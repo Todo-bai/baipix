@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- Templates for new files: Icon (16×16, Sweetie 16), Character sprite (32×32, PICO-8, with left-right symmetry), Game tile (32×32, Endesga 32, with tile preview), Avatar (24×24, Pollen8), Portrait (64×64, DawnBringer 32), Sprite sheet (128×128, AAP-64, with the rulers and a guide every 16 px), Game Boy screen (160×144, its 4 greens), Banner (128×32, Resurrect 64) Wallpaper (160×90, SLSO8) and Commodore 64 screen (320×200, its 16 colors). In the New file dialog above the free sizes, and on the home screen at first launch: one click and the canvas is ready, palette included. (#206)
 - Rulers and guides (View › Rulers and guides, or in the Display section): rulers in pixels along the whole top and left edges of the workspace, with the drawing's extent shaded; the panels move aside to leave them in view. Drag from a ruler to add a guide on a pixel edge; with the Move tool, drag a guide to move it, or back onto its ruler to remove it. The position shows on the ruler while dragging. Guides are saved with the file and follow the drawing when the canvas is resized; like the reference image, they're not part of the undo history. (#205)
 - The preview window doubles as a minimap: when the canvas shows only part of the drawing, a blue frame shows which part, and a click or a drag in the preview (at its fit) moves the canvas there. (#204)
 - A right-click menu on the palette's swatches: use it as the secondary color (what right-click did before), replace it with the primary color everywhere in the drawing and in the palette (one undo step, locked layers left alone), copy its hex code, or remove it from the palette. The recent colors keep right-click for the secondary color. (#202)
@@ -36,6 +37,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- A new file left untouched (nothing drawn, renamed or changed) goes away when you move to another file or create one, isn't listed on the home screen, and isn't saved. (#206)
 - The palette picker shows each palette's colors and how many there are, instead of a list of names. (#203)
 - The editor starts in English, even when the browser is in French. French is one click away in View › Language, and the choice is remembered. (#198)
 - The left panel is lighter: the Files list is gone (the home screen lists the drawings), and a button next to the file name opens the recent files, this file's actions, a new file and all files. The panel is as tall as its layers, up to the window, and the main menu (the logo) no longer repeats the file commands, which are all in the files menu. On phones, the file name in the top bar opens it. (#193)

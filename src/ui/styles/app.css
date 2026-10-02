@@ -2537,3 +2537,49 @@ body.is-dragging-swatch * {
 .app.has-rulers .mobile-bar {
   top: 26px;
 }
+
+/* ---------- Templates (new file dialog, first launch) ---------- */
+.template-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 6px;
+}
+.template-card {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  clip-path: var(--notch);
+}
+.template-card:hover,
+.template-card:focus-visible {
+  border-color: var(--glow-line);
+  outline: none;
+}
+.template-thumb {
+  width: 44px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
+}
+.template-shape {
+  display: block;
+  box-shadow: inset 0 0 0 1px var(--swatch-edge);
+}
+.template-name {
+  font-weight: 500;
+}
+.home-templates {
+  width: min(560px, 100%);
+  margin-top: 40px;
+}
+.home-templates > p {
+  margin: 0 0 12px;
+}

@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- The preview window doubles as a minimap: when the canvas shows only part of the drawing, a blue frame shows which part, and a click or a drag in the preview (at its fit) moves the canvas there. (#204)
 - A right-click menu on the palette's swatches: use it as the secondary color (what right-click did before), replace it with the primary color everywhere in the drawing and in the palette (one undo step, locked layers left alone), copy its hex code, or remove it from the palette. The recent colors keep right-click for the secondary color. (#202)
 - Blend modes for layers, in the Layer section next to the opacity: Darken, Multiply, Color burn, Lighten, Screen, Color dodge, Overlay, Soft light, Hard light, Difference and Exclusion, like in design tools. They show on the canvas, in the preview and in exports (blended into the PNG and SVG colors), are kept by Merge down, and saved in .baipix files. The layer's Hide button becomes an eye in the section header. (#201)
 - An Outline tab in the Adjustments panel (Layer › Outline…, Shift+O): a 1px line around the drawing, outside it or along its edge inside, with round or square corners, in the primary color (pick another one in the palette while it's open). Live preview, the active layer or all of them, limited to the selection if any, one undo step. (#199)

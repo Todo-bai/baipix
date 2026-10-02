@@ -2487,6 +2487,9 @@ body.is-dragging-swatch * {
   min-height: 0;
   margin: 0 8px 8px;
 }
+.floating-preview-body canvas.is-navigable {
+  cursor: pointer;
+}
 .floating-preview-body canvas.is-pannable {
   cursor: grab;
 }

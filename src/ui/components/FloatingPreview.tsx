@@ -13,6 +13,7 @@ import { useT } from '../../i18n';
 import { useEditor } from '../EditorContext';
 import { checkerPattern, readTheme } from '../render/theme';
 import { uiStore, type PreviewWindow } from '../uiStore';
+import { viewport } from '../viewport';
 import { IconButton } from './IconButton';
 import { openMenu } from './Menu';
 
@@ -177,6 +178,8 @@ function PreviewCanvas({
   // CSS pixels per art pixel as last drawn, for panning, and the fitted scale, for the wheel.
   const scale = useRef(1);
   const fitScale = useRef(1);
+  // Where the drawing was drawn (device px) and whether the canvas shows only part of it.
+  const drawn = useRef({ x: 0, y: 0, f: 1, framed: false });
   view.current = { zoom, center };
 
   useEffect(() => {
@@ -242,6 +245,28 @@ function PreviewCanvas({
         sctx.putImageData(image, 0, 0);
         ctx.drawImage(src, x, y, w, h);
       }
+      // Minimap: when the canvas shows only part of the drawing, a frame around that part.
+      const v = viewport.visibleArea();
+      const framed =
+        viewport.width > 0 && (v.x0 > 0.5 || v.y0 > 0.5 || v.x1 < doc.width - 0.5 || v.y1 < doc.height - 0.5);
+      drawn.current = { x, y, f, framed };
+      canvas.classList.toggle('is-navigable', framed && z === null);
+      if (framed) {
+        const fx0 = x + Math.max(0, v.x0) * f;
+        const fy0 = y + Math.max(0, v.y0) * f;
+        const fx1 = x + Math.min(doc.width, v.x1) * f;
+        const fy1 = y + Math.min(doc.height, v.y1) * f;
+        if (fx1 > fx0 && fy1 > fy0) {
+          const line = Math.max(1, Math.round(1.5 * dpr));
+          ctx.lineWidth = line + 2 * dpr;
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+          ctx.strokeRect(fx0, fy0, fx1 - fx0, fy1 - fy0);
+          ctx.lineWidth = line;
+          ctx.strokeStyle =
+            getComputedStyle(document.documentElement).getPropertyValue('--glow') || '#66c4ff';
+          ctx.strokeRect(fx0, fy0, fx1 - fx0, fy1 - fy0);
+        }
+      }
       onLabel(
         z !== null
           ? ''
@@ -258,6 +283,7 @@ function PreviewCanvas({
     request();
     const offPixels = editor.onPixels(request);
     const offState = editor.subscribe(request);
+    const offView = viewport.subscribe(request);
     const ro = new ResizeObserver(request);
     if (ref.current) ro.observe(ref.current);
     // Redraw on theme changes (OS setting or the theme menu), like the main canvas.
@@ -268,6 +294,7 @@ function PreviewCanvas({
     return () => {
       offPixels();
       offState();
+      offView();
       ro.disconnect();
       media.removeEventListener('change', request);
       mo.disconnect();
@@ -304,9 +331,28 @@ function PreviewCanvas({
     return () => canvas.removeEventListener('wheel', onWheel);
   }, [editor, onZoom]);
 
+  /** At the fit, with the canvas zoomed in: click or drag to move the canvas's view there. */
+  const navigate = (e: ReactPointerEvent<HTMLCanvasElement>) => {
+    const canvas = e.currentTarget;
+    const go = (ev: { clientX: number; clientY: number }) => {
+      const r = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const { x, y, f } = drawn.current;
+      viewport.centerOn(((ev.clientX - r.left) * dpr - x) / f, ((ev.clientY - r.top) * dpr - y) / f);
+    };
+    go(e);
+    const up = () => {
+      window.removeEventListener('pointermove', go);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', go);
+    window.addEventListener('pointerup', up);
+  };
+
   /** Zoomed in: drag to look around. */
   const pan = (e: ReactPointerEvent<HTMLCanvasElement>) => {
-    if (zoom === null || e.button !== 0) return;
+    if (e.button !== 0) return;
+    if (zoom === null) return drawn.current.framed ? navigate(e) : undefined;
     const { doc } = editor.getLive();
     const f = scale.current;
     const start = { x: e.clientX, y: e.clientY, c: center ?? { x: doc.width / 2, y: doc.height / 2 } };

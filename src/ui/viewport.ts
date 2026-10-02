@@ -181,6 +181,27 @@ class Viewport {
     this.zoomTo(next ?? (direction > 0 ? 96 : 1), cx, cy);
   }
 
+  /** The part of the drawing in view (not under the side panels), in art pixels. */
+  visibleArea(): { x0: number; y0: number; x1: number; y1: number } {
+    const ez = this.effectiveZoom;
+    const c = this.covered();
+    return {
+      x0: (c.left - this.panX) / ez,
+      y0: (0 - this.panY) / ez,
+      x1: (this.width - c.right - this.panX) / ez,
+      y1: (this.height - this.panY) / ez,
+    };
+  }
+
+  /** Brings the art point (x, y) to the middle of the free part of the workspace. */
+  centerOn(x: number, y: number): void {
+    const ez = this.effectiveZoom;
+    const c = this.covered();
+    this.panX = Math.round(c.left + (this.width - c.left - c.right) / 2 - x * ez);
+    this.panY = Math.round(this.height / 2 - y * ez);
+    this.emit();
+  }
+
   panBy(dx: number, dy: number): void {
     this.panX += dx;
     this.panY += dy;

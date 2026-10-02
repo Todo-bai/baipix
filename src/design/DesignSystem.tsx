@@ -521,8 +521,23 @@ function SurfacesBlock() {
             </ul>
           </div>
         </Specimen>
-        <Specimen label="Menu" use="Menu bar, right-click and … menus. Blue on hover; › opens a submenu.">
+        <Specimen
+          label="Menu"
+          use="Menu bar, right-click and … menus. Blue on hover; › opens a submenu. An item can show a palette under its name (the palette picker)."
+        >
           <div className="menu ds-static" role="menu">
+            <button type="button" className="menu-item is-checked has-swatches" role="menuitem">
+              <span>SLSO8</span>
+              <span className="menu-shortcut">8</span>
+              <span className="menu-swatches">
+                {['#0d2b45', '#203c56', '#544e68', '#8d697a', '#d08159', '#ffaa5e', '#ffd4a3', '#ffecd6'].map(
+                  (c) => (
+                    <i key={c} style={{ background: c }} />
+                  ),
+                )}
+              </span>
+            </button>
+            <div className="menu-separator" />
             <button type="button" className="menu-item has-submenu" role="menuitem">
               <span>Recent</span>
               <span className="menu-chevron" />

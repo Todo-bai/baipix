@@ -34,6 +34,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- The palette picker shows each palette's colors and how many there are, instead of a list of names. (#PR)
 - The editor starts in English, even when the browser is in French. French is one click away in View › Language, and the choice is remembered. (#198)
 - The left panel is lighter: the Files list is gone (the home screen lists the drawings), and a button next to the file name opens the recent files, this file's actions, a new file and all files. The panel is as tall as its layers, up to the window, and the main menu (the logo) no longer repeats the file commands, which are all in the files menu. On phones, the file name in the top bar opens it. (#193)
 - The preview is now a small floating window over the canvas: drag it by its title, resize it by its corner, fold or close it (the main menu brings it back). It has its own zoom, from fit to 1000%: pick it in its menu or use the mouse wheel (or pinch) over it, toward the pointer; drag to pan when zoomed, double-click to fit again. Its place, size and zoom are remembered. (#193)

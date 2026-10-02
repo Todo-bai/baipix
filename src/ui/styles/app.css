@@ -597,6 +597,18 @@ body.is-resizing * {
 .select-plain:hover {
   background: var(--hover);
 }
+.palette-picker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 4px;
+  color: var(--text);
+  font: inherit;
+}
+.palette-picker[aria-expanded='true'] {
+  background: var(--hover);
+}
 
 /* ---------- Colors & palette ---------- */
 .color-row {
@@ -1327,6 +1339,11 @@ body.is-dragging-swatch * {
   position: fixed;
   z-index: 60;
   min-width: 220px;
+  /* Long menus (the palettes) scroll instead of leaving the window. */
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   padding: 8px;
   border-radius: var(--radius-lg);
   background: var(--menu-bg);
@@ -1373,6 +1390,23 @@ body.is-dragging-swatch * {
 .menu-item:focus-visible .menu-shortcut {
   color: inherit;
   opacity: 0.85;
+}
+/* A palette in a menu: its name and size, then its colors in a strip. */
+.menu-item.has-swatches {
+  height: auto;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  padding-top: 5px;
+  padding-bottom: 6px;
+}
+.menu-swatches {
+  flex-basis: 100%;
+  display: flex;
+  height: 10px;
+  clip-path: var(--notch);
+}
+.menu-swatches i {
+  flex: 1;
 }
 /* A submenu: › at the end, kept highlighted while its menu is open. */
 .menu-chevron {

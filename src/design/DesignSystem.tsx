@@ -7,6 +7,7 @@ import { NumberField } from '../ui/components/NumberField';
 import { Tooltips } from '../ui/components/Tooltips';
 import { ICONS, type IconName } from '../ui/icons';
 import { ColorRow } from '../ui/panels/ColorRow';
+import { TemplateCards } from '../ui/components/TemplateCards';
 import { getTheme, setTheme, type ThemePreference } from '../ui/theme';
 import { contrast } from './contrast';
 import { download, LOGO_COLORS, logoPng, logoSvg } from './logo';
@@ -552,6 +553,14 @@ function SurfacesBlock() {
             <button type="button" className="menu-item" role="menuitem" disabled>
               Delete
             </button>
+          </div>
+        </Specimen>
+        <Specimen
+          label="Template cards"
+          use="Starting points for a new file (the new file dialog, the first launch): the canvas's shape in its palette's colors, the name and the size. One click creates the file."
+        >
+          <div style={{ width: 230 }}>
+            <TemplateCards onPick={() => {}} />
           </div>
         </Specimen>
         <Specimen label="Toast" use="Short feedback at the bottom, inverted, with at most one action (Undo).">

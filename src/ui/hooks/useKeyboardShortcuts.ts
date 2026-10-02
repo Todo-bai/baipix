@@ -97,6 +97,7 @@ export function useKeyboardShortcuts(editor: Editor, actions: Actions) {
           h: () => editor.flip(true),
           v: () => editor.flip(false),
           r: () => editor.rotate(),
+          o: () => openAdjust('layer', 'outline'),
         }[key];
         if (command) return (e.preventDefault(), command());
       }

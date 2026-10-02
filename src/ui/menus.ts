@@ -234,6 +234,13 @@ export const MENU_BAR: MenuBarMenu[] = [
         },
         '-',
         {
+          label: t('menu.outline'),
+          shortcut: 'Shift+O',
+          disabled,
+          onSelect: () => openAdjust('layer', 'outline'),
+        },
+        '-',
+        {
           label: layer.visible ? t('menu.hideLayer') : t('menu.showLayer'),
           disabled,
           onSelect: () => editor.setLayerVisible(doc.activeLayer, !layer.visible),

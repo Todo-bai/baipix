@@ -1,5 +1,5 @@
 import { Fragment, useRef } from 'react';
-import { alpha, opaque, pack } from '../../engine/color';
+import { alpha, opaque, pack, toHex } from '../../engine/color';
 import { BLEND_MODE_GROUPS, type BlendMode } from '../../engine/composite';
 import { hasBackground, MAX_SIZE } from '../../engine/document';
 import { PALETTE_PRESETS } from '../../engine/palette';
@@ -12,7 +12,8 @@ import { openMenu } from '../components/Menu';
 import { NumberField } from '../components/NumberField';
 import { PaletteGrid } from '../components/PaletteGrid';
 import { Row, Section } from '../components/Section';
-import { openAdjust, openDialog, uiStore } from '../uiStore';
+import { openAdjust, openDialog, toast, uiStore } from '../uiStore';
+import { copyText } from '../../io/clipboard';
 import { ColorRow } from './ColorRow';
 import { ExportPreview } from './ExportPreview';
 
@@ -143,6 +144,24 @@ function PaletteSection() {
         secondary={secondary}
         onPick={(c, second) => editor.setColor(second ? 'secondary' : 'primary', c)}
         onMove={(from, to) => editor.movePaletteColor(from, to)}
+        menu={(c) => {
+          const hex = toHex(c).slice(1).toUpperCase();
+          return [
+            { label: t('swatch.secondary'), onSelect: () => editor.setColor('secondary', c) },
+            '-',
+            {
+              label: t('swatch.replace'),
+              disabled: !alpha(primary) || opaque(primary) === c,
+              onSelect: () => toast(t('toast.colorReplaced', { count: editor.replaceColor(c, primary) })),
+            },
+            {
+              label: t('swatch.copyHex', { hex }),
+              onSelect: () => void copyText(hex).then((ok) => ok && toast(t('toast.hexCopied', { hex }))),
+            },
+            '-',
+            { label: t('swatch.remove'), onSelect: () => editor.removeFromPalette(c) },
+          ];
+        }}
       />
       <div className="button-row">
         <button

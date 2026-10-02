@@ -953,3 +953,21 @@ describe('Editor', () => {
     });
   });
 });
+
+describe('Eraser', () => {
+  it('erases even with the Blend option on', () => {
+    const e = new Editor();
+    e.setColor('primary', RED);
+    drag(e, [
+      [0, 0],
+      [3, 0],
+    ]);
+    e.setOption('blend', true);
+    e.setTool('eraser');
+    drag(e, [
+      [0, 0],
+      [3, 0],
+    ]);
+    expect(painted(e)).toBe(0);
+  });
+});

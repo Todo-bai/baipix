@@ -48,6 +48,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Fixed
 
+- The Eraser erased nothing when the Blend option was on (it's shared with the Pencil and the Spray). (#PR)
 - A key with no name could switch to the rounded rectangle, because tools without a shortcut matched it. (#176)
 - In the light theme, muted text, menu shortcuts and the blue focus lines now meet the contrast minimum (4.5:1 for text, 3:1 for lines). (#175)
 - Long file and layer names no longer make the left panel scroll sideways: they're cut with an ellipsis, with the full name on hover. Names and sizes now use the whole row, and the action icons show over the end of it on hover. (#153)

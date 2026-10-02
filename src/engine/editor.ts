@@ -179,6 +179,26 @@ const STABILIZED_TOOLS: ToolId[] = [
 /** A color change applied to every pixel, color by color (Adjustments). */
 export type ColorMap = (c: Color) => Color;
 
+/** New pixels for a layer, from its original ones; only `rect` (the selection, or all) may change. */
+export type PixelChange = (base: Uint32Array, width: number, rect: Rect) => Uint32Array;
+
+/** A color change as a pixel change, each color mapped once. */
+function mapChange(map: ColorMap): PixelChange {
+  return (base, width, rect) => {
+    const out = base.slice();
+    const cache = new Map<Color, Color>();
+    for (let y = rect.y; y < rect.y + rect.h; y++)
+      for (let x = rect.x; x < rect.x + rect.w; x++) {
+        const i = y * width + x;
+        const c = base[i];
+        let next = cache.get(c);
+        if (next === undefined) cache.set(c, (next = map(c)));
+        out[i] = next;
+      }
+    return out;
+  };
+}
+
 /** A custom brush: a block of pixels taken from a selection. */
 export interface CustomBrush {
   id: string;
@@ -1195,24 +1215,13 @@ export class Editor {
     };
   }
 
-  /** Rewrites the adjusted layers from their original pixels, through `map` (none: as they were). */
-  private writeAdjustment(map: ColorMap | null): void {
+  /** Rewrites the adjusted layers from their original pixels, through `change` (none: as they were). */
+  private writeAdjustment(change: PixelChange | null): void {
     const { layers, rect } = this.adjusting!;
     const width = this.doc.width;
-    const cache = new Map<Color, Color>();
     for (const { id, base } of layers) {
       const layer = this.doc.layers.find((l) => l.id === id);
-      if (!layer) continue;
-      layer.pixels.set(base);
-      if (!map) continue;
-      for (let y = rect.y; y < rect.y + rect.h; y++)
-        for (let x = rect.x; x < rect.x + rect.w; x++) {
-          const i = y * width + x;
-          const c = base[i];
-          let next = cache.get(c);
-          if (next === undefined) cache.set(c, (next = map(c)));
-          layer.pixels[i] = next;
-        }
+      if (layer) layer.pixels.set(change ? change(base, width, rect) : base);
     }
   }
 
@@ -1255,8 +1264,13 @@ export class Editor {
    * meanwhile (from the palette before the adjustment), or null to leave it as it is.
    */
   previewMap(map: ColorMap, palette: ((colors: Color[]) => Color[]) | null): void {
+    this.previewChange(mapChange(map), palette);
+  }
+
+  /** Live preview of any change of the adjusted pixels (an outline…), like `previewMap`. */
+  previewChange(change: PixelChange, palette: ((colors: Color[]) => Color[]) | null = null): void {
     if (!this.adjusting) return;
-    this.writeAdjustment(map);
+    this.writeAdjustment(change);
     const a = this.adjusting;
     if (palette) {
       a.basePalette ??= this.palette;
@@ -1275,13 +1289,18 @@ export class Editor {
    * in the same step: undoing it gives back the pixels and the palette together.
    */
   applyMap(map: ColorMap, palette: ((colors: Color[]) => Color[]) | null): void {
+    this.applyChange(mapChange(map), palette);
+  }
+
+  /** Commits any change of the adjusted pixels as one undo step, like `applyMap`. */
+  applyChange(change: PixelChange, palette: ((colors: Color[]) => Color[]) | null = null): void {
     if (!this.adjusting) return;
     const base = this.adjusting.basePalette ?? this.palette;
     this.palette = base;
     this.writeAdjustment(null);
     this.checkpoint();
     if (palette) this.active.history.top()!.palette = base.colors;
-    this.writeAdjustment(map);
+    this.writeAdjustment(change);
     this.adjusting = null;
     if (palette) this.usePalette(palette(base.colors));
     this.commit();

@@ -5,26 +5,31 @@ import {
   NO_ADJUSTMENT,
   opaque,
   toCss,
+  toHex,
   withAlpha,
   type Color,
   type ColorAdjustment,
 } from '../../engine/color';
 import type { ColorMap } from '../../engine/editor';
+import { outlinePixels, type OutlineOptions } from '../../engine/outline';
 import { PALETTE_PRESETS, presetColors, remapTable, type RemapMode } from '../../engine/palette';
 import { useT, type MessageKey } from '../../i18n';
 import { useEditor, useEditorState } from '../EditorContext';
-import { uiStore } from '../uiStore';
+import { uiStore, type AdjustTab } from '../uiStore';
 import { Checkbox } from './Checkbox';
 import { IconButton } from './IconButton';
 
 const close = () => uiStore.set({ adjust: false });
 
-type Tab = 'colors' | 'remap';
+type Tab = AdjustTab;
+type Outline = Omit<OutlineOptions, 'color'>;
+const NO_OUTLINE: Outline = { place: 'outside', corners: false };
 
 /** Kinds of adjustments, each a tab of the panel. */
 const TABS: { id: Tab; label: MessageKey }[] = [
   { id: 'colors', label: 'adjust.colors' },
   { id: 'remap', label: 'adjust.remap' },
+  { id: 'outline', label: 'adjust.outline' },
 ];
 
 const SLIDERS: { key: keyof ColorAdjustment; label: MessageKey; min: number; max: number; unit: string }[] = [
@@ -45,7 +50,7 @@ interface Remap {
  * The Adjustments panel, floating: changes to the existing pixels of the active layer or all
  * layers (limited to the selection if any), with a live preview on the canvas. Applying makes one
  * undo step. Its tabs are the kinds of adjustments: Colors shifts hue, saturation and brightness,
- * Remap moves the drawing to another palette.
+ * Remap moves the drawing to another palette, Outline draws a 1px line around (or along) it.
  */
 export function ColorAdjustPanel() {
   const open = uiStore.use((s) => s.adjust);
@@ -79,7 +84,12 @@ function Panel() {
   const hasSelection = useEditorState((s) => s.selection !== null);
   const filePalette = useEditorState((s) => s.palette.colors);
   const rightWidth = uiStore.use((s) => (s.uiHidden ? 0 : s.panelWidths.right));
-  const [tab, setTab] = useState<Tab>('colors');
+  const primary = useEditorState((s) => s.primary);
+  const [tab, setTab] = useState<Tab>(() => uiStore.get().adjustTab);
+  // Opened again on another tab (Shift+O while it's open): go there.
+  const askedTab = uiStore.use((s) => s.adjustTab);
+  useEffect(() => setTab(askedTab), [askedTab]);
+  const [outline, setOutline] = useState<Outline>(NO_OUTLINE);
   const [adj, setAdj] = useState<ColorAdjustment>(NO_ADJUSTMENT);
   const [allLayers, setAllLayers] = useState(() => uiStore.get().adjustScope === 'all');
   const [palette, setPalette] = useState(false);
@@ -101,23 +111,35 @@ function Panel() {
     editor.beginAdjust(allLayers);
     return () => editor.cancelAdjust();
   }, [editor, allLayers]);
+  // The outline is in the primary color: picking another one in the palette updates it live.
+  const outlineChange = (
+    base: Uint32Array,
+    width: number,
+    rect: { x: number; y: number; w: number; h: number },
+  ) => outlinePixels(base, width, rect, { ...outline, color: primary });
   useEffect(() => {
+    if (tab === 'outline') return editor.previewChange(outlineChange);
     const change = changeFor(tab, adj, palette, remap, target, editor.adjustedColors());
     editor.previewMap(change.map, change.palette);
-  }, [editor, tab, adj, palette, remap, target, allLayers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- outlineChange follows outline and primary
+  }, [editor, tab, adj, palette, remap, target, allLayers, outline, primary]);
   // Switching files cancels the adjustment in the editor: close the panel too.
   useEffect(() => editor.subscribe(() => !editor.isAdjusting && close()), [editor]);
 
   const apply = () => {
-    const change = changeFor(tab, adj, palette, remap, target, editor.adjustedColors());
-    editor.applyMap(change.map, change.palette);
+    if (tab === 'outline') editor.applyChange(outlineChange);
+    else {
+      const change = changeFor(tab, adj, palette, remap, target, editor.adjustedColors());
+      editor.applyMap(change.map, change.palette);
+    }
     close();
   };
   const set = (key: keyof ColorAdjustment, value: number) => setAdj((a) => ({ ...a, [key]: value }));
-  const reset = () =>
-    tab === 'colors'
-      ? setAdj(NO_ADJUSTMENT)
-      : setRemap({ target: 'file', mode: 'nearest', count: ownPalette.length, replacePalette: false });
+  const reset = () => {
+    if (tab === 'colors') setAdj(NO_ADJUSTMENT);
+    else if (tab === 'outline') setOutline(NO_OUTLINE);
+    else setRemap({ target: 'file', mode: 'nearest', count: ownPalette.length, replacePalette: false });
+  };
 
   return (
     <div
@@ -180,6 +202,45 @@ function Panel() {
                 />
               </div>
             ))}
+          </>
+        ) : tab === 'outline' ? (
+          <>
+            <div className="chips" role="radiogroup" aria-label={t('adjust.outline')}>
+              {(['outside', 'inside'] as const).map((place) => (
+                <button
+                  key={place}
+                  type="button"
+                  className="chip"
+                  role="radio"
+                  aria-checked={outline.place === place}
+                  aria-pressed={outline.place === place}
+                  onClick={() => setOutline((o) => ({ ...o, place }))}
+                >
+                  {t(place === 'outside' ? 'outline.outside' : 'outline.inside')}
+                </button>
+              ))}
+            </div>
+            <div className="chips" role="radiogroup" aria-label={t('outline.square')}>
+              {[false, true].map((corners) => (
+                <button
+                  key={String(corners)}
+                  type="button"
+                  className="chip"
+                  role="radio"
+                  aria-checked={outline.corners === corners}
+                  aria-pressed={outline.corners === corners}
+                  data-tip={t(corners ? 'outline.squareHint' : 'outline.roundHint')}
+                  onClick={() => setOutline((o) => ({ ...o, corners }))}
+                >
+                  {t(corners ? 'outline.square' : 'outline.round')}
+                </button>
+              ))}
+            </div>
+            <p className="outline-color">
+              <i style={{ background: toCss(primary) }} aria-hidden="true" />
+              <span>{toHex(primary).slice(1).toUpperCase()}</span>
+              <span className="muted">{t('outline.color')}</span>
+            </p>
           </>
         ) : (
           <>
@@ -272,7 +333,7 @@ function Panel() {
         </div>
         {tab === 'colors' ? (
           <Checkbox checked={palette} onChange={setPalette} label={t('adjust.palette')} />
-        ) : (
+        ) : tab === 'outline' ? null : (
           <Checkbox
             checked={remap.replacePalette}
             onChange={(v) => setRemap((r) => ({ ...r, replacePalette: v }))}

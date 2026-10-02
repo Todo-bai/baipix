@@ -23,6 +23,9 @@ export interface PreviewWindow {
   zoom: number | null;
 }
 
+/** Kinds of adjustments: the tabs of the Adjustments panel. */
+export type AdjustTab = 'colors' | 'remap' | 'outline';
+
 export interface UiState {
   dialog: DialogState | null;
   /** Open color picker: which color it edits and where to anchor it vertically. */
@@ -35,6 +38,8 @@ export interface UiState {
   preview: PreviewWindow;
   /** What the Adjustments panel starts on: the active layer (from the Layer section) or all layers. */
   adjustScope: 'layer' | 'all';
+  /** The tab the Adjustments panel opens on. */
+  adjustTab: AdjustTab;
   panelWidths: { left: number; right: number };
   uiHidden: boolean;
   exportFormat: 'png' | 'svg';
@@ -64,6 +69,7 @@ export const uiStore = createStore<UiState>({
   sheet: null,
   adjust: false,
   adjustScope: 'all',
+  adjustTab: 'colors',
   preview: { open: true, collapsed: false, x: null, y: null, w: 208, h: 168, zoom: null },
   panelWidths: { left: PANEL_LIMITS.left.default, right: PANEL_LIMITS.right.default },
   uiHidden: false,
@@ -79,8 +85,8 @@ export const uiStore = createStore<UiState>({
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });
 /** Opens the Adjustments panel, on the active layer or on all layers. */
-export const openAdjust = (scope: 'layer' | 'all' = 'all'): void =>
-  uiStore.set({ adjust: true, adjustScope: scope });
+export const openAdjust = (scope: 'layer' | 'all' = 'all', tab: AdjustTab = 'colors'): void =>
+  uiStore.set({ adjust: true, adjustScope: scope, adjustTab: tab });
 export const closeDialog = (): void => uiStore.set({ dialog: null });
 
 /** Pixel under the cursor, for the coordinates badge (updated often, kept separate). */

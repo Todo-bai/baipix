@@ -868,6 +868,9 @@ body.is-resizing * {
 .canvas.on-handle-nesw {
   cursor: nesw-resize !important;
 }
+.canvas.on-ruler {
+  cursor: default;
+}
 .canvas.on-axis-x {
   cursor: ew-resize;
 }
@@ -2039,6 +2042,17 @@ body.is-dragging-swatch * {
   .resizer-left {
     left: calc(var(--left-width) - 2px);
   }
+  /* Rulers shown: the panels move aside, by a ruler's thickness (18px), to leave them in view. */
+  .app.has-rulers .panel-left {
+    max-height: calc(100% - 44px);
+    margin: 30px 0 14px 30px;
+  }
+  .app.has-rulers .panel-right {
+    margin-top: 30px;
+  }
+  .app.has-rulers .resizer {
+    top: 30px;
+  }
   .resizer-right {
     right: calc(var(--right-width) - 2px);
   }
@@ -2511,4 +2525,15 @@ body.is-dragging-swatch * {
   .floating-preview {
     display: none;
   }
+}
+
+/* Rulers shown: the floating badges move below the top ruler. */
+.app.has-rulers .coordinates {
+  top: 30px;
+}
+.app.has-rulers .shortcuts-help-button {
+  top: 62px;
+}
+.app.has-rulers .mobile-bar {
+  top: 26px;
 }

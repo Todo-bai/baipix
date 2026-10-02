@@ -40,6 +40,8 @@ export interface BaipixFile {
   /** Moved symmetry axes, in pixels (missing: the center). */
   axisX?: number;
   axisY?: number;
+  /** Guides dragged out of the rulers, on pixel edges (missing: none). */
+  guides?: { x: number[]; y: number[] };
   /** Last change, in ms since the epoch. */
   updatedAt?: number;
   layers: BaipixLayer[];
@@ -93,6 +95,7 @@ export function serializeDocument(doc: PixelDoc): BaipixFile {
     render: { ...doc.render },
     ...(doc.axisX !== undefined && { axisX: doc.axisX }),
     ...(doc.axisY !== undefined && { axisY: doc.axisY }),
+    ...(doc.guides && { guides: { x: [...doc.guides.x], y: [...doc.guides.y] } }),
     ...(doc.updatedAt !== undefined && { updatedAt: doc.updatedAt }),
     layers: doc.layers.map((l) => ({
       name: l.name,
@@ -106,6 +109,23 @@ export function serializeDocument(doc: PixelDoc): BaipixFile {
 }
 
 export class FileFormatError extends Error {}
+
+/** Guides from a file: whole numbers, kept within a canvas on each side of the drawing. */
+function readGuides(
+  g: unknown,
+  width: number,
+  height: number,
+): { guides: { x: number[]; y: number[] } } | null {
+  const v = g as { x?: unknown; y?: unknown } | null;
+  if (!v || typeof v !== 'object') return null;
+  const list = (a: unknown, size: number) =>
+    (Array.isArray(a) ? a : [])
+      .filter((n): n is number => typeof n === 'number' && Number.isFinite(n))
+      .map((n) => clamp(Math.round(n), -size, size * 2))
+      .slice(0, 200);
+  const guides = { x: list(v.x, width), y: list(v.y, height) };
+  return guides.x.length || guides.y.length ? { guides } : null;
+}
 
 /** Validates and converts a parsed `.baipix` object into a document. Throws FileFormatError. */
 export function deserializeDocument(data: unknown): PixelDoc {
@@ -146,6 +166,7 @@ export function deserializeDocument(data: unknown): PixelDoc {
     },
     ...(typeof f.axisX === 'number' && { axisX: clamp(Math.round(f.axisX * 2) / 2, 0, width) }),
     ...(typeof f.axisY === 'number' && { axisY: clamp(Math.round(f.axisY * 2) / 2, 0, height) }),
+    ...(readGuides(f.guides, width, height) ?? {}),
     ...(typeof f.updatedAt === 'number' && Number.isFinite(f.updatedAt) && { updatedAt: f.updatedAt }),
   };
 }

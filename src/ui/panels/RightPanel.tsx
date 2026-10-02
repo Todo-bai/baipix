@@ -453,6 +453,12 @@ function DisplaySection() {
         onChange={(v) => editor.setView('mirrorY', v)}
         label={t('display.mirrorY')}
       />
+      <Checkbox
+        checked={view.rulers}
+        onChange={(v) => editor.setView('rulers', v)}
+        label={t('display.rulers')}
+      />
+      {view.rulers && <p className="muted section-note">{t('display.rulersHint')}</p>}
     </Section>
   );
 }

@@ -49,6 +49,11 @@ export interface ReferenceImage {
   locked?: boolean;
 }
 
+export interface Guides {
+  x: number[];
+  y: number[];
+}
+
 export interface PixelDoc {
   id: string;
   name: string;
@@ -67,6 +72,11 @@ export interface PixelDoc {
    */
   axisX?: number;
   axisY?: number;
+  /**
+   * Guides dragged out of the rulers, on pixel edges (x: vertical lines, y: horizontal ones).
+   * Like the reference, they're not part of the undo history.
+   */
+  guides?: Guides;
   /** Used to name new layers ("Layer 3"). */
   layerCounter: number;
   /** Last change, in ms since the epoch (for the home screen). Missing in older files. */
@@ -116,6 +126,7 @@ export function cloneDocument(doc: PixelDoc, keepIds = true): PixelDoc {
     ...doc,
     id: keepIds ? doc.id : newId('doc'),
     render: { ...doc.render },
+    ...(doc.guides && { guides: { x: [...doc.guides.x], y: [...doc.guides.y] } }),
     layers: doc.layers.map((l) => cloneLayer(l, keepIds)),
   };
 }
@@ -136,6 +147,9 @@ export function resizeDocument(doc: PixelDoc, width: number, height: number): vo
   const offsetY = Math.floor((height - doc.height) / 2);
   if (doc.axisX !== undefined) doc.axisX = Math.min(width, Math.max(0, doc.axisX + offsetX));
   if (doc.axisY !== undefined) doc.axisY = Math.min(height, Math.max(0, doc.axisY + offsetY));
+  // Guides stay on the same pixels too.
+  if (doc.guides)
+    doc.guides = { x: doc.guides.x.map((g) => g + offsetX), y: doc.guides.y.map((g) => g + offsetY) };
   // The reference stays under the same pixels.
   if (doc.reference)
     doc.reference = { ...doc.reference, x: doc.reference.x + offsetX, y: doc.reference.y + offsetY };

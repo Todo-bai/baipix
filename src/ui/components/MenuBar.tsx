@@ -135,6 +135,13 @@ export function MenuBar() {
         >
           {Math.round(zoom * 100)} %<span className="caret">▾</span>
         </button>
+        <IconButton
+          icon="search"
+          className="icon-btn"
+          label={t('menu.commandPalette')}
+          shortcut="Ctrl+K"
+          onClick={() => uiStore.set({ commandPalette: true })}
+        />
       </div>
     </header>
   );

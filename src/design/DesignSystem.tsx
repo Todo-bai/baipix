@@ -497,6 +497,30 @@ function SurfacesBlock() {
             </div>
           </header>
         </Specimen>
+        <Specimen
+          wide
+          label="Command palette"
+          use="Ctrl+K or the magnifier: type to find a command of the menus or a tool. ↑/↓ and Enter, or a click; the menu it comes from on the left, its shortcut on the right."
+        >
+          <div className="command-palette ds-static">
+            <label className="command-search">
+              <Icon name="search" size={16} />
+              <input defaultValue="calque" aria-label="Search" />
+            </label>
+            <ul className="command-list" role="listbox">
+              <li role="option" aria-selected="true" className="command-item">
+                <span className="command-category">Layer</span>
+                <span className="command-label">New layer</span>
+                <span className="command-shortcut">⇧N</span>
+              </li>
+              <li role="option" aria-selected="false" className="command-item">
+                <span className="command-category">Layer</span>
+                <span className="command-label">Duplicate layer</span>
+                <span className="command-shortcut">⇧D</span>
+              </li>
+            </ul>
+          </div>
+        </Specimen>
         <Specimen label="Menu" use="Menu bar, right-click and … menus. Blue on hover; › opens a submenu.">
           <div className="menu ds-static" role="menu">
             <button type="button" className="menu-item has-submenu" role="menuitem">

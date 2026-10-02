@@ -1440,6 +1440,89 @@ body.is-dragging-swatch * {
 }
 
 /* ---------- Dialogs ---------- */
+/* ---------- Command palette ---------- */
+.command-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 88px 16px 16px;
+  background: var(--backdrop);
+}
+.command-palette {
+  width: min(620px, 100%);
+  max-height: min(440px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  color: var(--text);
+}
+.command-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  flex: none;
+}
+.command-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.command-search input::placeholder {
+  color: var(--muted);
+}
+.command-list {
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.command-item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  height: 30px;
+  padding: 0 10px;
+  cursor: default;
+  clip-path: var(--notch);
+}
+.command-category,
+.command-shortcut {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.command-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.command-item[aria-selected='true'] {
+  background: var(--glow);
+  color: var(--glow-ink);
+}
+.command-item[aria-selected='true'] .command-category,
+.command-item[aria-selected='true'] .command-shortcut {
+  color: var(--glow-muted);
+}
+.command-empty {
+  margin: 0;
+  padding: 16px 20px;
+}
+
 .dialog {
   width: min(400px, calc(100vw - 32px));
   padding: 0;
@@ -1836,6 +1919,7 @@ body.is-dragging-swatch * {
 .shortcuts-help-button,
 .toast,
 .menu,
+.command-palette,
 .mobile-bar,
 .mobile-colors,
 .floating-preview {

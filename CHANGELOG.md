@@ -6,6 +6,7 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ### Added
 
+- A command palette: Ctrl+K (or the magnifier at the top right) and type to find any command of the menus, or a tool, then Enter. Accents and case don't matter, and each command shows its menu and shortcut. (#196)
 - A menu bar across the top, like in desktop apps: File, Edit, Image, Layer, Select, View and Help, with each command's shortcut. The file name sits in the middle (rename it in place, ▾ for the files) and the zoom on the right. Once a menu is open, hovering another title opens it, and ←/→ move between them; on narrow windows the menus fold into ☰. New shortcuts: Shift+N new layer, Shift+D duplicate, Shift+M merge down, Alt+↑/↓ move the layer, Shift+H/V flip, Shift+R rotate, Shift+P preview window, F2 rename the file, Tab hide the interface, Ctrl+= / Ctrl+- zoom. (#195)
 - Custom brushes: select something and "Make a brush from the selection" in the Pencil's … menu, then paint with it (leaves, bricks, stars…), previewed under the pointer. It paints with its own colors, or as a stencil in the current color. Brushes are saved with the preferences and can be picked or deleted in the same menu; the Lasso fill can use them too. (#192)
 - In tile preview, painting wraps around: a stroke that goes past an edge continues on the opposite side, so seamless textures are easy to draw. Works with the Pencil, Eraser, shapes, Spray, Lighten, Shade and Blur. (#191)

@@ -7,6 +7,7 @@ import { ActionsContext } from './ActionsContext';
 import { createActions } from './actions';
 import { CanvasView } from './components/CanvasView';
 import { ColorPicker } from './components/ColorPicker';
+import { CommandPalette } from './components/CommandPalette';
 import { FloatingPreview } from './components/FloatingPreview';
 import { ColorAdjustPanel } from './components/ColorAdjustPanel';
 import { Coordinates } from './components/Coordinates';
@@ -163,6 +164,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
         <ColorPicker />
         <ColorAdjustPanel />
         <MenuHost />
+        <CommandPalette />
         <Dialogs />
         <Tooltips />
         <Toasts />

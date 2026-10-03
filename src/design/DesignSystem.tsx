@@ -563,6 +563,24 @@ function SurfacesBlock() {
             <TemplateCards onPick={() => {}} />
           </div>
         </Specimen>
+        <Specimen
+          label="Tour bubble"
+          use="The first-launch tips: one at a time, pointing at what it's about (a blue ring around it), with the step, Skip and Next. Nothing is blocked meanwhile."
+        >
+          <div className="tour-bubble popover ds-static" style={{ width: 260 }}>
+            <strong>Pixel gap</strong>
+            <p>Space the pixels apart for an LED look, on the canvas and in exports.</p>
+            <div className="tour-footer">
+              <span className="muted">6 / 7</span>
+              <button type="button" className="tour-skip">
+                Skip the tour
+              </button>
+              <button type="button" className="btn btn-primary">
+                Next
+              </button>
+            </div>
+          </div>
+        </Specimen>
         <Specimen label="Toast" use="Short feedback at the bottom, inverted, with at most one action (Undo).">
           <div className="toast is-visible ds-static">
             Layer deleted.

@@ -4,6 +4,11 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+### Website
+
+- New screenshots of the editor, and the feature cards mention what 0.3 brought: templates and the tour, blend modes, rulers and guides, the outline, the minimap, and recovering the pixels of scaled-up images. (#PR)
+- The design system shows the select field and the palette picker. (#PR)
+
 ## [0.3.0] - 2026-10-03
 
 New tools and a cleaner workspace: a menu bar and a command palette, new ways to draw and rework pixels, blend modes, rulers and guides, templates, and a floating preview that doubles as a minimap.

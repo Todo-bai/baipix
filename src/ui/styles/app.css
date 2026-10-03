@@ -2583,3 +2583,17 @@ body.is-dragging-swatch * {
 .home-templates > p {
   margin: 0 0 12px;
 }
+
+/* The imported image with the pixel grid found in it. */
+.upscaled-preview {
+  display: block;
+  max-width: 100%;
+  margin: 4px 0 8px;
+  image-rendering: pixelated;
+  clip-path: var(--notch);
+}
+.three-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}

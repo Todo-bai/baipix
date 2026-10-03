@@ -34,3 +34,19 @@ export function imageToBlock(
   const pixels = new Uint32Array(ctx.getImageData(0, 0, width, height).data.buffer.slice(0));
   return { width, height, pixels, scaled: f < 1 };
 }
+
+/** All of an image's pixels at its own size, or null when it's larger than `maxSide`. */
+export function readPixels(img: HTMLImageElement, maxSide = 4096): PixelBlock | null {
+  const { naturalWidth: width, naturalHeight: height } = img;
+  if (!width || !height || width > maxSide || height > maxSide) return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(img, 0, 0);
+  return {
+    width,
+    height,
+    pixels: new Uint32Array(ctx.getImageData(0, 0, width, height).data.buffer.slice(0)),
+  };
+}

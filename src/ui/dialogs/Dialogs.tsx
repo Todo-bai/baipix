@@ -12,6 +12,7 @@ import { useActions } from '../ActionsContext';
 import { hasUntouchedStarter, leaveHome } from '../home';
 import { closeDialog, toast, uiStore } from '../uiStore';
 import { Dialog } from './Dialog';
+import { UpscaledDialog } from './UpscaledDialog';
 import { TemplateCards } from '../components/TemplateCards';
 import { createFromTemplate } from '../templates';
 import { SHORTCUT_GROUPS } from './shortcuts';
@@ -258,6 +259,8 @@ export function Dialogs() {
       return <PaletteManagerDialog />;
     case 'shortcuts':
       return <ShortcutsDialog />;
+    case 'upscaled':
+      return <UpscaledDialog {...dialog} />;
     case 'confirm':
       return (
         <Dialog

@@ -1,12 +1,14 @@
 import { alpha, type Color } from '../engine/color';
 import { hasBackground, MAX_SIZE, createDocument } from '../engine/document';
 import type { Editor } from '../engine/editor';
+import type { PixelBlock } from '../engine/region';
+import { detectPixelGrid, gridSize } from '../engine/upscale';
 import { renderGeometry, toSvg } from '../engine/export/svg';
 import { parsePaletteFile, toGpl, toHexList } from '../engine/palette';
 import { t } from '../i18n';
 import { copyPng, copyText } from '../io/clipboard';
 import { saveFile, safeFileName } from '../io/download';
-import { imageToBlock, loadImage } from '../io/image';
+import { imageToBlock, loadImage, readPixels } from '../io/image';
 import { pickFile } from '../io/pickFile';
 import { referenceFromFile } from '../io/reference';
 import { canvasToBlob, renderToCanvas } from '../io/png';
@@ -188,21 +190,52 @@ export function createActions(editor: Editor) {
         toast(t('toast.imageAsLayer'), asReferenceAction(f, removePastedLayer()));
         return;
       }
-      const block = imageToBlock(img, MAX_SIZE, MAX_SIZE);
-      const next = createDocument(name, block.width, block.height, t('default.image'));
-      next.layers[0].pixels.set(block.pixels);
       const previous = d.id;
-      editor.addDocument(next);
-      const message = block.scaled
-        ? t('toast.imageShrunk', { w: block.width, h: block.height, max: MAX_SIZE })
-        : t('toast.imageAsFile', { w: block.width, h: block.height });
-      // From the home screen the new file is the point; elsewhere, offer to trace over it instead.
-      if (asNewFile) return toast(message);
-      toast(
-        message,
-        asReferenceAction(f, () => {
-          editor.discardFile(next.id);
-          editor.switchFile(previous);
+      const addFile = (block: PixelBlock & { scaled?: boolean }, message: string) => {
+        const next = createDocument(name, block.width, block.height, t('default.image'));
+        next.layers[0].pixels.set(block.pixels);
+        editor.addDocument(next);
+        // From the home screen the new file is the point; elsewhere, offer to trace over it instead.
+        if (asNewFile) return toast(message);
+        toast(
+          message,
+          asReferenceAction(f, () => {
+            editor.discardFile(next.id);
+            editor.switchFile(previous);
+          }),
+        );
+      };
+      const asItIs = () => {
+        const block = imageToBlock(img, MAX_SIZE, MAX_SIZE);
+        addFile(
+          block,
+          block.scaled
+            ? t('toast.imageShrunk', { w: block.width, h: block.height, max: MAX_SIZE })
+            : t('toast.imageAsFile', { w: block.width, h: block.height }),
+        );
+      };
+      // Pixel art scaled up (a screenshot, an export at 800%): offer to bring it back to its pixels.
+      const full = readPixels(img);
+      const grid = full && detectPixelGrid(full.pixels, full.width, full.height);
+      const size = full && grid && gridSize(full.width, full.height, grid);
+      if (!full || !grid || !size || size.width > MAX_SIZE || size.height > MAX_SIZE) return asItIs();
+      // Settles once a choice is made, so callers know whether a file was added.
+      await new Promise<void>((resolve) =>
+        openDialog({
+          type: 'upscaled',
+          image: full,
+          grid,
+          onRecover: (block) => {
+            addFile(
+              block,
+              t('toast.pixelsRecovered', { w: block.width, h: block.height, scale: grid.scale }),
+            );
+            resolve();
+          },
+          onKeep: () => {
+            asItIs();
+            resolve();
+          },
         }),
       );
     },

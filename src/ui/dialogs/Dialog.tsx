@@ -10,10 +10,20 @@ interface DialogProps {
   submitLabel?: string;
   /** Hide the cancel button (informational dialogs). */
   hideCancel?: boolean;
+  /** The cancel button's label, when it does something else than cancel. */
+  cancelLabel?: string;
 }
 
 /** Modal based on the native <dialog> element (focus trap and Escape for free). */
-export function Dialog({ title, children, onClose, onSubmit, submitLabel, hideCancel }: DialogProps) {
+export function Dialog({
+  title,
+  children,
+  onClose,
+  onSubmit,
+  submitLabel,
+  hideCancel,
+  cancelLabel,
+}: DialogProps) {
   const t = useT();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -39,7 +49,7 @@ export function Dialog({ title, children, onClose, onSubmit, submitLabel, hideCa
         <div className="dialog-footer">
           {!hideCancel && (
             <button type="button" className="btn" onClick={onClose}>
-              {t('common.cancel')}
+              {cancelLabel ?? t('common.cancel')}
             </button>
           )}
           <button type="submit" className="btn btn-primary" autoFocus={hideCancel}>

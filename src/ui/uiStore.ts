@@ -1,4 +1,6 @@
 import type { Color } from '../engine/color';
+import type { PixelBlock } from '../engine/region';
+import type { PixelGrid } from '../engine/upscale';
 import { createStore } from './store';
 
 export type ColorSlot = 'primary' | 'secondary' | 'background';
@@ -9,7 +11,15 @@ export type DialogState =
   | { type: 'paletteManager' }
   | { type: 'shortcuts' }
   | { type: 'confirm'; title: string; message: string; confirmLabel: string; onConfirm: () => void }
-  | { type: 'output'; title: string; message: string; image?: string; text?: string };
+  | { type: 'output'; title: string; message: string; image?: string; text?: string }
+  | {
+      type: 'upscaled';
+      /** The imported image at its own size, and the pixel grid found in it. */
+      image: PixelBlock;
+      grid: PixelGrid;
+      onRecover: (block: PixelBlock) => void;
+      onKeep: () => void;
+    };
 
 export interface PreviewWindow {
   open: boolean;

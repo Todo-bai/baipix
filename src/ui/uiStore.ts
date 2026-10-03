@@ -66,6 +66,8 @@ export interface UiState {
   home: boolean;
   /** The command palette (Ctrl+K) is open. */
   commandPalette: boolean;
+  /** The step of the first-launch tour being shown, or null. */
+  tour: number | null;
 }
 
 export const PANEL_LIMITS = {
@@ -91,6 +93,7 @@ export const uiStore = createStore<UiState>({
   hiddenPalettes: [],
   home: false,
   commandPalette: false,
+  tour: null,
 });
 
 export const openDialog = (dialog: DialogState): void => uiStore.set({ dialog });

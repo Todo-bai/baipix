@@ -354,6 +354,7 @@ export const MENU_BAR: MenuBarMenu[] = [
         onSelect: () => uiStore.set({ commandPalette: true }),
       },
       { label: t('menu.shortcuts'), shortcut: '?', onSelect: () => openDialog({ type: 'shortcuts' }) },
+      { label: t('menu.tour'), onSelect: () => uiStore.set({ tour: 0 }) },
       { label: t('menu.github'), onSelect: () => window.open(GITHUB_URL, '_blank', 'noopener') },
       '-',
       {

@@ -74,6 +74,7 @@ export function Toolbar() {
                 label={t(meta.label)}
                 shortcut={meta.shortcut}
                 pressed={tool === meta.id}
+                data-tool={meta.id}
                 onClick={() => editor.setTool(meta.id)}
               />
             ))

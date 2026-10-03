@@ -8,6 +8,7 @@ import { createActions } from './actions';
 import { CanvasView } from './components/CanvasView';
 import { ColorPicker } from './components/ColorPicker';
 import { CommandPalette } from './components/CommandPalette';
+import { startTourOnce, Tour } from './components/Tour';
 import { FloatingPreview } from './components/FloatingPreview';
 import { ColorAdjustPanel } from './components/ColorAdjustPanel';
 import { Coordinates } from './components/Coordinates';
@@ -124,6 +125,10 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
   const ready = useRestore(editor, storage);
   const { uiHidden, sheet, panelWidths, home } = uiStore.use((s) => s);
   useKeyboardShortcuts(editor, actions);
+  // The first time the editor itself shows (not the home screen), a few tips.
+  useEffect(() => {
+    if (ready && !home) startTourOnce();
+  }, [ready, home]);
   useNotices(editor);
   useAutosave(editor, storage, ready);
 
@@ -169,6 +174,7 @@ export function App({ editor, storage }: { editor: Editor; storage: StorageAdapt
         <ColorAdjustPanel />
         <MenuHost />
         <CommandPalette />
+        <Tour />
         <Dialogs />
         <Tooltips />
         <Toasts />

@@ -391,6 +391,31 @@ export const en = {
   'upscaled.offsetX': 'Offset X',
   'upscaled.offsetY': 'Offset Y',
   'upscaled.result': '{w} × {h} px → {rw} × {rh} px',
+  'tour.drawTitle': 'Draw',
+  'tour.draw':
+    'Pencil (B), Lasso fill (K) to fill a shape drawn freehand, Eraser (E) and Bucket (G). In the Pencil’s … menu: dithering, and brushes made from a selection.',
+  'tour.shapesTitle': 'Shapes',
+  'tour.shapes':
+    'Line (L), Rectangle (R), Ellipse (C), and more in this button’s menu. Shift keeps them square or round.',
+  'tour.colorsTitle': 'Rework colors',
+  'tour.colors':
+    'Shade (S) and Lighten (O) follow the palette’s ramps, Blur (F) softens edges, Spray (A) scatters pixels like a can.',
+  'tour.warpTitle': 'Warp without new colors',
+  'tour.warp':
+    'Jumble (J) shuffles pixels for texture. Liquify (W) pushes, grows or shrinks a part of the drawing. Hold still to keep going.',
+  'tour.paletteTitle': 'Palette',
+  'tour.palette':
+    'Click a color for the primary one, right-click for more: use it as secondary, replace it everywhere… Pick another palette just above.',
+  'tour.gapTitle': 'Pixel gap',
+  'tour.gap': 'Space the pixels apart for an LED or dot-matrix look, on the canvas and in exports.',
+  'tour.exportTitle': 'Export',
+  'tour.export':
+    'PNG from 1× to 32×, or SVG with one path per color: copy it and paste it straight into Figma.',
+  'tour.next': 'Next',
+  'tour.done': 'Done',
+  'tour.skip': 'Skip the tour',
+  'tour.count': '{n} / {total}',
+  'menu.tour': 'Take the tour',
   'dialog.newFile': 'New file',
   'dialog.reference': 'Start from a reference image…',
   'dialog.referenceChange': 'Change the image…',

@@ -394,6 +394,31 @@ export const fr: Record<MessageKey, string> = {
   'upscaled.offsetX': 'Décalage X',
   'upscaled.offsetY': 'Décalage Y',
   'upscaled.result': '{w} × {h} px → {rw} × {rh} px',
+  'tour.drawTitle': 'Dessiner',
+  'tour.draw':
+    'Crayon (B), Remplissage au lasso (K) pour remplir une forme tracée à main levée, Gomme (E) et Pot de peinture (G). Dans le menu … du crayon : le tramage, et des pinceaux tirés d’une sélection.',
+  'tour.shapesTitle': 'Formes',
+  'tour.shapes':
+    'Ligne (L), Rectangle (R), Ellipse (C), et d’autres dans le menu de ce bouton. Maj les garde carrées ou rondes.',
+  'tour.colorsTitle': 'Retoucher les couleurs',
+  'tour.colors':
+    'Ombrer (S) et Éclaircir (O) suivent les rampes de la palette, Flou (F) adoucit les bords, Spray (A) projette des pixels comme une bombe.',
+  'tour.warpTitle': 'Déformer sans nouvelles couleurs',
+  'tour.warp':
+    'Mélangeur (J) brasse les pixels pour la texture. Fluidité (W) pousse, gonfle ou rétrécit une partie du dessin. Reste immobile pour continuer.',
+  'tour.paletteTitle': 'Palette',
+  'tour.palette':
+    'Clic sur une couleur pour la principale, clic droit pour plus : secondaire, remplacer partout… Change de palette juste au-dessus.',
+  'tour.gapTitle': 'Écart entre pixels',
+  'tour.gap': 'Espace les pixels pour un effet LED ou matrice de points, sur le canevas et dans les exports.',
+  'tour.exportTitle': 'Export',
+  'tour.export':
+    'PNG de 1× à 32×, ou SVG avec un tracé par couleur : copie-le et colle-le directement dans Figma.',
+  'tour.next': 'Suivant',
+  'tour.done': 'Terminer',
+  'tour.skip': 'Passer la visite',
+  'tour.count': '{n} / {total}',
+  'menu.tour': 'Revoir la visite',
   'dialog.newFile': 'Nouveau fichier',
   'dialog.reference': "Partir d'une image de référence…",
   'dialog.referenceChange': "Changer d'image…",

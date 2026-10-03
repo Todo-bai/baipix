@@ -2597,3 +2597,42 @@ body.is-dragging-swatch * {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
+
+/* ---------- First-launch tour ---------- */
+.tour-ring {
+  position: fixed;
+  z-index: 66;
+  outline: 2px solid var(--glow-line);
+  outline-offset: 0;
+  pointer-events: none;
+}
+.tour-bubble {
+  position: fixed;
+  z-index: 67;
+  width: 280px;
+  padding: 12px 14px;
+}
+.tour-bubble p {
+  margin: 6px 0 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.tour-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tour-footer .muted {
+  margin-right: auto;
+}
+.tour-skip {
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.tour-skip:hover {
+  color: var(--text);
+}

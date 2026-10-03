@@ -387,6 +387,30 @@ function FieldsBlock() {
         >
           <ColorDemo />
         </Specimen>
+        <Specimen
+          label="Select field"
+          use="A choice among many with a name each, in a field (the layer's blend mode). Related choices grouped, a line between groups."
+        >
+          <div className="ds-field">
+            <label className="field">
+              <select defaultValue="multiply" aria-label="Blend mode">
+                <option value="normal">Normal</option>
+                <option value="darken">Darken</option>
+                <option value="multiply">Multiply</option>
+                <option value="screen">Screen</option>
+              </select>
+            </label>
+          </div>
+        </Specimen>
+        <Specimen
+          label="Palette picker"
+          use="A plain button in a section header, the current choice and ▾: it opens a menu where each palette shows its colors."
+        >
+          <button type="button" className="select-plain palette-picker">
+            <span className="truncate">Sweetie 16</span>
+            <span className="caret">▾</span>
+          </button>
+        </Specimen>
         <Specimen label="Checkbox" use="On/off settings. A notched square with a pixel tick.">
           <Checkbox checked={checked} onChange={setChecked} label="Pixel grid" />
         </Specimen>

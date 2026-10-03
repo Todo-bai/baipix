@@ -4,6 +4,10 @@ Notable changes to Baipix, newest first. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-03
+
+New tools and a cleaner workspace: a menu bar and a command palette, new ways to draw and rework pixels, blend modes, rulers and guides, templates, and a floating preview that doubles as a minimap.
+
 ### Added
 
 - A short tour the first time the editor opens: seven bubbles, one at a time, on the drawing tools, the shapes, the color tools, Jumble and Liquify, the palette, the pixel gap and the export. Skip it at any step (or Escape); it doesn't come back, unless you pick Help › Take the tour. (#208)
@@ -134,5 +138,6 @@ The first public version.
 - Everything saved in the browser, English and French, light and dark themes.
 - The website, with a gallery of drawings rendered by the editor itself.
 
-[Unreleased]: https://github.com/baipix/baipix/compare/v0.2.0...main
+[Unreleased]: https://github.com/baipix/baipix/compare/v0.3.0...main
+[0.3.0]: https://github.com/baipix/baipix/releases/tag/v0.3.0
 [0.2.0]: https://github.com/baipix/baipix/releases/tag/v0.2.0
